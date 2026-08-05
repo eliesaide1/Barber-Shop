@@ -44,17 +44,26 @@ alike — works the order board, and broadcasts to everybody.
 
 ### Prerequisites
 
-- Node 22+
+- **Node 22.13+** (React Native 0.86 wants `^20.19.4 || ^22.13.0 || ^24.3.0`; older
+  22.x installs and runs, but npm warns on every install)
 - MongoDB running locally (`mongodb://127.0.0.1:27017`)
 - For the app: Android SDK + JDK 17, and a device or emulator
 
 ### First run
 
 ```bash
-npm run install:all     # installs server, cms and mobile
-cp server/.env.example server/.env
-npm run seed            # artists, services, catalogue, lookbook, demo clients
+git clone https://github.com/eliesaide1/Barber-Shop.git
+cd Barber-Shop
+npm run setup
 ```
+
+`setup` creates `server/.env`, installs all three packages, and **restores the
+database that ships in `server/db/`** — so a clone comes up with the same four
+artists, twelve products, eight looks and demo clients, not an empty shop.
+
+It is safe to re-run: it never overwrites an `.env` you have edited, and never
+replaces a database that already holds data — it tells you to pass `--force` if
+that is what you want.
 
 Then, in separate terminals:
 
@@ -66,13 +75,18 @@ npm run android         # adb reverse + build and install the app
 
 ### The database in the repo
 
-`server/db/` holds the database as Extended JSON, one file per collection.
+`server/db/` holds the database as Extended JSON, one file per collection —
+that is where it lives in the repo, and `npm run setup` restores it on a fresh
+clone.
 
 ```bash
-npm run db:dump                          # database  → server/db/*.json
-npm --prefix server run db:restore       # server/db → database
-npm --prefix server run db:restore -- --force   # …over an existing one
+npm run db:dump                    # database  → server/db/*.json
+npm run db:restore                 # server/db → database
+npm run db:restore -- --force      # …over a database that already has data
 ```
+
+After changing data you want other people to have, run `npm run db:dump` and
+commit `server/db/`.
 
 This is not a replacement for `npm run seed`. The seed builds a fresh shop from
 code; the dump reproduces a **captured state exactly** — same ObjectIds, same
