@@ -15,7 +15,7 @@ import path from 'node:path';
 import mongoose from 'mongoose';
 import { EJSON } from 'bson';
 import { connectDb, disconnectDb } from '../config/db.js';
-import { env } from '../config/env.js';
+import { env, safeUri } from '../config/env.js';
 
 /* Imported for their side effect: registering the schemas on mongoose, so the
    index rebuild at the end has something to work from. */
@@ -58,7 +58,7 @@ async function restore() {
       const count = await db.collection(name).countDocuments();
       if (count > 0) {
         console.error(
-          `\n  ${env.mongoUri} already holds data (${name}: ${count} documents).\n` +
+          `\n  ${safeUri()} already holds data (${name}: ${count} documents).\n` +
             '  Re-run with --force to drop those collections and restore over them:\n\n' +
             '      npm run db:restore -- --force\n',
         );
@@ -88,7 +88,7 @@ async function restore() {
      so build them now or the first duplicate email would slip through. */
   await Promise.all(Object.values(mongoose.models).map((m) => m.createIndexes()));
 
-  console.log(`\n  Restored ${total} documents into ${env.mongoUri}`);
+  console.log(`\n  Restored ${total} documents into ${safeUri()}`);
   console.log('  Indexes rebuilt from the Mongoose models.\n');
 
   await disconnectDb();

@@ -3,7 +3,7 @@ import { createApp } from './app.js';
 import { createSocketServer } from './socket/index.js';
 import { connectDb } from './config/db.js';
 import { transactionsSupported } from './lib/tx.js';
-import { env } from './config/env.js';
+import { env, safeUri } from './config/env.js';
 
 async function main() {
   await connectDb();
@@ -16,7 +16,7 @@ async function main() {
   server.listen(env.port, () => {
     console.log(`\n  FadeRoom API  http://localhost:${env.port}`);
     console.log(`  Socket.IO     ws://localhost:${env.port}`);
-    console.log(`  Mongo         ${env.mongoUri}`);
+    console.log(`  Mongo         ${safeUri()}`);
     console.log(`  Images        ${env.publicUrl}/uploads\n`);
   });
 

@@ -20,7 +20,7 @@ import path from 'node:path';
 import mongoose from 'mongoose';
 import { EJSON } from 'bson';
 import { connectDb, disconnectDb } from '../config/db.js';
-import { env } from '../config/env.js';
+import { env, safeUri } from '../config/env.js';
 
 const OUT_DIR = path.resolve('db');
 
@@ -78,7 +78,7 @@ async function dump() {
     );
   }
   console.log(
-    `\n  Source: ${env.mongoUri}\n` +
+    `\n  Source: ${safeUri()}\n` +
       '  These documents include bcrypt password hashes and email addresses.\n' +
       '  Fine for the seeded demo data — do not dump a database holding real\n' +
       '  client records into a repository.\n',

@@ -28,6 +28,17 @@ export const env = {
   publicUrl: (process.env.PUBLIC_URL || 'http://localhost:4000').replace(/\/$/, ''),
 };
 
+/**
+ * A connection string with the credentials stripped, for printing.
+ *
+ * `mongodb+srv://user:pa55w0rd@host/db` -> `mongodb+srv://user:***@host/db`
+ *
+ * Anything that logs a URI ends up in shell history, CI output and screen
+ * shares, so the password must never be the thing that gets echoed back.
+ */
+export const safeUri = (uri = env.mongoUri) =>
+  String(uri).replace(/(\/\/[^:/?#]+:)[^@]*@/, '$1***@');
+
 /* Refuse to boot with development placeholders once NODE_ENV says production —
    these secrets sign auth tokens and the loyalty QR. */
 if (env.nodeEnv === 'production') {
