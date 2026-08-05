@@ -8,6 +8,7 @@ import { useAuth } from '../store/AuthContext';
 import { useColors, useTheme } from '../store/ThemeContext';
 import { useDialog } from '../store/DialogContext';
 import { Body, Button, Card, Loading, Muted, Screen, Title } from '../components/ui';
+import { Icon, type IconName } from '../components/Icon';
 import { space } from '../theme';
 
 import { LoginScreen, RegisterScreen } from '../screens/AuthScreens';
@@ -48,25 +49,26 @@ const Tabs = createBottomTabNavigator<TabParamList>();
 const ArtistStack = createNativeStackNavigator<ArtistStackParamList>();
 const ArtistTabs = createBottomTabNavigator<ArtistTabParamList>();
 
-/* Emoji tab icons keep the bundle free of an icon font. The centre Scan tab is
+/* Drawn icons rather than an icon font — react-native-svg is already in the
+   bundle for the QR codes, so this costs nothing extra. The centre Scan tab is
    raised, because scanning is the one thing you do standing at the chair. */
-const ICONS: Record<keyof TabParamList, string> = {
-  Home: '⌂',
-  Book: '▤',
-  Scan: '▣',
-  Shop: '▦',
-  Profile: '◍',
+const ICONS: Record<keyof TabParamList, IconName> = {
+  Home: 'home',
+  Book: 'calendar',
+  Scan: 'scan',
+  Shop: 'bag',
+  Profile: 'user',
 };
 
 /* The artist bar mirrors the client one: the raised centre button is the thing
    you do standing at the chair — for a client that's scanning, for an artist
    it's showing the code to scan. */
-const ARTIST_ICONS: Record<keyof ArtistTabParamList, string> = {
-  Today: '▤',
-  Clients: '◍',
-  CheckIn: '▣',
-  Orders: '▦',
-  More: '⋯',
+const ARTIST_ICONS: Record<keyof ArtistTabParamList, IconName> = {
+  Today: 'calendar',
+  Clients: 'users',
+  CheckIn: 'qr',
+  Orders: 'bag',
+  More: 'more',
 };
 
 function TabIcon({ name, focused }: { name: keyof TabParamList; focused: boolean }) {
@@ -92,12 +94,12 @@ function TabIcon({ name, focused }: { name: keyof TabParamList; focused: boolean
           elevation: 6,
         }}
       >
-        <Text style={{ fontSize: 22, color: c.onAccent }}>{ICONS.Scan}</Text>
+        <Icon name={ICONS.Scan} color={c.onAccent} size={26} active />
       </View>
     );
   }
 
-  return <Text style={{ fontSize: 20, color: focused ? c.accentInk : c.muted }}>{ICONS[name]}</Text>;
+  return <Icon name={ICONS[name]} color={focused ? c.accentInk : c.muted} active={focused} />;
 }
 
 function MainTabs() {
@@ -151,12 +153,12 @@ function ArtistTabIcon({ name, focused }: { name: keyof ArtistTabParamList; focu
           elevation: 6,
         }}
       >
-        <Text style={{ fontSize: 22, color: c.onAccent }}>{ARTIST_ICONS.CheckIn}</Text>
+        <Icon name={ARTIST_ICONS.CheckIn} color={c.onAccent} size={26} active />
       </View>
     );
   }
 
-  return <Text style={{ fontSize: 20, color: focused ? c.accentInk : c.muted }}>{ARTIST_ICONS[name]}</Text>;
+  return <Icon name={ARTIST_ICONS[name]} color={focused ? c.accentInk : c.muted} active={focused} />;
 }
 
 function ArtistMainTabs() {

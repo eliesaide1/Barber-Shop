@@ -16,6 +16,7 @@ import {
   Screen,
   Title,
 } from '../../components/ui';
+import { Icon } from '../../components/Icon';
 import { useApi, useSocketEvent } from '../../hooks/useApi';
 import { useAuth } from '../../store/AuthContext';
 import { useColors } from '../../store/ThemeContext';
@@ -141,7 +142,7 @@ export function ArtistScheduleScreen() {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ fontSize: 18 }}>🔔</Text>
+            <Icon name="bell" color={c.text} size={21} />
             {unread > 0 && (
               <View
                 style={{

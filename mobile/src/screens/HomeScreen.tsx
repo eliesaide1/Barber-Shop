@@ -17,6 +17,7 @@ import {
   Title,
 } from '../components/ui';
 import { ProductCard } from '../components/ProductCard';
+import { Icon } from '../components/Icon';
 import { CartButton } from './ShopScreens';
 import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useAuth } from '../store/AuthContext';
@@ -100,7 +101,7 @@ export function HomeScreen() {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ fontSize: 18 }}>🔔</Text>
+            <Icon name="bell" color={c.text} size={21} />
             {unread > 0 && (
               <View
                 style={{

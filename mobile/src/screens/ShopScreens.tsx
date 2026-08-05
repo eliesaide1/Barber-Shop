@@ -20,6 +20,7 @@ import {
   Title,
 } from '../components/ui';
 import { ProductCard } from '../components/ProductCard';
+import { Icon } from '../components/Icon';
 import { useApi } from '../hooks/useApi';
 import { useCart } from '../store/CartContext';
 import { useAuth } from '../store/AuthContext';
@@ -150,7 +151,7 @@ export function CartButton() {
         justifyContent: 'center',
       }}
     >
-      <Text style={{ fontSize: 19 }}>🛍️</Text>
+      <Icon name="bag" color={c.text} size={21} />
       {count > 0 && (
         <View
           style={{
