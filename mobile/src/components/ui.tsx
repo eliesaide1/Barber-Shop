@@ -14,6 +14,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors } from '../store/ThemeContext';
 import { radius, space } from '../theme';
 import { toPath } from '../lib/qr';
@@ -397,14 +398,19 @@ export function Loading({ label = 'Loading…' }: { label?: string }) {
 
 export function Screen({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
   const c = useColors();
+  /* SafeAreaView measures the device's own insets, so the header clears the
+     status bar / notch / Dynamic Island on any size. 'top' only — the bottom
+     inset is owned by the tab bar, and left/right are 0 in portrait. */
   return (
-    <ScrollView
-      style={{ backgroundColor: c.bg }}
-      contentContainerStyle={[{ padding: space.lg, paddingBottom: 40 }, style]}
-      keyboardShouldPersistTaps="handled"
-    >
-      {children}
-    </ScrollView>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.bg }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[{ padding: space.lg, paddingBottom: 40 }, style]}
+        keyboardShouldPersistTaps="handled"
+      >
+        {children}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
