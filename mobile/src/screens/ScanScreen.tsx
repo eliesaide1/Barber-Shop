@@ -96,11 +96,15 @@ export function ScanScreen() {
     [submit],
   );
 
-  /* vision-camera's code-scanning output is not implemented on Android in
-     5.x — createObjectOutput() throws there. Rather than let that take the
-     screen down, we detect it once and fall back to the typed code, which is
-     exactly why the artist's portal prints a 6-character code under the QR.
-     Built by hand rather than with useObjectOutput() so the throw is catchable. */
+  /* Not a device limitation — vision-camera 5.x simply has not implemented
+     code scanning on Android. Its createObjectOutput() is a bare `throw` with
+     no capability check, so every Android phone lands here; the feature is
+     iOS-only in the 5.x line, and 5.2.1 is the newest release.
+
+     Rather than let that take the screen down, we detect it once and fall back
+     to the typed code — which is exactly why the artist's portal prints a
+     6-character code under the QR. Built by hand rather than with
+     useObjectOutput() so the throw is catchable. */
   const scanner = useMemo<{ output: CameraObjectOutput | null; supported: boolean }>(() => {
     try {
       return { output: VisionCamera.createObjectOutput({ enabledObjectTypes: ['qr'] }), supported: true };
@@ -177,7 +181,7 @@ export function ScanScreen() {
 
       <Muted style={{ textAlign: 'center', marginTop: 10 }}>
         {!scanner.supported
-          ? 'Scanning isn’t available on this device — type the code below instead'
+          ? 'Camera scanning isn’t supported on Android yet — type the code instead'
           : !hasPermission
             ? 'Camera permission is needed to scan'
             : busy
