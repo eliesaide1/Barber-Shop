@@ -5,6 +5,9 @@
   "type": "module",
   "description": "FadeRoom API — barber shop bookings, loyalty check-in and marketplace",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
