@@ -1,0 +1,3040 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>FadeRoom — iPhone 17 Pro Max Prototype</title>
+<style>
+  /* ===== LIGHT (default) =====
+     --accent      : gold used for FILLS (buttons, chips, rings)
+     --accent-ink  : gold used for TEXT/ICONS — darker so it stays readable on light
+     --on-accent   : text colour that sits on top of a gold fill */
+  :root{
+    --accent:#d19a2e;
+    --accent-2:#a97c22;
+    --accent-ink:#8a5a10;
+    --accent-soft:rgba(209,154,46,.16);
+    --on-accent:#1b1713;
+    --bg:#f7f3ed;
+    --surface:#ffffff;
+    --surface-2:#f2ede5;
+    --surface-3:#e7e0d5;
+    --text:#1b1713;
+    --muted:#6b6055;         /* 5.2:1 on --surface-2 — keeps seg/labels readable */
+    --line:#e5ded3;
+    --danger:#c0392b;
+    --page:
+      radial-gradient(1200px 600px at 15% -10%, #fbeed3 0%, transparent 55%),
+      radial-gradient(1000px 700px at 110% 20%, #f7e6e2 0%, transparent 50%),
+      #ece4d8;
+    --stage-t:#2a2219;
+    --stage-s:#7a6f62;
+    --hero-1:#fdf3e0;
+    --hero-2:#fbeee7;
+    --hero-line:#ecd9b0;
+    --tabbar-bg:rgba(255,255,255,.9);
+    --toast-bg:#221d17;
+    --toast-fg:#f7f3ed;
+    --home-ind:rgba(0,0,0,.32);
+    --badge-ok-bg:rgba(47,111,67,.12);   --badge-ok-fg:#2f6f43;
+    --badge-warn-bg:rgba(176,116,0,.14); --badge-warn-fg:#8a5a00;
+    --badge-gold-bg:rgba(209,154,46,.2); --badge-gold-fg:#7f5410;
+    --badge-red-bg:rgba(192,57,43,.1);   --badge-red-fg:#b03024;
+    --radius:18px;
+  }
+
+  /* ===== DARK ===== */
+  :root[data-theme="dark"]{
+    --accent:#d9a441;        /* barber gold */
+    --accent-2:#e9cf9a;
+    --accent-ink:#d9a441;
+    --accent-soft:rgba(217,164,65,.10);
+    --on-accent:#0d0c0b;
+    --bg:#0d0c0b;
+    --surface:#171512;
+    --surface-2:#201d19;
+    --surface-3:#2a2621;
+    --text:#f5f1ea;
+    --muted:#9a8f80;
+    --line:#2b2721;
+    --danger:#e05c5c;
+    --page:
+      radial-gradient(1200px 600px at 15% -10%, #2b2013 0%, transparent 55%),
+      radial-gradient(1000px 700px at 110% 20%, #2a1618 0%, transparent 50%),
+      #08070a;
+    --stage-t:#f3ead9;
+    --stage-s:#8d8071;
+    --hero-1:#2b2113;
+    --hero-2:#231617;
+    --hero-line:#463a22;
+    --tabbar-bg:rgba(13,12,11,.85);
+    --toast-bg:#f4efe6;
+    --toast-fg:#0d0c0b;
+    --home-ind:rgba(255,255,255,.55);
+    --badge-ok-bg:rgba(233,207,154,.15); --badge-ok-fg:#e9cf9a;
+    --badge-warn-bg:rgba(255,196,0,.15); --badge-warn-fg:#ffcf4a;
+    --badge-gold-bg:rgba(217,164,65,.15);--badge-gold-fg:#d9a441;
+    --badge-red-bg:rgba(224,92,92,.15);  --badge-red-fg:#e05c5c;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    background:var(--page);
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px 16px;
+    color:var(--text);
+    overflow:hidden;
+  }
+
+  /* ===== Stage layout ===== */
+  .stage{display:flex;flex-direction:column;align-items:center;gap:18px}
+
+  /* Scales the whole device down to fit the viewport, keeping exact proportions.
+     --scale is set by fitDevice() on load + resize. */
+  .device-wrap{
+    position:relative;flex:0 0 auto;
+    width:calc(440px * var(--scale,1));
+    height:calc(952px * var(--scale,1));
+  }
+  .stage-title{text-align:center;color:var(--stage-t)}
+  .stage-title h1{font-size:20px;letter-spacing:.2px;font-weight:700}
+  .stage-title p{color:var(--stage-s);font-size:13px;margin-top:4px}
+  .stage-title .pill{display:inline-block;margin-top:10px;font-size:11px;color:var(--on-accent);background:var(--accent);padding:4px 10px;border-radius:999px;font-weight:700}
+  .stage-toggle{
+    margin-top:10px;margin-inline-start:8px;font-size:11px;font-weight:700;cursor:pointer;
+    color:var(--stage-t);background:transparent;border:1px solid var(--stage-s);
+    padding:4px 10px;border-radius:999px;font-family:inherit;
+  }
+  .stage-toggle:hover{border-color:var(--accent);color:var(--accent-ink)}
+
+  /* ===== iPhone 17 Pro Max ===== */
+  .device{
+    --w:440px;
+    --h:952px;
+    position:absolute;
+    top:0;left:0;
+    transform:scale(var(--scale,1));
+    transform-origin:top left;
+    width:var(--w);
+    height:var(--h);
+    border-radius:66px;
+    background:linear-gradient(150deg,#3a3f42,#0d0f10 45%,#2a2f31 100%);
+    padding:5px;
+    box-shadow:
+      0 0 0 2px #05070a,
+      0 40px 90px -20px rgba(0,0,0,.85),
+      inset 0 0 3px rgba(255,255,255,.25);
+  }
+  .device::before{ /* titanium rail highlight */
+    content:"";position:absolute;inset:2px;border-radius:63px;
+    padding:1px;background:linear-gradient(160deg,rgba(255,255,255,.35),transparent 30%,transparent 70%,rgba(255,255,255,.18));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;
+  }
+  /* side buttons */
+  .btn-side{position:absolute;background:linear-gradient(#2a2f31,#15181a);border-radius:3px}
+  .btn-side.action{left:-3px;top:150px;width:4px;height:34px}
+  .btn-side.vol-up{left:-3px;top:210px;width:4px;height:60px}
+  .btn-side.vol-dn{left:-3px;top:288px;width:4px;height:60px}
+  .btn-side.power{right:-3px;top:230px;width:4px;height:96px}
+
+  .bezel{
+    position:relative;width:100%;height:100%;
+    border-radius:61px;background:#000;overflow:hidden;
+  }
+
+  .viewport{
+    position:absolute;inset:0;border-radius:61px;overflow:hidden;
+    background:var(--bg);display:flex;flex-direction:column;
+  }
+
+  /* Dynamic Island */
+  .island{
+    position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:126px;height:35px;background:#000;border-radius:20px;z-index:60;
+    display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-right:12px;
+  }
+  .island .cam{width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#243b52,#000 70%);box-shadow:inset 0 0 2px #4a6b8a}
+
+  /* Status bar */
+  .statusbar{
+    height:54px;flex:0 0 54px;display:flex;align-items:flex-end;justify-content:space-between;
+    padding:0 30px 8px;font-size:15px;font-weight:600;z-index:40;position:relative;color:var(--text);
+  }
+  .statusbar .icons{display:flex;align-items:center;gap:7px}
+  .statusbar svg{display:block}
+
+  /* App body */
+  .app{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .screens{flex:1;position:relative;overflow:hidden}
+  .screen{
+    position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+    padding:6px 20px 26px;opacity:0;visibility:hidden;transform:translateX(14px);
+    transition:opacity .28s ease,transform .28s ease;
+    -webkit-overflow-scrolling:touch;
+  }
+  .screen::-webkit-scrollbar{width:0}
+  .screen.active{opacity:1;visibility:visible;transform:none}
+
+  /* Home indicator */
+  .home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:135px;height:5px;border-radius:3px;background:var(--home-ind);z-index:55}
+
+  /* ===== Typography / components ===== */
+  h2.screen-title{font-size:26px;font-weight:800;letter-spacing:-.4px}
+  .sub{color:var(--muted);font-size:13px}
+  .row{display:flex;align-items:center;gap:12px}
+  .between{justify-content:space-between}
+  .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}.mt24{margin-top:24px}
+  .grow{flex:1}
+  .muted{color:var(--muted)}
+  .accent{color:var(--accent-ink)}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:13px;color:var(--text);cursor:pointer;white-space:nowrap;transition:.15s}
+  .chip.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:700}
+  .chip-scroll{display:flex;gap:9px;overflow-x:auto;padding:2px 0 4px;margin:0 -20px;padding-left:20px;padding-right:20px}
+  .chip-scroll::-webkit-scrollbar{display:none}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:15px;border:none;background:var(--accent);color:var(--on-accent);font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
+  .btn.ghost{background:transparent;color:var(--accent-ink);border:1px solid var(--line)}
+  .btn.danger{background:transparent;color:var(--danger);border:1px solid rgba(224,92,92,.4)}
+
+  .field{margin-top:14px}
+  .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:7px;font-weight:600}
+  .input{width:100%;padding:15px 14px;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-size:15px;outline:none;transition:.15s}
+  .input:focus{border-color:var(--accent)}
+  .input.err{border-color:var(--danger)}
+  .err-msg{color:var(--danger);font-size:12px;margin-top:6px;display:none}
+  .err-msg.show{display:block}
+  textarea.input{resize:none;min-height:80px;font-family:inherit}
+
+  .avatar{border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 auto}
+
+  .thumb{border-radius:14px;position:relative;overflow:hidden;background:#241f1a;display:flex;align-items:flex-end;color:#fff}
+  .thumb .grad{position:absolute;inset:0}
+  .thumb .dur{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.65);padding:3px 7px;border-radius:7px;font-size:11px;font-weight:600;z-index:2}
+  .thumb .fav{position:absolute;top:8px;right:8px;z-index:2;cursor:pointer;font-size:16px;background:rgba(0,0,0,.4);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2}
+  .thumb .play span{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .progressbar{position:absolute;bottom:0;left:0;height:4px;background:var(--accent);z-index:2}
+
+  .list-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .list-item:last-child{border-bottom:none}
+
+  .checkbox{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);flex:0 0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+  .checkbox.done{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:800}
+  .done-text{text-decoration:line-through;color:var(--muted)}
+
+  .seg{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+  .seg button{flex:1;padding:10px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;border-radius:9px;cursor:pointer}
+  .seg button.active{background:var(--accent);color:var(--on-accent)}
+
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;flex:1}
+  .stat .n{font-size:22px;font-weight:800}
+  .stat .l{font-size:11px;color:var(--muted);margin-top:2px}
+
+  .badge{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px}
+  .badge.warn{background:var(--badge-warn-bg);color:var(--badge-warn-fg)}
+  .badge.ok{background:var(--badge-ok-bg);color:var(--badge-ok-fg)}
+  .badge.gold{background:var(--badge-gold-bg);color:var(--badge-gold-fg)}
+  .badge.dim{background:var(--surface-3);color:var(--muted)}
+  .badge.red{background:var(--badge-red-bg);color:var(--badge-red-fg)}
+
+  /* Bottom tab bar */
+  .tabbar{
+    flex:0 0 auto;display:flex;justify-content:space-around;align-items:center;
+    padding:10px 14px 24px;background:var(--tabbar-bg);backdrop-filter:blur(18px);
+    border-top:1px solid var(--line);position:relative;z-index:30;
+  }
+  .tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:10.5px;font-weight:600;cursor:pointer;flex:1;transition:.15s}
+  .tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9}
+  .tab.active{color:var(--accent-ink)}
+
+  /* Base header — every screen gets one; sticks to the top while the screen scrolls */
+  .basehead{
+    position:sticky;top:0;z-index:25;
+    display:flex;align-items:center;gap:12px;
+    margin:0 -20px 2px;padding:8px 20px 12px;
+    background:var(--bg);
+  }
+  .basehead::after{
+    content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;
+    background:linear-gradient(var(--bg),transparent);pointer-events:none;
+  }
+  .basehead .bh-t{font-size:21px;font-weight:800;letter-spacing:-.3px;line-height:1.15}
+  .basehead .bh-s{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .back-btn{flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:.15s}
+  .back-btn:active{transform:scale(.92);background:var(--surface-3)}
+  .back-btn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2.2}
+
+  .icon-btn{width:42px;height:42px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text)}
+  .icon-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9}
+
+  /* OTP */
+  .otp{display:flex;gap:10px;justify-content:space-between;margin-top:8px}
+  .otp input{width:100%;aspect-ratio:1;text-align:center;font-size:24px;font-weight:700;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);outline:none}
+  .otp input:focus{border-color:var(--accent)}
+
+  /* role picker */
+  .role-card{flex:1;padding:16px;border-radius:15px;border:1px solid var(--line);background:var(--surface-2);text-align:center;cursor:pointer;transition:.15s}
+  .role-card.active{border-color:var(--accent);background:var(--accent-soft)}
+  .role-card .role-ico{width:30px;height:30px;stroke:var(--text);fill:none;stroke-width:1.8;display:block;margin:0 auto}
+  .role-card.active .role-ico{stroke:var(--accent-ink)}
+  .role-card .t{font-weight:700;margin-top:8px;font-size:14px}
+  .role-card .d{font-size:11px;color:var(--muted);margin-top:2px}
+
+  /* toast */
+  .toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--toast-bg);color:var(--toast-fg);padding:12px 18px;border-radius:14px;font-size:13.5px;font-weight:600;opacity:0;transition:.3s;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,.4);white-space:nowrap;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* modal sheet */
+  .sheet-wrap{position:absolute;inset:0;z-index:70;display:none}
+  .sheet-wrap.open{display:block}
+  .sheet-back{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:10px 20px 30px;transform:translateY(100%);transition:.32s cubic-bezier(.2,.8,.2,1);max-height:82%;overflow-y:auto}
+  .sheet-wrap.open .sheet{transform:none}
+  .grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:6px auto 14px}
+
+  .divider{height:1px;background:var(--line);margin:16px 0}
+  .kv{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .kv:last-child{border-bottom:none}
+  .kv .k{color:var(--muted)}
+
+  .day{flex:0 0 auto;width:52px;text-align:center;padding:10px 0;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);cursor:pointer}
+  .day.active{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+  .day.off{opacity:.35;cursor:not-allowed}
+  .day .dn{font-size:11px;font-weight:600;opacity:.7}
+  .day .dd{font-size:17px;font-weight:800;margin-top:2px}
+
+  .slot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
+  .slot{padding:12px 4px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);text-align:center;font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s}
+  .slot.taken{opacity:.3;text-decoration:line-through;cursor:not-allowed}
+  .slot.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+
+  .fab{position:absolute;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 12px 24px rgba(217,164,65,.3);cursor:pointer;z-index:20}
+
+  .hidden{display:none!important}
+
+  .search-in{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:0 14px}
+  .search-in input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:15px;padding:14px 0}
+  .search-in svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
+
+  .ring{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+  .ring .inner{width:92px;height:92px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+  /* barber pole accent stripe */
+  .pole{height:4px;border-radius:2px;background:repeating-linear-gradient(115deg,var(--accent) 0 8px,var(--bg) 8px 16px,#d15c5c 16px 24px,var(--bg) 24px 32px)}
+
+  /* themed hero card (next appointment) */
+  .hero{background:linear-gradient(135deg,var(--hero-1),var(--hero-2));border-color:var(--hero-line)}
+
+  .timeline-item{display:flex;gap:12px;padding:0 0 4px}
+  .timeline-time{width:56px;flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--muted);padding-top:16px}
+  .timeline-body{flex:1;padding-bottom:12px;border-left:1px solid var(--line);padding-left:14px;position:relative}
+  .timeline-body::before{content:"";position:absolute;left:-4.5px;top:20px;width:8px;height:8px;border-radius:50%;background:var(--line)}
+  .timeline-item.on .timeline-body::before{background:var(--accent);box-shadow:0 0 0 4px rgba(217,164,65,.18)}
+
+  .rating{color:var(--accent-ink);font-size:12px;font-weight:700}
+
+  /* ===== QR check-in / loyalty ===== */
+  /* Raised centre tab — the scan action is the primary in-shop gesture */
+  .tab.cta{position:relative}
+  .tab.cta>span{margin-top:30px}
+  .cta-bubble{
+    position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+    width:52px;height:52px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:var(--on-accent);display:flex;align-items:center;justify-content:center;
+    border:4px solid var(--tabbar-bg);box-shadow:0 10px 22px rgba(209,154,46,.4);
+  }
+  .cta-bubble svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:2}
+  .tab.cta.active .cta-bubble{box-shadow:0 0 0 3px var(--accent-soft),0 10px 22px rgba(209,154,46,.5)}
+
+  /* Punch card */
+  .punch{display:flex;gap:8px}
+  .punch-slot{
+    flex:1;aspect-ratio:1/1;border-radius:50%;border:2px dashed var(--line);
+    background:var(--surface-2);color:var(--muted);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+  }
+  .punch-slot.on{background:var(--accent);border:2px solid var(--accent);color:var(--on-accent)}
+  .punch-slot.goal{border-style:solid;border-color:var(--accent);color:var(--accent-ink)}
+  .punch-slot.goal.on{background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+  .punch-mini{display:flex;gap:4px;margin-top:6px}
+  .punch-mini i{width:7px;height:7px;border-radius:50%;background:var(--surface-3)}
+  .punch-mini i.on{background:var(--accent)}
+
+  /* Camera viewfinder */
+  .scanner{position:relative;width:100%;aspect-ratio:1/1;border-radius:22px;overflow:hidden;background:#0b0a09;display:flex;align-items:center;justify-content:center}
+  .scanner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .scanner.nocam::after{content:"📷";position:absolute;font-size:44px;opacity:.3}
+  .scan-frame{position:relative;width:66%;aspect-ratio:1/1}
+  .scan-frame i{position:absolute;width:32px;height:32px;border:3px solid var(--accent);border-radius:5px}
+  .scan-frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+  .scan-frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+  .scan-frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+  .scan-frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+  .laser{position:absolute;left:4%;right:4%;height:2px;border-radius:2px;background:var(--accent);box-shadow:0 0 14px 2px var(--accent);animation:sweep 2.4s ease-in-out infinite}
+  @keyframes sweep{0%,100%{top:5%}50%{top:95%}}
+
+  /* QR always renders on white — dark mode must not invert it */
+  .qrbox{background:#fff;border-radius:18px;padding:12px;display:block}
+  .qrbox svg{width:100%;height:auto;display:block}
+  .code-out{font-weight:800;letter-spacing:5px;font-size:26px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .rule{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.45}
+  .rule:last-child{border-bottom:none}
+  .rule .ri{flex:0 0 22px;font-size:15px;text-align:center}
+
+  /* ===== Marketplace ===== */
+  /* Cart count rides on the header icon; kept in sync in place so typing in
+     the shop search box is never interrupted by a re-render. */
+  .cart-badge{
+    position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;padding:0 5px;
+    border-radius:999px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);
+  }
+  .prod{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+  .prod-img{position:relative;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:46px}
+  .prod-img .tag{position:absolute;top:8px;left:8px;font-size:9.5px;font-weight:800;letter-spacing:.4px;padding:3px 7px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff}
+  .prod-img .add{position:absolute;bottom:8px;right:8px;width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;line-height:1;box-shadow:0 4px 10px rgba(0,0,0,.28)}
+  .prod-b{padding:10px 11px 12px}
+  .prod-b .pn{font-size:13px;font-weight:700;line-height:1.25;height:33px;overflow:hidden}
+  .prod-b .pm{font-size:10.5px;color:var(--muted);margin-top:3px}
+  .prod-b .pp{font-weight:800;font-size:15px}
+  .prod-b .pp s{font-weight:600;font-size:12px;color:var(--muted);margin-inline-start:6px}
+  .soldout{position:absolute;inset:0;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;letter-spacing:1px}
+
+  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:11px;background:var(--surface-2);overflow:hidden;flex:0 0 auto}
+  .stepper button{width:34px;height:34px;border:none;background:transparent;color:var(--text);font-size:18px;font-weight:800;cursor:pointer;line-height:1;font-family:inherit}
+  .stepper button:disabled{opacity:.3;cursor:not-allowed}
+  .stepper .qv{min-width:30px;text-align:center;font-weight:800;font-size:14px}
+
+  /* order status trail */
+  .ostep{display:flex;gap:12px;align-items:flex-start;padding:9px 0}
+  .ostep .dot{width:11px;height:11px;border-radius:50%;background:var(--surface-3);flex:0 0 auto;margin-top:4px}
+  .ostep.on .dot{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .ostep.off{opacity:.4}
+  .ostep .ot{font-size:13.5px;font-weight:700}
+
+  /* ===== Real phone: fill the screen edge-to-edge like an installed app ===== */
+  @media (max-width:500px){
+    body{padding:0;display:block;background:var(--bg);min-height:100dvh;overflow:visible}
+    .stage{gap:0;width:100%}
+    .stage-title{display:none}
+    .device-wrap{width:100%;height:100dvh}
+    .device{position:static;transform:none;width:100%;height:100vh;height:100dvh;border-radius:0;padding:0;box-shadow:none}
+    .device::before{display:none}
+    .btn-side{display:none}
+    .bezel{border-radius:0}
+    .viewport{border-radius:0}
+    .home-indicator{display:none}
+  }
+  @media (max-width:500px) and (min-height:980px){
+    .device-wrap{height:952px}
+    .device{width:min(100vw,440px);height:952px;margin:0 auto;border-radius:66px;padding:5px;box-shadow:0 20px 60px -20px rgba(0,0,0,.85)}
+    .device::before{display:block}
+    .bezel,.viewport{border-radius:61px}
+    .home-indicator{display:block}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="stage-title">
+    <h1>FadeRoom — Barber Shop</h1>
+    <p>Interactive prototype · iPhone 17 Pro Max</p>
+    <span class="pill">Client + Artist · core scope</span>
+    <button class="stage-toggle" id="stage-theme" onclick="toggleTheme()">☾ Dark mode</button>
+  </div>
+
+  <div class="device-wrap">
+  <div class="device">
+    <div class="btn-side action"></div>
+    <div class="btn-side vol-up"></div>
+    <div class="btn-side vol-dn"></div>
+    <div class="btn-side power"></div>
+    <div class="bezel">
+      <div class="viewport" id="viewport">
+        <div class="island"><div class="cam"></div></div>
+
+        <div class="statusbar">
+          <span id="clock">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="9" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.3-1.4C13.9 1.6 11.3.5 8.5.5S3.1 1.6 1.2 3.5L2.5 4.9C4.1 3.4 6.2 2.5 8.5 2.5z" fill="currentColor"/><path d="M8.5 6c1.2 0 2.3.5 3.1 1.3l1.3-1.4C11.8 4.7 10.2 4 8.5 4S5.2 4.7 4.1 5.9l1.3 1.4C6.2 6.5 7.3 6 8.5 6z" fill="currentColor"/><circle cx="8.5" cy="10" r="1.6" fill="currentColor"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.5" y="0.5" width="21" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="16" height="9" rx="2" fill="currentColor"/><rect x="23" y="4" width="2" height="5" rx="1" fill="currentColor" opacity=".5"/></svg>
+          </span>
+        </div>
+
+        <div class="app">
+          <div class="screens" id="screens">
+            <!-- screens injected by JS -->
+          </div>
+
+          <!-- Bottom tab bar (client) -->
+          <div class="tabbar hidden" id="tabbar-client">
+            <div class="tab active" data-goto="home" data-tab>
+              <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span>Home</span>
+            </div>
+            <div class="tab" data-goto="book" data-tab>
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M11 15h5"/></svg><span>Book</span>
+            </div>
+            <div class="tab cta" data-goto="scan" data-tab>
+              <div class="cta-bubble"><svg viewBox="0 0 24 24"><path d="M4 8.5V6a2 2 0 0 1 2-2h2.5M15.5 4H18a2 2 0 0 1 2 2v2.5M20 15.5V18a2 2 0 0 1-2 2h-2.5M8.5 20H6a2 2 0 0 1-2-2v-2.5" stroke-linecap="round"/><path d="M3.5 12h17" stroke-linecap="round"/></svg></div>
+              <span>Scan</span>
+            </div>
+            <div class="tab" data-goto="shop" data-tab>
+              <svg viewBox="0 0 24 24"><path d="M4.6 8h14.8l-1.2 12H5.8z"/><path d="M8.6 8V6.2a3.4 3.4 0 0 1 6.8 0V8"/></svg><span>Shop</span>
+            </div>
+            <div class="tab" data-goto="profile" data-tab>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Profile</span>
+            </div>
+          </div>
+
+          <!-- Bottom tab bar (artist) -->
+          <div class="tabbar hidden" id="tabbar-artist">
+            <div class="tab active" data-goto="ar-schedule" data-tab>
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Schedule</span>
+            </div>
+            <div class="tab" data-goto="ar-clients" data-tab>
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M15 20c0-2.5 2-3.5 4-3.5"/></svg><span>Clients</span>
+            </div>
+            <div class="tab cta" data-goto="ar-checkin" data-tab>
+              <div class="cta-bubble"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.6"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.6"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.6"/><path d="M14 14h3v3h-3zM20.5 14v6.5H17" stroke-linecap="round"/></svg></div>
+              <span>Check-in</span>
+            </div>
+            <div class="tab" data-goto="ar-services" data-tab>
+              <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2.2"/></svg><span>Services</span>
+            </div>
+            <div class="tab" data-goto="ar-portfolio" data-tab>
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5-4 4 3 3-2 4 3"/></svg><span>Portfolio</span>
+            </div>
+          </div>
+
+          <div class="toast" id="toast"></div>
+
+          <!-- generic bottom sheet -->
+          <div class="sheet-wrap" id="sheet">
+            <div class="sheet-back" data-close-sheet></div>
+            <div class="sheet"><div class="grab"></div><div id="sheet-body"></div></div>
+          </div>
+        </div>
+
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   FadeRoom prototype — barber shop, client + artist roles
+   ========================================================= */
+const screensEl = document.getElementById('screens');
+let currentRole = 'client';
+
+/* ---------- theme ---------- */
+function currentTheme(){return document.documentElement.getAttribute('data-theme')||'light';}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem('faderoom-theme',t);}catch(e){/* file:// with storage disabled */}
+  const btn=document.getElementById('stage-theme');
+  if(btn)btn.textContent=t==='light'?'☾ Dark mode':'☀ Light mode';
+  document.querySelectorAll('[data-theme-btn]').forEach(b=>b.classList.toggle('active',b.dataset.themeBtn===t));
+}
+function toggleTheme(){setTheme(currentTheme()==='light'?'dark':'light');}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+/* ---------- bottom sheet ---------- */
+function openSheet(html){
+  document.getElementById('sheet-body').innerHTML=html;
+  document.getElementById('sheet').classList.add('open');
+}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');}
+document.querySelectorAll('[data-close-sheet]').forEach(e=>e.addEventListener('click',closeSheet));
+
+/* ---------- navigation ---------- */
+const CLIENT_TABS=['home','book','scan','shop','profile'];
+/* Client screens that keep the tab bar but aren't tabs themselves. */
+const CLIENT_INNER=['appointments','search','loyalty','styles','product','cart','checkout','orders'];
+const ARTIST_TABS=['ar-schedule','ar-clients','ar-checkin','ar-services','ar-portfolio'];
+/* Screens with nowhere to go back to — they anchor each role's stack. */
+const ROOT_SCREENS=['login','home','ar-schedule'];
+
+let navStack=[], currentScreen=null;
+
+function show(id,opts={}){
+  if(opts.reset) navStack.length=0;
+  else if(!opts.back && currentScreen && currentScreen!==id) navStack.push(currentScreen);
+  currentScreen=id;
+
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('scr-'+id);
+  if(el){el.classList.add('active');el.scrollTop=0;}
+  document.querySelectorAll('[data-tab]').forEach(t=>t.classList.toggle('active',t.dataset.goto===id));
+  const inClient=CLIENT_TABS.includes(id)||CLIENT_INNER.includes(id);
+  const inArtist=ARTIST_TABS.includes(id);
+  document.getElementById('tabbar-client').classList.toggle('hidden',!inClient);
+  document.getElementById('tabbar-artist').classList.toggle('hidden',!inArtist);
+
+  /* Camera + rotating-QR only run while their screen is on top */
+  if(id==='scan')startScanner();else stopScanner();
+  if(id==='ar-checkin')startShopQR();else stopShopQR();
+}
+
+/* Back arrow: retrace the stack, falling back to the role's home screen. */
+function goBack(){
+  closeSheet();
+  const prev=navStack.pop();
+  if(prev) show(prev,{back:true});
+  else show(currentRole==='artist'?'ar-schedule':'home',{back:true});
+}
+
+/* Base header used by every screen.
+   opts: {sub, right, back:false} — back defaults to on for non-root screens. */
+function baseHeader(title,opts={}){
+  const showBack=opts.back!==false;
+  return `<div class="basehead">
+    ${showBack?`<div class="back-btn" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`:''}
+    ${opts.left||''}
+    <div class="grow"><div class="bh-t">${title}</div>${opts.sub?`<div class="bh-s">${opts.sub}</div>`:''}</div>
+    ${opts.right||''}
+  </div>`;
+}
+
+/* reusable header buttons */
+const ICO_SEARCH=`<div class="icon-btn" onclick="show('search')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></div>`;
+const ICO_CAL=`<div class="icon-btn" onclick="show('appointments')"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>`;
+const ICO_LOYALTY=`<div class="icon-btn" onclick="show('loyalty')" aria-label="Loyalty card"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/><circle cx="7" cy="14.5" r="1.4"/><circle cx="11" cy="14.5" r="1.4"/><circle cx="15" cy="14.5" r="1.4"/></svg></div>`;
+const ICO_LOGOUT=`<div class="icon-btn" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5V3h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></div>`;
+const ICO_THEME=`<div class="icon-btn" onclick="toggleTheme()" aria-label="Toggle theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 12H2M22 12h-2.2M6.3 6.3 4.8 4.8M19.2 19.2l-1.5-1.5M17.7 6.3l1.5-1.5M4.8 19.2l1.5-1.5" stroke-linecap="round"/></svg></div>`;
+/* A function, not a constant — the badge has to reflect the live cart. */
+const ICO_CART=()=>`<div class="icon-btn" onclick="show('cart')" aria-label="Cart" style="position:relative;overflow:visible">
+  <svg viewBox="0 0 24 24"><path d="M4.6 8h14.8l-1.2 12H5.8z"/><path d="M8.6 8V6.2a3.4 3.4 0 0 1 6.8 0V8"/></svg>
+  <span class="cart-badge ${cartCount()?'':'hidden'}" data-cart-badge>${cartCount()}</span></div>`;
+
+/* Anything the user typed goes through this before it lands in innerHTML. */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* =========================================================
+   DATA
+   ========================================================= */
+const grads=[
+  'linear-gradient(135deg,#3a2a17,#8a6a3a)','linear-gradient(135deg,#232526,#414345)',
+  'linear-gradient(135deg,#1f1c18,#5c4a32)','linear-gradient(135deg,#2b1b1b,#7d4a4a)',
+  'linear-gradient(135deg,#12233a,#3c5a78)','linear-gradient(135deg,#2d2a24,#6e6455)',
+  'linear-gradient(135deg,#3a1c2b,#8a5a6d)','linear-gradient(135deg,#1a2a22,#4a6b57)'
+];
+
+const barbers=[
+  {n:'Karim Nasr',    spec:'Skin fades · beard sculpt', rate:4.9, revs:214, from:25, next:'Today 4:30 PM', chair:'Chair 1', off:[0]},
+  {n:'Rami Chalhoub', spec:'Classic scissor cuts',      rate:4.8, revs:168, from:22, next:'Today 6:15 PM', chair:'Chair 2', off:[0,1]},
+  {n:'Jad Semaan',    spec:'Textured crops · design',   rate:4.7, revs:96,  from:20, next:'Tomorrow 11:00', chair:'Chair 3', off:[2]},
+  {n:'Tony Feghali',  spec:'Hot towel shave · beard',   rate:5.0, revs:73,  from:18, next:'Today 7:00 PM', chair:'Chair 4', off:[0]},
+];
+
+const services=[
+  {n:'Haircut',            d:45, p:25, desc:'Consultation, cut, wash & style'},
+  {n:'Beard trim',         d:20, p:12, desc:'Shape up, line, oil finish'},
+  {n:'Haircut + Beard',    d:60, p:32, desc:'Full grooming session'},
+  {n:'Hot towel shave',    d:40, p:20, desc:'Straight razor, hot towel, balm'},
+  {n:'Kids cut',           d:30, p:15, desc:'Under 12 · patient & quick'},
+  {n:'Line up / edge',     d:15, p:10, desc:'Clean edges between visits'},
+];
+
+const styles=[
+  {t:'Mid Skin Fade',      cat:'Fades',    dur:'45 min', price:25, fav:true},
+  {t:'Textured Crop',      cat:'Textured', dur:'45 min', price:25, fav:false},
+  {t:'Classic Side Part',  cat:'Classic',  dur:'40 min', price:22, fav:true},
+  {t:'Beard Sculpt',       cat:'Beard',    dur:'20 min', price:12, fav:false},
+  {t:'Buzz + Line Up',     cat:'Fades',    dur:'25 min', price:18, fav:false},
+  {t:'Pompadour',          cat:'Classic',  dur:'50 min', price:28, fav:true},
+  {t:'Curly Taper',        cat:'Textured', dur:'45 min', price:26, fav:false},
+  {t:'Hard Part Design',   cat:'Design',   dur:'55 min', price:30, fav:false},
+];
+
+let appts=[
+  {id:1, barber:0, service:0, day:'Today',    time:'4:30 PM', status:'confirmed'},
+  {id:2, barber:3, service:3, day:'Sat 19 Jul', time:'12:15 PM', status:'pending'},
+];
+const past=[
+  {barber:0, service:2, day:'28 Jun', price:32, rated:5},
+  {barber:1, service:0, day:'12 Jun', price:25, rated:4},
+  {barber:0, service:0, day:'30 May', price:25, rated:5},
+];
+
+const roster=[
+  {n:'Elie Saide',    last:'2 wks ago', visits:14, fav:'Mid skin fade · #2 sides', tag:'Regular',   status:'ok',   stamps:3},
+  {n:'Marc Aoun',     last:'5 wks ago', visits:6,  fav:'Scissor cut · keep length', tag:'Overdue',  status:'warn', stamps:1},
+  {n:'Hadi Zgheib',   last:'Yesterday', visits:22, fav:'Buzz #1 + beard line',      tag:'VIP',      status:'gold', stamps:4},
+  {n:'Nour Rahme',    last:'—',         visits:0,  fav:'First visit — consultation', tag:'New',     status:'warn', stamps:0},
+];
+
+const agenda=[
+  {time:'10:00', client:'Hadi Zgheib', service:'Haircut + Beard', mins:60, price:32, status:'done'},
+  {time:'11:15', client:'Marc Aoun',   service:'Haircut',         mins:45, price:25, status:'done'},
+  {time:'12:15', client:'Walk-in',     service:'Line up / edge',  mins:15, price:10, status:'done'},
+  {time:'2:00',  client:'Nour Rahme',  service:'Haircut',         mins:45, price:25, status:'now'},
+  {time:'4:30',  client:'Elie Saide',  service:'Haircut',         mins:45, price:25, status:'next'},
+  {time:'6:00',  client:'Ziad Karam',  service:'Hot towel shave', mins:40, price:20, status:'next'},
+];
+
+/* booking state */
+let booking={barber:0, service:0, day:0, time:null, notes:''};
+const SLOTS=['10:00','10:45','11:30','12:15','13:00','14:30','15:15','16:00','16:45','17:30','18:15','19:00'];
+function dayList(){
+  const out=[],base=new Date();
+  const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  for(let i=0;i<7;i++){
+    const d=new Date(base.getTime()+i*86400000);
+    out.push({dn:i===0?'Today':dn[d.getDay()], dd:d.getDate(), wd:d.getDay(),
+              label:i===0?'Today':dn[d.getDay()]+' '+d.getDate()});
+  }
+  return out;
+}
+function slotTaken(day,i){return (i*3+day*5)%7<2;}
+function fmt12(t){
+  const [h,m]=t.split(':').map(Number);
+  const ap=h>=12?'PM':'AM';const hh=h%12===0?12:h%12;
+  return hh+':'+String(m).padStart(2,'0')+' '+ap;
+}
+
+/* =========================================================
+   QR — minimal encoder (byte mode, ECC level L, versions 1–5)
+   These are REAL scannable codes: the artist's screen renders one
+   and the client's camera reads it. Versions 1–5 at level L are
+   single-block, which keeps the whole encoder short.
+   ========================================================= */
+const QR=(function(){
+  const EXP=new Array(512),LOG=new Array(256);
+  for(let i=0,x=1;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&0x100)x^=0x11d;}
+  for(let i=255;i<512;i++)EXP[i]=EXP[i-255];
+  const mul=(a,b)=>(a&&b)?EXP[LOG[a]+LOG[b]]:0;
+  const DATA_CW=[19,34,55,80,108], ECC_CW=[7,10,15,20,26];
+
+  /* Reed–Solomon */
+  function gen(n){let g=[1];for(let i=0;i<n;i++){const ng=new Array(g.length+1).fill(0);
+    for(let j=0;j<g.length;j++){ng[j]^=g[j];ng[j+1]^=mul(g[j],EXP[i]);}g=ng;}return g;}
+  function ecc(data,n){const g=gen(n),r=new Array(n).fill(0);
+    for(const d of data){const f=d^r[0];r.shift();r.push(0);
+      for(let i=0;i<n;i++)r[i]^=mul(g[i+1],f);}return r;}
+
+  function utf8(s){const o=[];for(const ch of s){const c=ch.codePointAt(0);
+    if(c<128)o.push(c);
+    else if(c<2048)o.push(192|c>>6,128|c&63);
+    else if(c<65536)o.push(224|c>>12,128|(c>>6&63),128|c&63);
+    else o.push(240|c>>18,128|(c>>12&63),128|(c>>6&63),128|c&63);}return o;}
+
+  /* 15-bit BCH format info (ECC level L = 01) */
+  const G15=0x537,G15M=0x5412;
+  function bch(d){let x=d<<10;for(let i=14;i>=10;i--)if(x>>i&1)x^=G15<<(i-10);return((d<<10)|x)^G15M;}
+
+  const MASKS=[
+    (r,c)=>(r+c)%2===0,(r,c)=>r%2===0,(r,c)=>c%3===0,(r,c)=>(r+c)%3===0,
+    (r,c)=>((r/2|0)+(c/3|0))%2===0,(r,c)=>(r*c)%2+(r*c)%3===0,
+    (r,c)=>((r*c)%2+(r*c)%3)%2===0,(r,c)=>((r+c)%2+(r*c)%3)%2===0];
+
+  /* Standard penalty rules — we render all 8 masks and keep the calmest */
+  function penalty(m){
+    const n=m.length;let p=0;
+    for(let k=0;k<2;k++)for(let i=0;i<n;i++){let run=0,prev=-1;
+      for(let j=0;j<n;j++){const v=k?m[j][i]:m[i][j];
+        run=(v===prev)?run+1:1;prev=v;
+        if(run===5)p+=3;else if(run>5)p++;}}
+    for(let r=0;r<n-1;r++)for(let c=0;c<n-1;c++){const v=m[r][c];
+      if(v===m[r][c+1]&&v===m[r+1][c]&&v===m[r+1][c+1])p+=3;}
+    const pat=[1,0,1,1,1,0,1];
+    for(let k=0;k<2;k++)for(let i=0;i<n;i++)for(let j=0;j+7<=n;j++){
+      let hit=true;
+      for(let t=0;t<7;t++)if((k?m[j+t][i]:m[i][j+t])!==pat[t]){hit=false;break;}
+      if(!hit)continue;
+      let clearBefore=true,clearAfter=true;
+      for(let t=1;t<=4;t++){const q=j-t;if(q<0)break;if(k?m[q][i]:m[i][q]){clearBefore=false;break;}}
+      for(let t=0;t<4;t++){const q=j+7+t;if(q>=n)break;if(k?m[q][i]:m[i][q]){clearAfter=false;break;}}
+      if(clearBefore||clearAfter)p+=40;}
+    let dark=0;for(let r=0;r<n;r++)for(let c=0;c<n;c++)dark+=m[r][c];
+    p+=Math.floor(Math.abs(dark*100/(n*n)-50)/5)*10;
+    return p;
+  }
+
+  function encode(text){
+    const by=utf8(String(text));
+    let v=-1;
+    for(let i=0;i<5;i++)if(by.length+2<=DATA_CW[i]){v=i;break;}
+    if(v<0)return null;                              /* >106 bytes — out of range */
+    const dcw=DATA_CW[v],ecw=ECC_CW[v],n=21+4*v;
+
+    const bits=[],put=(x,l)=>{for(let i=l-1;i>=0;i--)bits.push(x>>i&1);};
+    put(4,4);put(by.length,8);by.forEach(b=>put(b,8));
+    for(let i=0;i<4&&bits.length<dcw*8;i++)bits.push(0);
+    while(bits.length%8)bits.push(0);
+    const cw=[];for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=b<<1|bits[i+j];cw.push(b);}
+    for(let i=0;cw.length<dcw;i++)cw.push(i%2?0x11:0xEC);
+    const all=cw.concat(ecc(cw,ecw));
+
+    const m=Array.from({length:n},()=>new Array(n).fill(0));
+    const fx=Array.from({length:n},()=>new Array(n).fill(false));
+    const set=(r,c,val)=>{if(r<0||c<0||r>=n||c>=n)return;m[r][c]=val;fx[r][c]=true;};
+
+    const finder=(r0,c0)=>{for(let r=-1;r<=7;r++)for(let c=-1;c<=7;c++){
+      const on=r>=0&&r<=6&&c>=0&&c<=6&&(r===0||r===6||c===0||c===6||(r>=2&&r<=4&&c>=2&&c<=4));
+      set(r0+r,c0+c,on?1:0);}};
+    finder(0,0);finder(0,n-7);finder(n-7,0);
+    for(let i=8;i<n-8;i++){set(6,i,i%2?0:1);set(i,6,i%2?0:1);}
+    if(v>0){const a=n-7;for(let r=-2;r<=2;r++)for(let c=-2;c<=2;c++)
+      set(a+r,a+c,Math.max(Math.abs(r),Math.abs(c))===1?0:1);}
+    for(let i=0;i<9;i++){if(!fx[8][i])set(8,i,0);if(!fx[i][8])set(i,8,0);}
+    for(let i=0;i<8;i++){set(8,n-1-i,0);set(n-1-i,8,0);}
+    set(n-8,8,1);                                    /* always-dark module */
+
+    /* zigzag data placement, right to left, skipping the timing column */
+    const tot=all.length*8;let bi=0,up=true;
+    for(let col=n-1;col>0;col-=2){
+      if(col===6)col--;
+      for(let i=0;i<n;i++){
+        const row=up?n-1-i:i;
+        for(let k=0;k<2;k++){
+          const c=col-k;
+          if(fx[row][c])continue;
+          m[row][c]=bi<tot?(all[bi>>3]>>(7-(bi&7))&1):0;
+          bi++;
+        }
+      }
+      up=!up;
+    }
+
+    let best=null,bestP=Infinity;
+    for(let k=0;k<8;k++){
+      const t=m.map(r=>r.slice());
+      for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(!fx[r][c]&&MASKS[k](r,c))t[r][c]^=1;
+      const f=bch(1<<3|k);
+      for(let i=0;i<15;i++){
+        const b=f>>i&1;
+        if(i<6)t[i][8]=b;else if(i<8)t[i+1][8]=b;else t[n-15+i][8]=b;
+        if(i<8)t[8][n-1-i]=b;else if(i===8)t[8][7]=b;else t[8][14-i]=b;
+      }
+      t[n-8][8]=1;
+      const p=penalty(t);
+      if(p<bestP){bestP=p;best=t;}
+    }
+    return best;
+  }
+
+  function svg(text){
+    const m=encode(text);
+    if(!m)return '<div class="sub" style="text-align:center;padding:20px">Code too long</div>';
+    const n=m.length,q=4,S=n+q*2;let d='';
+    for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(m[r][c])d+=`M${c+q} ${r+q}h1v1h-1z`;
+    return `<svg viewBox="0 0 ${S} ${S}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">`+
+           `<rect width="${S}" height="${S}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+  }
+  return {encode,svg};
+})();
+
+/* =========================================================
+   LOYALTY — QR check-in, 5 visits = 1 free haircut
+
+   How it is kept honest
+   ─────────────────────
+   1. The QR lives on the ARTIST's screen, never on a wall poster,
+      and it ROTATES every 60s. A photo of it is worthless a minute
+      later, so a scan proves "I'm standing at the chair, right now".
+   2. The payload is signed with a shop secret, so nobody can hand-
+      craft a valid code.
+   3. One stamp per visit — a cooldown blocks scanning five times in
+      a row. (Demo uses 20s; production would be ~4 hours.)
+   4. Reaching 5 stamps mints a reward with a 6-character claim code
+      and resets the counter to 0.
+   5. Only the ARTIST can burn a reward: the client shows the code,
+      the artist types it into their portal and confirms. The client
+      can never mark their own free cut as used.
+   ========================================================= */
+const LOYALTY_GOAL=5;
+const TOKEN_WINDOW=60000;      /* QR rotates every 60s                        */
+const SCAN_COOLDOWN=20000;     /* demo: 20s · production: ~4h (one per visit) */
+const SHOP_SECRET='faderoom-mar-mikhael';
+const ARTIST_INDEX=0;          /* the artist portal is Karim's chair          */
+const FREE_CUT_VALUE=25;
+
+let loyalty={
+  stamps:[
+    {ts:Date.now()-86400000*40,barber:0},
+    {ts:Date.now()-86400000*26,barber:1},
+    {ts:Date.now()-86400000*13,barber:0},
+  ],
+  rewards:[{code:'K4M2QX',earnedAt:Date.now()-86400000*74,status:'redeemed',redeemedAt:Date.now()-86400000*70}],
+  total:13,
+  last:0,
+};
+
+/* what the artist sees roll in live */
+let checkins=[
+  {name:'Hadi Zgheib', barber:0, ts:Date.now()-3600000*2, kind:'stamp', n:4},
+  {name:'Marc Aoun',   barber:0, ts:Date.now()-3600000*5, kind:'stamp', n:1},
+  {name:'Ziad Karam',  barber:0, ts:Date.now()-86400000,  kind:'redeemed', code:'P8T3RV'},
+];
+
+function saveLoyalty(){try{localStorage.setItem('faderoom-loyalty',JSON.stringify(loyalty));}catch(e){}}
+function loadLoyalty(){try{const r=localStorage.getItem('faderoom-loyalty');if(r)loyalty=Object.assign(loyalty,JSON.parse(r));}catch(e){}}
+function resetLoyalty(){
+  try{localStorage.removeItem('faderoom-loyalty');}catch(e){}
+  loyalty={stamps:[],rewards:[],total:0,last:0};
+  refreshLoyaltyUI();toast('Loyalty demo reset');
+}
+
+/* 32-bit FNV-1a → 6-character code. Stands in for an HMAC. */
+function lhash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+  return (h>>>0).toString(36).toUpperCase().padStart(6,'0').slice(-6);}
+function chkWindow(t){return Math.floor((t||Date.now())/TOKEN_WINDOW);}
+function chkSig(barber,win){return lhash(SHOP_SECRET+'|C|'+barber+'|'+win);}
+function chkToken(barber,win){return `FR1|C|${barber}|${win}|${chkSig(barber,win)}`;}
+function rewardToken(code){return `FR1|R|${code}`;}
+
+/* Accepts a full scanned token OR the 6-character fallback typed by hand. */
+function validateCheckin(raw){
+  raw=String(raw||'').trim();
+  if(!raw)return{ok:false,why:'Enter the code under your artist’s QR'};
+  const win=chkWindow();
+  const p=raw.split('|');
+  if(p.length===5&&p[0]==='FR1'&&p[1]==='C'){
+    const b=+p[2],w=+p[3];
+    if(!(w===win||w===win-1))return{ok:false,why:'That code expired — ask for a fresh one'};
+    if(p[4]!==chkSig(b,w))return{ok:false,why:'That code isn’t from FadeRoom'};
+    return{ok:true,barber:b};
+  }
+  const code=raw.toUpperCase();
+  for(const w of [win,win-1])
+    for(let b=0;b<barbers.length;b++)
+      if(chkSig(b,w)===code)return{ok:true,barber:b};
+  return{ok:false,why:'Code not recognised — check it and retry'};
+}
+
+function addStamp(barber,demo){
+  const now=Date.now();
+  if(!demo&&now-loyalty.last<SCAN_COOLDOWN)
+    return{ok:false,why:'Already checked in for this visit'};
+  loyalty.last=now;loyalty.total++;
+  loyalty.stamps.push({ts:now,barber});
+  checkins.unshift({name:'Elie Saide',barber,ts:now,kind:'stamp',n:loyalty.stamps.length});
+  let reward=null;
+  if(loyalty.stamps.length>=LOYALTY_GOAL){
+    loyalty.stamps=[];
+    reward={code:lhash(SHOP_SECRET+'|R|'+now+'|'+loyalty.total),earnedAt:now,status:'available'};
+    loyalty.rewards.push(reward);
+    checkins.unshift({name:'Elie Saide',barber,ts:now,kind:'earned',code:reward.code});
+  }
+  saveLoyalty();
+  return{ok:true,reward,count:loyalty.stamps.length};
+}
+
+const availableReward=()=>loyalty.rewards.find(r=>r.status==='available');
+const reservedReward =()=>loyalty.rewards.find(r=>r.status==='reserved');
+const liveRewards    =()=>loyalty.rewards.filter(r=>r.status!=='redeemed');
+
+/* Artist-side lookup. Takes a typed code or a scanned FR1|R| token. */
+function findReward(input){
+  let c=String(input||'').trim().toUpperCase();
+  if(c.startsWith('FR1|R|'))c=c.split('|')[2]||'';
+  if(!c)return{ok:false,why:'Enter the client’s claim code'};
+  const r=loyalty.rewards.find(x=>x.code===c);
+  if(!r)return{ok:false,why:'No free cut matches that code'};
+  if(r.status==='redeemed')return{ok:false,why:'That free cut was already used'};
+  return{ok:true,reward:r};
+}
+function burnReward(r){
+  r.status='redeemed';r.redeemedAt=Date.now();delete r.appt;
+  checkins.unshift({name:'Elie Saide',barber:ARTIST_INDEX,ts:Date.now(),kind:'redeemed',code:r.code});
+  saveLoyalty();
+}
+
+function ago(ts){
+  const m=Math.round((Date.now()-ts)/60000);
+  if(m<1)return'just now';
+  if(m<60)return m+' min ago';
+  const h=Math.round(m/60);
+  if(h<24)return h+'h ago';
+  const d=Math.round(h/24);
+  return d<14?d+'d ago':Math.round(d/7)+' wks ago';
+}
+function clientStamps(i){return i===0?loyalty.stamps.length:roster[i].stamps;}
+
+/* =========================================================
+   MARKETPLACE
+
+   Every product belongs to somebody: `by` is an index into `barbers`
+   for an artist's own shelf, or -1 for the house label. That ownership
+   is the hook the barber CMS will hang off — an artist edits their own
+   rows and uploads their own photos, the shop approves them, exactly
+   like the portfolio flow already does for cut photos.
+
+   Photos are stood in by a gradient + glyph. That is deliberate: the
+   real image is the one thing this prototype cannot invent, and it is
+   the first thing the CMS will have to provide.
+   ========================================================= */
+const DELIVERY_FEE=4, FREE_DELIVERY_OVER=50;
+const productCats=['All','Hair','Beard','Shave','Tools','Aftercare'];
+
+const products=[
+  {id:'p1', n:'Matte Clay Pomade',      brand:'FadeRoom Label', cat:'Hair',     p:18, was:22, size:'100 ml',     by:0,  ico:'🧴', rate:4.8, revs:64, stock:14, tag:'BESTSELLER',
+   desc:'Strong hold, zero shine. Reactivates with water so you can reshape it any time during the day.',
+   use:'Warm a fingertip between dry palms, work through towel-dried hair, shape with your fingers.'},
+  {id:'p2', n:'Sea Salt Texture Spray', brand:'Nasr Shelf',     cat:'Hair',     p:16, size:'150 ml',            by:0,  ico:'🌊', rate:4.6, revs:41, stock:22,
+   desc:'Adds grit and volume to a soft or fine top. The trick behind most of the textured crops in the lookbook.',
+   use:'Spray on damp hair, scrunch, then rough-dry with your hands.'},
+  /* Glyphs are limited to what ships with Windows 10's emoji font —
+     anything newer than Emoji 12 renders as a tofu box here. */
+  {id:'p3', n:'Cedar & Tonka Beard Oil',brand:'Tony’s Bench',   cat:'Beard',    p:14, size:'30 ml',             by:3,  ico:'🧔', rate:4.9, revs:88, stock:9, tag:'ARTIST PICK',
+   desc:'Jojoba and argan base. Stops the itch in the first two weeks of growing a beard out.',
+   use:'Three drops into your palm, work down to the skin, comb through.'},
+  {id:'p4', n:'Shea Beard Balm',        brand:'Tony’s Bench',   cat:'Beard',    p:15, size:'60 ml',             by:3,  ico:'🧈', rate:4.7, revs:35, stock:11,
+   desc:'Heavier than the oil — for shaping a longer beard and taming the flyaways along the jaw.',
+   use:'Scrape a thumbnail, melt between palms, press through from the cheeks down.'},
+  {id:'p5', n:'Carbon Steel Straight Razor', brand:'Feghali Tools', cat:'Shave',p:48, size:'Full size · strop not included', by:3, ico:'🪒', rate:5.0, revs:27, stock:3, tag:'PRO',
+   desc:'The razor Tony uses on the hot towel shave. Carbon steel takes a keener edge than stainless and holds it longer.',
+   use:'Strop before every shave, dry it fully after, oil the blade monthly.'},
+  {id:'p6', n:'Hot Towel Shave Kit',    brand:'FadeRoom Label', cat:'Shave',    p:34, was:40, size:'5 pieces',   by:3,  ico:'🧖', rate:4.9, revs:52, stock:6, tag:'BUNDLE',
+   desc:'Pre-shave oil, cream, badger brush, alum block and balm — the chair-side ritual, boxed for home.',
+   use:'Hot towel two minutes, oil, then cream with the brush in small circles.'},
+  {id:'p7', n:'Pre-Shave Oil',          brand:'FadeRoom Label', cat:'Shave',    p:12, size:'50 ml',             by:-1, ico:'💧', rate:4.5, revs:19, stock:0,
+   desc:'A thin protective layer so the blade glides instead of dragging. The difference between a close shave and a rash.',
+   use:'A few drops on damp skin before your cream.'},
+  {id:'p8', n:'Alcohol-Free Aftershave Balm', brand:'FadeRoom Label', cat:'Aftercare', p:13, size:'100 ml',     by:-1, ico:'🌿', rate:4.8, revs:73, stock:18, pref:true,
+   desc:'Calms without the sting. Aloe and witch hazel, no alcohol, no fragrance.',
+   use:'Pat on straight after the razor while the skin is still damp.'},
+  {id:'p9', n:'Scalp Tonic',            brand:'Jad’s Shelf',    cat:'Aftercare',p:19, size:'120 ml',            by:2,  ico:'🧪', rate:4.4, revs:22, stock:7,
+   desc:'Menthol and rosemary. For flaking between cuts, or just a cold hit after a summer fade.',
+   use:'Part the hair, apply to the scalp, massage in. Leave it — no rinse.'},
+  {id:'p10',n:'Fade Brush',             brand:'Chalhoub Kit',   cat:'Tools',    p:9,  size:'Soft bristle',      by:1,  ico:'🖌️', rate:4.5, revs:31, stock:25,
+   desc:'Sweeps clippings off the neck and out of a fresh fade without dragging the line.',
+   use:'Brush downward and out. Wash it weekly with soap.'},
+  {id:'p11',n:'Carbon Cutting Comb',    brand:'Chalhoub Kit',   cat:'Tools',    p:6,  size:'19 cm',             by:1,  ico:'💇', rate:4.7, revs:44, stock:30,
+   desc:'Antistatic and heat resistant. Fine teeth for the line up, wide for the top.',
+   use:'The one comb worth owning if you only own one.'},
+  {id:'p12',n:'Clipper Blade Oil',      brand:'Nasr Shelf',     cat:'Tools',    p:7,  size:'60 ml',             by:0,  ico:'⚙️', rate:4.8, revs:29, stock:16,
+   desc:'Keeps a home trimmer cutting like it did out of the box. Blunt blades pull — this is why yours does.',
+   use:'Three drops across the blade, run it ten seconds, wipe the excess.'},
+];
+
+/* Placeholder review copy, shown against every product until the CMS
+   carries real per-product reviews. */
+const PROD_REVIEWS=[
+  {n:'Hadi Z.', r:5, t:'Held all day through a Beirut August. Washes out clean, no residue.'},
+  {n:'Marc A.', r:4, t:'Does exactly what it says. I just wish the tin were bigger for the price.'},
+  {n:'Ziad K.', r:5, t:'Karim used it on me at the chair and I bought it on the way out.'},
+];
+
+/* ---------- shop state ---------- */
+let cart=[];                                   /* [{id,qty}]                      */
+let shopFilter={cat:'All', q:''};
+let viewProduct='p1';                          /* which product the detail screen shows */
+let pqty=1;                                    /* quantity picked on that screen  */
+let fulfil='pickup';                           /* pickup | delivery               */
+let payMethod='cash';
+let pickupWithAppt=false;                      /* hand it over at the next cut    */
+let ship={name:'Elie Saide', phone:'+961 70 123 456', addr:'', note:''};
+
+/* Pickup codes are minted the same way loyalty claim codes are, so the
+   artist portal will be able to verify an order with the machinery that
+   already redeems a free cut. */
+function orderCode(id){return lhash(SHOP_SECRET+'|O|'+id);}
+
+/* Opening stock, so the demo can be put back the way it started. */
+products.forEach(p=>p.stock0=p.stock);
+
+const SEED_ORDER=Date.now()-86400000*9;
+const SEED_ORDERS=[{
+  id:SEED_ORDER, ts:SEED_ORDER, code:orderCode(SEED_ORDER), fulfil:'pickup', pay:'cash',
+  items:[{id:'p3',n:'Cedar & Tonka Beard Oil',p:14,qty:1,ico:'🧔'},{id:'p11',n:'Carbon Cutting Comb',p:6,qty:1,ico:'💇'}],
+  subtotal:20, fee:0, total:20, addr:null, withAppt:true, apptLabel:null, status:'collected',
+}];
+const seedOrders=()=>SEED_ORDERS.map(o=>JSON.parse(JSON.stringify(o)));
+let orders=seedOrders();
+
+const ORDER_FLOW={
+  pickup:[
+    ['ready',    'Ready at the shop', 'Show your pickup code at the chair'],
+    ['collected','Collected',         'Handed over at FadeRoom'],
+  ],
+  delivery:[
+    ['packing',  'Packing',           'We’re boxing your order'],
+    ['out',      'Out for delivery',  'On its way to you'],
+    ['delivered','Delivered',         'Left with you'],
+  ],
+};
+const orderSteps=o=>ORDER_FLOW[o.fulfil];
+const orderStepIndex=o=>orderSteps(o).findIndex(s=>s[0]===o.status);
+const orderLabel=o=>(orderSteps(o).find(s=>s[0]===o.status)||['','—'])[1];
+const orderOpen=o=>orderStepIndex(o)<orderSteps(o).length-1;
+
+function saveShop(){try{localStorage.setItem('faderoom-shop',JSON.stringify({cart,orders}));}catch(e){}}
+function loadShop(){
+  try{
+    const r=localStorage.getItem('faderoom-shop');
+    if(!r)return;
+    const d=JSON.parse(r);
+    /* Drop lines whose product no longer exists in the catalogue. */
+    if(Array.isArray(d.cart))cart=d.cart.filter(l=>prod(l.id));
+    if(Array.isArray(d.orders)&&d.orders.length)orders=d.orders;
+  }catch(e){}
+}
+
+function resetShop(){
+  try{localStorage.removeItem('faderoom-shop');}catch(e){}
+  cart=[];orders=seedOrders();
+  products.forEach(p=>p.stock=p.stock0);
+  shopFilter={cat:'All',q:''};fulfil='pickup';payMethod='cash';pickupWithAppt=false;
+  ship={name:'Elie Saide',phone:'+961 70 123 456',addr:'',note:''};
+  refreshShopUI();toast('Shop demo reset');
+}
+
+function prod(id){return products.find(p=>p.id===id);}
+function sellerName(by){return by<0?'FadeRoom':barbers[by].n;}
+function cartLine(id){return cart.find(l=>l.id===id);}
+function cartCount(){return cart.reduce((t,l)=>t+l.qty,0);}
+function cartSubtotal(){return cart.reduce((t,l)=>t+prod(l.id).p*l.qty,0);}
+function deliveryFee(){return fulfil==='delivery'&&cartSubtotal()<FREE_DELIVERY_OVER?DELIVERY_FEE:0;}
+function cartTotal(){return cartSubtotal()+deliveryFee();}
+
+function shopList(){
+  const q=shopFilter.q.trim().toLowerCase();
+  return products.filter(p=>
+    (shopFilter.cat==='All'||p.cat===shopFilter.cat)&&
+    (!q||p.n.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)
+       ||p.cat.toLowerCase().includes(q)||sellerName(p.by).toLowerCase().includes(q)));
+}
+
+/* =========================================================
+   SHARED PARTIALS
+   ========================================================= */
+function punchStrip(n){
+  return `<div class="punch">${Array.from({length:LOYALTY_GOAL},(_,i)=>{
+    const on=i<n, goal=i===LOYALTY_GOAL-1;
+    return `<div class="punch-slot ${on?'on':''} ${goal?'goal':''}">${on?(goal?'🎁':'✂'):(goal?'🎁':i+1)}</div>`;
+  }).join('')}</div>`;
+}
+function punchMini(n){
+  return `<div class="punch-mini">${Array.from({length:LOYALTY_GOAL},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</div>`;
+}
+/* Artist's client row — stamp dots sit right under the name so the
+   barber can see who is one cut away from a freebie. */
+function rosterCard(c,i){
+  const n=clientStamps(i), owed=i===0?liveRewards().length:0;
+  return `<div class="card mt12" data-client="${i}" style="cursor:pointer">
+    <div class="row">
+      <div class="avatar" style="width:44px;height:44px;font-size:14px">${initials(c.n)}</div>
+      <div class="grow">
+        <div class="row" style="gap:7px"><span style="font-weight:700">${c.n}</span>${owed?`<span class="badge gold">🎁 ${owed} FREE CUT</span>`:''}</div>
+        <div class="sub mt8">${c.fav}</div>
+        <div class="row" style="gap:8px">${punchMini(n)}<span class="sub" style="font-size:10.5px;margin-top:6px">${n}/${LOYALTY_GOAL}</span></div>
+      </div>
+      <div style="text-align:right">
+        <span class="badge ${c.status}">${c.tag}</span>
+        <div class="sub" style="font-size:10px;margin-top:5px">${c.last}</div>
+      </div>
+    </div>
+  </div>`;
+}
+function styleThumb(s,i,h=150){
+  return `<div class="thumb" data-style="${i}" style="height:${h}px;background:${grads[i%grads.length]};cursor:pointer">
+    <div class="grad" style="background:linear-gradient(to top,rgba(0,0,0,.6),transparent 60%)"></div>
+    <div class="fav" data-fav="${i}">${s.fav?'♥':'♡'}</div>
+    <div class="dur">${s.dur}</div>
+    <div style="position:relative;z-index:2;padding:10px 12px">
+      <div style="font-size:10px;opacity:.85;font-weight:600">${s.cat} · $${s.price}</div>
+      <div style="font-size:14px;font-weight:700">${s.t}</div>
+    </div>
+  </div>`;
+}
+function initials(n){return n.split(' ').map(x=>x[0]).join('').slice(0,2);}
+function stars(r){return '★'.repeat(Math.round(r))+'☆'.repeat(5-Math.round(r));}
+
+/* Product tile. The whole card opens the product; the + is a shortcut
+   straight into the cart, which is where most repeat buys will happen. */
+function productCard(p){
+  const i=products.indexOf(p), out=p.stock<=0, inCart=(cartLine(p.id)||{}).qty||0;
+  return `<div class="prod" data-prod="${p.id}">
+    <div class="prod-img" style="background:${grads[i%grads.length]}">
+      <span>${p.ico}</span>
+      ${out?'<div class="soldout">SOLD OUT</div>'
+           :`${p.tag?`<span class="tag">${p.tag}</span>`:''}
+             <div class="add" data-add="${p.id}">${inCart?inCart:'+'}</div>`}
+    </div>
+    <div class="prod-b">
+      <div class="pn">${p.n}</div>
+      <div class="pm">${p.size.split(' · ')[0]} · ${sellerName(p.by).split(' ')[0]}</div>
+      <div class="row between mt8">
+        <span class="pp">$${p.p}${p.was?`<s>$${p.was}</s>`:''}</span>
+        <span class="rating" style="font-size:11px">★ ${p.rate}</span>
+      </div>
+    </div>
+  </div>`;
+}
+function stepper(id,q,max){
+  return `<div class="stepper">
+    <button onclick="setQty('${id}',${q-1})" aria-label="Remove one">−</button>
+    <span class="qv">${q}</span>
+    <button onclick="setQty('${id}',${q+1})" ${q>=max?'disabled':''} aria-label="Add one">+</button>
+  </div>`;
+}
+/* "Sold by" block — an artist's shelf links back to booking their chair. */
+function sellerCard(by){
+  if(by<0)return `<div class="card mt12"><div class="row">
+    <div class="avatar" style="width:40px;height:40px;font-size:15px">✂</div>
+    <div class="grow"><div style="font-weight:700;font-size:14px">FadeRoom house label</div>
+      <div class="sub" style="margin-top:2px">Stocked by the shop · used at every chair</div></div></div></div>`;
+  const b=barbers[by];
+  return `<div class="card mt12" data-barber-card="${by}" style="cursor:pointer"><div class="row">
+    <div class="avatar" style="width:40px;height:40px;font-size:13px">${initials(b.n)}</div>
+    <div class="grow"><div style="font-weight:700;font-size:14px">From ${b.n}’s shelf</div>
+      <div class="sub" style="margin-top:2px">${b.spec} · ★ ${b.rate}</div></div>
+    <span style="color:var(--muted)">›</span></div></div>`;
+}
+
+/* =========================================================
+   SCREEN TEMPLATES
+   ========================================================= */
+const SCREENS = {
+/* ---------- Auth: Login ---------- */
+login:()=>`
+  <div style="height:14px"></div>
+  <div class="row" style="gap:10px">
+    <div class="avatar" style="width:46px;height:46px;font-size:20px">✂</div>
+    <div><div style="font-weight:800;font-size:20px">FadeRoom</div><div class="sub">Sharp cuts. No waiting.</div></div>
+  </div>
+  <div class="pole mt16"></div>
+  <div class="mt24">
+    <h2 class="screen-title">Welcome back</h2>
+    <p class="sub mt8">Sign in with email or phone</p>
+  </div>
+
+  <div class="mt20">
+    <div class="sub" style="font-weight:600;margin-bottom:10px">I am a…</div>
+    <div class="row">
+      <div class="role-card ${currentRole==='client'?'active':''}" data-role="client">
+        <svg class="role-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><div class="t">Client</div><div class="d">Book a chair</div>
+      </div>
+      <div class="role-card ${currentRole==='artist'?'active':''}" data-role="artist">
+        <svg class="role-ico" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.6"/><circle cx="6" cy="17" r="2.6"/><path d="M8.4 8.6 20 18M8.4 15.4 20 6"/></svg><div class="t">Artist</div><div class="d">Manage my chair</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Email or phone</label>
+    <input class="input" id="li-user" placeholder="you@email.com" value="elie@faderoom.app"/>
+    <div class="err-msg" id="li-user-err">Enter a valid email or phone number</div>
+  </div>
+  <div class="field">
+    <label>Password</label>
+    <input class="input" id="li-pass" type="password" placeholder="••••••••" value="password1"/>
+    <div class="err-msg" id="li-pass-err">Password must be at least 6 characters</div>
+  </div>
+  <div class="row between mt12" style="font-size:13px">
+    <label class="row" style="gap:8px;color:var(--muted)"><input type="checkbox" checked style="accent-color:var(--accent)"/> Remember me</label>
+    <a onclick="show('forgot')" class="accent" style="cursor:pointer;font-weight:600">Forgot password?</a>
+  </div>
+  <button class="btn mt20" onclick="doLogin()">Sign in</button>
+  <div class="row" style="justify-content:center;margin-top:16px;font-size:13.5px;color:var(--muted)">
+    New here? <a onclick="show('register')" class="accent" style="cursor:pointer;font-weight:700;margin-inline-start:6px">Create account</a>
+  </div>
+`,
+
+/* ---------- Auth: Register ---------- */
+register:()=>`
+  ${baseHeader('Create account',{sub:'Join FadeRoom in under a minute'})}
+  <div class="field"><label>Full name</label><input class="input" id="rg-name" placeholder="Elie Saide"/><div class="err-msg" id="rg-name-err">Please enter your name</div></div>
+  <div class="field"><label>Email</label><input class="input" id="rg-email" placeholder="you@email.com"/><div class="err-msg" id="rg-email-err">Enter a valid email</div></div>
+  <div class="field"><label>Phone</label><input class="input" id="rg-phone" placeholder="+961 ..."/><div class="err-msg" id="rg-phone-err">Enter a valid phone number</div></div>
+  <div class="field"><label>Password</label><input class="input" id="rg-pass" type="password" placeholder="Min. 6 characters"/><div class="err-msg" id="rg-pass-err">Password must be at least 6 characters</div></div>
+  <button class="btn mt20" onclick="doRegister()">Create account & verify</button>
+  <p class="sub" style="text-align:center;margin-top:14px;font-size:11px">We'll send a one-time code to verify you</p>
+`,
+
+/* ---------- Auth: Forgot ---------- */
+forgot:()=>`
+  ${baseHeader('Reset password')}
+  <p class="sub mt8">Enter your email or phone and we'll send a one-time verification code.</p>
+  <div class="field"><label>Email or phone</label><input class="input" id="fg-user" placeholder="you@email.com"/><div class="err-msg" id="fg-user-err">Enter a valid email or phone</div></div>
+  <div class="seg mt16">
+    <button class="active" data-otp-method="email">Send via Email</button>
+    <button data-otp-method="sms">Send via SMS</button>
+  </div>
+  <button class="btn mt20" onclick="doForgot()">Send code</button>
+`,
+
+/* ---------- Auth: OTP ---------- */
+otp:()=>`
+  ${baseHeader('Verify code')}
+  <p class="sub mt8">We sent a 4-digit code to <b id="otp-dest" class="accent">your device</b>.</p>
+  <div class="otp mt20" id="otp-inputs">
+    <input maxlength="1" inputmode="numeric"/><input maxlength="1" inputmode="numeric"/>
+    <input maxlength="1" inputmode="numeric"/><input maxlength="1" inputmode="numeric"/>
+  </div>
+  <div class="row between mt16" style="font-size:13px">
+    <span class="muted">Didn't get it?</span>
+    <a class="accent" style="cursor:pointer;font-weight:600" onclick="toast('Code resent')">Resend code</a>
+  </div>
+  <button class="btn mt20" onclick="doVerifyOtp()">Verify</button>
+  <p class="sub" style="text-align:center;margin-top:12px;font-size:11px">Demo code: 1 2 3 4</p>
+`,
+
+/* ---------- Client: Home ---------- */
+home:()=>{
+  /* No appointment is a normal state — cancelling the last one lands here. */
+  const a=appts[0], b=a?barbers[a.barber]:null, s=a?services[a.service]:null;
+  const n=loyalty.stamps.length, rw=availableReward(), pct=Math.round(n/LOYALTY_GOAL*100);
+  return `
+  ${baseHeader('Elie 👋',{back:false,sub:'Good morning',
+    left:'<div class="avatar" style="width:42px;height:42px;font-size:15px">ES</div>',
+    right:ICO_SEARCH+ICO_CART()})}
+
+  <div class="row mt16" style="gap:10px">
+    <div class="stat"><div class="n accent">${loyalty.total}</div><div class="l">Visits</div></div>
+    <div class="stat"><div class="n">${n}/${LOYALTY_GOAL}</div><div class="l">To free cut</div></div>
+    <div class="stat"><div class="n">2 wks</div><div class="l">Since last cut</div></div>
+  </div>
+
+  ${rw?`
+  <div class="card mt16" style="border-color:var(--accent);background:var(--accent-soft)" onclick="showClaim('${rw.code}')">
+    <div class="row">
+      <div style="font-size:30px">🎁</div>
+      <div class="grow"><div style="font-weight:800">Free haircut ready</div>
+        <div class="sub mt8">Claim code <b class="accent">${rw.code}</b> · show it at the chair</div></div>
+      <span style="color:var(--muted)">›</span>
+    </div>
+  </div>`:''}
+
+  ${a?`
+  <div class="card hero mt16">
+    <div class="row between"><span class="badge gold">NEXT APPOINTMENT</span><span class="sub">${a.day} · ${a.time}</span></div>
+    <div class="row mt12">
+      <div class="avatar" style="width:44px;height:44px;font-size:14px">${initials(b.n)}</div>
+      <div class="grow">
+        <div style="font-weight:800;font-size:17px">${s.n}</div>
+        <div class="sub mt8">${b.n} · ${b.chair} · ${s.d} min · $${s.p}</div>
+      </div>
+    </div>
+    <button class="btn mt16" style="padding:12px" onclick="show('appointments')">Manage appointment</button>
+  </div>`:`
+  <div class="card mt16" style="text-align:center;padding:26px">
+    <div style="font-size:30px">💈</div>
+    <div style="font-weight:700;margin-top:8px">No upcoming visits</div>
+    <div class="sub mt8">Your chair is waiting</div>
+    <button class="btn mt16" style="padding:12px" onclick="show('book')">Book a cut</button>
+  </div>`}
+
+  <div class="row between mt24"><h2 style="font-size:17px;font-weight:800">Our artists</h2><a class="accent" style="font-size:13px;cursor:pointer" onclick="show('book')">Book now</a></div>
+  <div class="chip-scroll mt12" style="gap:12px">
+    ${barbers.map((b,i)=>`
+      <div class="card" data-barber-card="${i}" style="width:172px;flex:0 0 auto;cursor:pointer;padding:14px">
+        <div class="avatar" style="width:52px;height:52px;font-size:17px">${initials(b.n)}</div>
+        <div style="font-weight:700;margin-top:10px;font-size:14px">${b.n}</div>
+        <div class="sub" style="font-size:11px;margin-top:2px;height:28px">${b.spec}</div>
+        <div class="row between mt8"><span class="rating">★ ${b.rate}</span><span class="sub" style="font-size:11px">from $${b.from}</span></div>
+      </div>`).join('')}
+  </div>
+
+  <div class="row between mt24"><h2 style="font-size:17px;font-weight:800">Trending styles</h2><a class="accent" style="font-size:13px;cursor:pointer" onclick="show('styles')">View all</a></div>
+  <div class="chip-scroll mt12" style="gap:12px">
+    ${[0,1,5].map(i=>`<div style="width:200px;flex:0 0 auto">${styleThumb(styles[i],i,120)}</div>`).join('')}
+  </div>
+
+  <div class="row between mt24"><h2 style="font-size:17px;font-weight:800">From the shop</h2><a class="accent" style="font-size:13px;cursor:pointer" onclick="show('shop')">Browse all</a></div>
+  <div class="chip-scroll mt12" style="gap:12px">
+    ${['p1','p3','p6','p8'].map(id=>`<div style="width:152px;flex:0 0 auto">${productCard(prod(id))}</div>`).join('')}
+  </div>
+
+  ${orders.filter(orderOpen).map(o=>`
+  <div class="card mt16" data-order="${o.id}" style="cursor:pointer;border-color:var(--accent)">
+    <div class="row">
+      <div style="font-size:26px">${o.fulfil==='pickup'?'🛍️':'🛵'}</div>
+      <div class="grow"><div style="font-weight:800">${orderLabel(o)}</div>
+        <div class="sub mt8">${o.items.reduce((t,x)=>t+x.qty,0)} item${o.items.reduce((t,x)=>t+x.qty,0)===1?'':'s'} · $${o.total} · order ${o.code}</div></div>
+      <span style="color:var(--muted)">›</span>
+    </div>
+  </div>`).join('')}
+
+  <div class="card mt24" onclick="show('loyalty')" style="cursor:pointer">
+    <div class="row">
+      <div class="ring" style="width:64px;height:64px;background:conic-gradient(var(--accent) 0 ${pct}%,var(--surface-3) ${pct}% 100%)"><div class="inner" style="width:48px;height:48px"><b style="font-size:13px">${n}/${LOYALTY_GOAL}</b></div></div>
+      <div class="grow"><div style="font-weight:700">Loyalty card</div>
+        <div class="sub mt8">${LOYALTY_GOAL-n} more check-in${LOYALTY_GOAL-n===1?'':'s'} and your next cut is on us</div>
+        ${punchMini(n)}</div>
+      <span style="color:var(--muted)">›</span>
+    </div>
+  </div>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Book ---------- */
+book:()=>{
+  const days=dayList();
+  const b=barbers[booking.barber], s=services[booking.service];
+  const dayOff=b.off.includes(days[booking.day].wd);
+  return `
+  ${baseHeader('Book',{sub:'FadeRoom · Mar Mikhael, Beirut',right:ICO_CAL})}
+
+  <h2 style="font-size:15px;font-weight:800" class="mt16">1 · Choose your artist</h2>
+  <div class="chip-scroll mt12" style="gap:10px">
+    ${barbers.map((x,i)=>`
+      <div class="chip ${booking.barber===i?'active':''}" data-bk-barber="${i}" style="padding:8px 12px 8px 8px;gap:9px;border-radius:14px">
+        <div class="avatar" style="width:30px;height:30px;font-size:11px;${booking.barber===i?'background:var(--on-accent);color:var(--accent)':''}">${initials(x.n)}</div>
+        <span style="font-weight:600">${x.n.split(' ')[0]}</span>
+      </div>`).join('')}
+  </div>
+  <div class="card mt12">
+    <div class="row">
+      <div class="avatar" style="width:44px;height:44px;font-size:14px">${initials(b.n)}</div>
+      <div class="grow"><div style="font-weight:700">${b.n}</div><div class="sub mt8">${b.spec}</div></div>
+      <div style="text-align:right"><div class="rating">★ ${b.rate}</div><div class="sub" style="font-size:10px">${b.revs} reviews</div></div>
+    </div>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">2 · Choose a service</h2>
+  <div class="mt8">
+    ${services.map((x,i)=>`
+      <div class="list-item" data-bk-service="${i}" style="cursor:pointer">
+        <div class="checkbox ${booking.service===i?'done':''}" style="border-radius:50%">${booking.service===i?'✓':''}</div>
+        <div class="grow"><div style="font-weight:600;font-size:15px">${x.n}</div><div class="sub" style="margin-top:2px">${x.desc} · ${x.d} min</div></div>
+        <div style="font-weight:800;font-size:15px">$${x.p}</div>
+      </div>`).join('')}
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">3 · Pick a day</h2>
+  <div class="chip-scroll mt12">
+    ${days.map((d,i)=>`
+      <div class="day ${booking.day===i?'active':''} ${b.off.includes(d.wd)?'off':''}" data-bk-day="${i}">
+        <div class="dn">${d.dn}</div><div class="dd">${d.dd}</div>
+      </div>`).join('')}
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">4 · Pick a time</h2>
+  ${dayOff
+    ? `<div class="card mt12" style="text-align:center;padding:26px"><div style="font-size:28px">💈</div><div style="font-weight:700;margin-top:8px">${b.n.split(' ')[0]} is off this day</div><div class="sub mt8">Pick another day or another artist</div></div>`
+    : `<div class="slot-grid">
+        ${SLOTS.map((t,i)=>{
+          const taken=slotTaken(booking.day,i);
+          return `<div class="slot ${taken?'taken':''} ${booking.time===t?'sel':''}" ${taken?'':`data-bk-time="${t}"`}>${fmt12(t)}</div>`;
+        }).join('')}
+      </div>`}
+
+  <div class="card mt24">
+    <div class="row between"><span class="sub">Service</span><span style="font-weight:700">${s.n}</span></div>
+    <div class="row between mt8"><span class="sub">Artist</span><span style="font-weight:700">${b.n}</span></div>
+    <div class="row between mt8"><span class="sub">When</span><span style="font-weight:700">${booking.time?days[booking.day].label+' · '+fmt12(booking.time):'—'}</span></div>
+    <div class="divider"></div>
+    <div class="row between"><span style="font-weight:700">Total</span><span class="accent" style="font-weight:800;font-size:18px">$${s.p}</span></div>
+  </div>
+  <button class="btn mt16" ${booking.time&&!dayOff?'':'disabled'} onclick="reviewBooking()">${booking.time?'Review & confirm':'Select a time slot'}</button>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Appointments ---------- */
+appointments:()=>`
+  ${baseHeader('Appointments',{sub:'Upcoming visits & your cut history'})}
+  <div class="seg mt16" id="appt-seg">
+    <button class="active" data-appt-tab="up">Upcoming</button>
+    <button data-appt-tab="past">History</button>
+  </div>
+
+  <div id="appt-up" class="mt16">
+    ${appts.length?appts.map(a=>{
+      const b=barbers[a.barber],s=services[a.service];
+      return `<div class="card mt12">
+        <div class="row between">
+          <span class="badge ${a.status==='confirmed'?'ok':'warn'}">${a.status==='confirmed'?'Confirmed':'Awaiting artist'}</span>
+          <span class="sub">${a.day} · ${a.time}</span>
+        </div>
+        <div class="row mt12">
+          <div class="avatar" style="width:42px;height:42px;font-size:13px">${initials(b.n)}</div>
+          <div class="grow"><div style="font-weight:700">${s.n}</div>
+            <div class="sub mt8">${b.n} · ${b.chair} · ${a.free?`<s style="opacity:.5">$${s.p}</s> free`:'$'+s.p}</div></div>
+          ${a.free?'<span class="badge gold">FREE CUT</span>':''}
+        </div>
+        ${a.free?`<div class="card mt12" style="border-color:var(--accent);background:var(--accent-soft);padding:12px;cursor:pointer" onclick="showClaim('${a.rewardCode}')">
+          <div class="row between"><span class="sub">Claim code</span><span style="font-weight:800;letter-spacing:3px">${a.rewardCode}</span></div>
+          <div class="sub" style="font-size:11px;margin-top:6px">Tap to show the QR · your artist redeems it at the chair</div>
+        </div>`:''}
+        <div class="row mt16" style="gap:10px">
+          <button class="btn secondary" style="padding:11px;font-size:14px" onclick="rescheduleSheet(${a.id})">Reschedule</button>
+          <button class="btn danger" style="padding:11px;font-size:14px" onclick="cancelSheet(${a.id})">Cancel</button>
+        </div>
+      </div>`}).join('')
+    :`<div class="card" style="text-align:center;padding:30px"><div style="font-size:30px">💈</div><div style="font-weight:700;margin-top:8px">No upcoming visits</div><div class="sub mt8">Your chair is waiting</div><button class="btn mt16" onclick="show('book')">Book a cut</button></div>`}
+  </div>
+
+  <div id="appt-past" class="mt16 hidden">
+    ${past.map(p=>{
+      const b=barbers[p.barber],s=services[p.service];
+      return `<div class="list-item">
+        <div class="avatar" style="width:42px;height:42px;font-size:13px">${initials(b.n)}</div>
+        <div class="grow"><div style="font-weight:600">${s.n}</div><div class="sub" style="margin-top:2px">${b.n} · ${p.day}</div></div>
+        <div style="text-align:right"><div style="font-weight:700">$${p.price}</div><div class="rating" style="font-size:10px">${stars(p.rated)}</div></div>
+      </div>`}).join('')}
+    <button class="btn ghost mt20" onclick="rebookLast()">Rebook my last cut</button>
+  </div>
+`,
+
+/* ---------- Client: Styles lookbook ---------- */
+styles:()=>`
+  ${baseHeader('Styles',{sub:'Real work from our chairs · tap to book the look',right:ICO_SEARCH})}
+  <div class="chip-scroll mt12" id="style-cats">
+    <div class="chip active" data-cat="All">All</div>
+    <div class="chip" data-cat="Fades">Fades</div>
+    <div class="chip" data-cat="Classic">Classic</div>
+    <div class="chip" data-cat="Textured">Textured</div>
+    <div class="chip" data-cat="Beard">Beard</div>
+    <div class="chip" data-cat="Design">Design</div>
+    <div class="chip" data-cat="fav">♥ Saved</div>
+  </div>
+  <div id="style-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+    ${styles.map((s,i)=>styleThumb(s,i)).join('')}
+  </div>
+  <div style="height:10px"></div>
+`,
+
+/* ---------- Client: Search ---------- */
+search:()=>`
+  ${baseHeader('Search',{sub:'Artists, services & styles'})}
+  <div class="search-in mt16"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="q" placeholder="Try 'fade', 'beard', 'Karim'…" oninput="runSearch(this.value)"/></div>
+  <div class="chip-scroll mt16">
+    <div class="chip" onclick="quickSearch('fade')">fade</div>
+    <div class="chip" onclick="quickSearch('beard')">beard</div>
+    <div class="chip" onclick="quickSearch('shave')">shave</div>
+    <div class="chip" onclick="quickSearch('kids')">kids</div>
+  </div>
+  <div id="search-results" class="mt16"><p class="sub" style="text-align:center;margin-top:40px">Start typing to search the shop</p></div>
+`,
+
+/* ---------- Client: Profile ---------- */
+profile:()=>`
+  ${baseHeader('Profile',{sub:'Your loyalty, preferences & shop info'})}
+  <div class="card mt12" style="text-align:center">
+    <div class="avatar" style="width:88px;height:88px;font-size:32px;margin:0 auto">ES</div>
+    <div style="font-weight:800;font-size:20px;margin-top:12px">Elie Saide</div>
+    <div class="sub">elie@faderoom.app · +961 70 123 456</div>
+    <span class="badge gold" style="margin-top:10px;display:inline-block">Client · Regular since 2024</span>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Loyalty</h2>
+  <div class="card mt8" style="text-align:center">
+    <div class="ring" style="background:conic-gradient(var(--accent) 0 ${Math.round(loyalty.stamps.length/LOYALTY_GOAL*100)}%,var(--surface-3) ${Math.round(loyalty.stamps.length/LOYALTY_GOAL*100)}% 100%)"><div class="inner"><b style="font-size:22px">${loyalty.stamps.length}/${LOYALTY_GOAL}</b><span class="sub">check-ins</span></div></div>
+    <div class="mt16">${punchStrip(loyalty.stamps.length)}</div>
+    <div class="sub mt16">${LOYALTY_GOAL-loyalty.stamps.length} more check-ins → next cut free${availableReward()?' · 🎁 one already waiting':''}</div>
+    <div class="row mt16" style="gap:10px">
+      <button class="btn secondary" style="padding:12px;font-size:14px" onclick="show('loyalty')">My card</button>
+      <button class="btn" style="padding:12px;font-size:14px" onclick="show('scan')">Scan to check in</button>
+    </div>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">My cut preferences</h2>
+  <div class="card mt8">
+    <div class="kv"><span class="k">Preferred artist</span><span>Karim Nasr</span></div>
+    <div class="kv"><span class="k">Usual service</span><span>Haircut · 45 min</span></div>
+    <div class="kv"><span class="k">Clipper guard</span><span>#2 sides, scissor top</span></div>
+    <div class="kv"><span class="k">Beard</span><span>Line up, keep length</span></div>
+    <div class="kv"><span class="k">Part</span><span>Natural left</span></div>
+  </div>
+  <button class="btn ghost mt12" onclick="prefSheet()">Edit preferences</button>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Shop</h2>
+  <div class="card mt8">
+    <div class="kv" onclick="show('orders')" style="cursor:pointer">
+      <span class="k">My orders</span>
+      <span>${orders.length}${orders.filter(orderOpen).length?` · <b class="accent">${orders.filter(orderOpen).length} open</b>`:''} ›</span>
+    </div>
+    <div class="kv" onclick="show('cart')" style="cursor:pointer">
+      <span class="k">Cart</span><span>${cartCount()} item${cartCount()===1?'':'s'} ›</span>
+    </div>
+    <div class="kv" onclick="show('shop')" style="cursor:pointer">
+      <span class="k">Browse products</span><span>${products.length} listed ›</span>
+    </div>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Appearance</h2>
+  <div class="seg mt8">
+    <button class="${currentTheme()==='light'?'active':''}" data-theme-btn="light" onclick="setTheme('light')">☀ Light</button>
+    <button class="${currentTheme()==='dark'?'active':''}" data-theme-btn="dark" onclick="setTheme('dark')">☾ Dark</button>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Shop</h2>
+  <div class="card mt8">
+    <div class="kv"><span class="k">FadeRoom</span><span>Mar Mikhael, Beirut</span></div>
+    <div class="kv"><span class="k">Hours</span><span>Tue–Sun · 10:00–20:00</span></div>
+    <div class="kv"><span class="k">Phone</span><span class="accent">+961 1 567 890</span></div>
+  </div>
+
+  <button class="btn danger mt12" onclick="logout()">Log out</button>
+  <div style="height:8px"></div>
+`,
+
+/* ---------- Client: Scan to check in ---------- */
+scan:()=>{
+  const n=loyalty.stamps.length, rw=availableReward(), left=LOYALTY_GOAL-n;
+  return `
+  ${baseHeader('Check in',{back:false,sub:'Scan the code at your artist’s chair',right:ICO_LOYALTY})}
+
+  <div class="scanner mt12" id="scanner">
+    <video id="cam" playsinline muted autoplay></video>
+    <div class="scan-frame"><i></i><i></i><i></i><i></i><div class="laser"></div></div>
+  </div>
+  <div class="sub" id="scan-hint" style="text-align:center;margin-top:10px">Starting the camera…</div>
+
+  <div class="card mt16">
+    <div class="row between"><span style="font-weight:700">Your card</span><span class="badge gold">${n}/${LOYALTY_GOAL}</span></div>
+    <div class="mt12">${punchStrip(n)}</div>
+    <div class="sub mt12">${rw
+      ? '🎁 A free haircut is already waiting in your card'
+      : `${left} more check-in${left===1?'':'s'} and your next cut is on us`}</div>
+  </div>
+
+  <div class="card mt12">
+    <div style="font-weight:700;font-size:14px">Camera not working?</div>
+    <div class="sub mt8">Type the 6-character code printed under your artist’s QR.</div>
+    <div class="row mt12" style="gap:10px">
+      <input class="input grow" id="chk-code" maxlength="6" autocapitalize="characters" placeholder="A1B2C3"
+             style="text-transform:uppercase;letter-spacing:4px;font-weight:700;text-align:center"/>
+      <button class="btn" style="width:auto;padding:15px 20px" onclick="manualCheckin()">Check in</button>
+    </div>
+  </div>
+
+  <button class="btn ghost mt12" onclick="demoScan()">▶ Simulate a scan (demo)</button>
+  <p class="sub" style="text-align:center;margin-top:8px;font-size:11px">The demo button skips the one-per-visit cooldown so you can fill the card.</p>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Loyalty card ---------- */
+loyalty:()=>{
+  const n=loyalty.stamps.length, live=liveRewards(), used=loyalty.rewards.filter(r=>r.status==='redeemed');
+  const left=LOYALTY_GOAL-n;
+  return `
+  ${baseHeader('Loyalty card',{sub:`Every ${LOYALTY_GOAL} check-ins = 1 free haircut`})}
+
+  <div class="card hero mt12" style="text-align:center">
+    <span class="badge gold">FADEROOM CLUB</span>
+    <div style="font-size:44px;font-weight:800;margin-top:8px;line-height:1">${n}<span class="muted" style="font-size:20px">/${LOYALTY_GOAL}</span></div>
+    <div class="sub">check-ins toward your free cut</div>
+    <div class="mt16">${punchStrip(n)}</div>
+    <div class="sub mt16">${left===LOYALTY_GOAL?'Scan at the chair after your next cut':`${left} to go`}</div>
+    <button class="btn mt12" onclick="show('scan')">Scan to check in</button>
+  </div>
+
+  ${live.length?`
+    <h2 style="font-size:15px;font-weight:800" class="mt24">Ready to use</h2>
+    ${live.map(r=>`
+      <div class="card mt8" style="border-color:var(--accent);background:var(--accent-soft)">
+        <div class="row between">
+          <div><div style="font-weight:800">🎁 Free haircut</div><div class="sub mt8">Earned ${ago(r.earnedAt)} · worth $${FREE_CUT_VALUE}</div></div>
+          <span class="badge gold">${r.status==='reserved'?'ON A BOOKING':'AVAILABLE'}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="row between"><span class="sub">Claim code</span><span class="code-out">${r.code}</span></div>
+        <button class="btn mt16" style="padding:12px" onclick="showClaim('${r.code}')">Show to my artist</button>
+      </div>`).join('')}
+  `:''}
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">How it works</h2>
+  <div class="card mt8">
+    <div class="rule"><span class="ri">📷</span><span>After every cut, scan the QR on your artist’s phone. That’s <b>one stamp</b>.</span></div>
+    <div class="rule"><span class="ri">🔄</span><span>The QR changes every minute, so it only works while you’re at the chair — a screenshot won’t.</span></div>
+    <div class="rule"><span class="ri">1️⃣</span><span>One stamp per visit. Scanning again in the same session won’t add another.</span></div>
+    <div class="rule"><span class="ri">🎁</span><span>The ${LOYALTY_GOAL}th stamp turns into a <b>free haircut</b> and your card starts over at 0.</span></div>
+    <div class="rule"><span class="ri">✅</span><span>Show your claim code at the chair — <b>your artist</b> confirms it in their portal. Free cut = a standard haircut ($${FREE_CUT_VALUE}); add-ons are still charged.</span></div>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">Card history</h2>
+  <div class="card mt8">
+    <div class="kv"><span class="k">Lifetime check-ins</span><span style="font-weight:700">${loyalty.total}</span></div>
+    <div class="kv"><span class="k">Free cuts earned</span><span style="font-weight:700">${loyalty.rewards.length}</span></div>
+    <div class="kv"><span class="k">Free cuts used</span><span style="font-weight:700">${used.length}</span></div>
+  </div>
+  <div class="mt12">
+    ${loyalty.stamps.length
+      ? loyalty.stamps.slice().reverse().map((s,i)=>`
+        <div class="list-item">
+          <div class="avatar" style="width:36px;height:36px;font-size:13px">✂</div>
+          <div class="grow"><div style="font-weight:600;font-size:14px">Stamp ${loyalty.stamps.length-i} of ${LOYALTY_GOAL}</div>
+            <div class="sub" style="margin-top:2px">${barbers[s.barber].n} · ${ago(s.ts)}</div></div>
+          <span class="badge ok">✓</span>
+        </div>`).join('')
+      : '<p class="sub" style="text-align:center;padding:20px">Fresh card — no stamps yet</p>'}
+  </div>
+
+  <button class="btn ghost mt16" onclick="resetLoyalty()">Reset demo data</button>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Shop ---------- */
+shop:()=>{
+  const list=shopList();
+  const mine=products.filter(p=>p.by===0&&p.stock>0);   /* Elie's preferred artist */
+  return `
+  ${baseHeader('Shop',{back:false,sub:'What our artists actually use at the chair',right:ICO_CART()})}
+
+  <div class="search-in mt12"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+    <input id="shop-q" value="${esc(shopFilter.q)}" placeholder="Search products, brands, artists…" oninput="shopSearch(this.value)"/></div>
+
+  <div class="chip-scroll mt12" id="shop-cats">
+    ${productCats.map(c=>`<div class="chip ${shopFilter.cat===c?'active':''}" data-shop-cat="${c}">${c}</div>`).join('')}
+  </div>
+
+  <div class="card hero mt12" onclick="openProduct('p6')" style="cursor:pointer">
+    <div class="row">
+      <div style="font-size:34px">🧖</div>
+      <div class="grow">
+        <span class="badge gold">SAVE $6</span>
+        <div style="font-weight:800;font-size:16px;margin-top:6px">Hot Towel Shave Kit</div>
+        <div class="sub mt8">Tony’s chair-side ritual, boxed for home · $34</div>
+      </div>
+      <span style="color:var(--muted)">›</span>
+    </div>
+  </div>
+
+  ${mine.length?`
+  <div class="row between mt24"><h2 style="font-size:17px;font-weight:800">From Karim’s shelf</h2><span class="sub">your usual artist</span></div>
+  <div class="chip-scroll mt12" style="gap:12px">
+    ${mine.map(p=>`<div style="width:152px;flex:0 0 auto">${productCard(p)}</div>`).join('')}
+  </div>`:''}
+
+  <div class="row between mt24">
+    <h2 style="font-size:17px;font-weight:800">All products</h2>
+    <span class="sub" id="shop-count">${list.length} item${list.length===1?'':'s'}</span>
+  </div>
+  <div id="shop-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+    ${list.map(p=>productCard(p)).join('')}
+  </div>
+
+  <div class="card mt16">
+    <div class="rule"><span class="ri">🛍️</span><span>Pick up at the shop for free — we can hand it over at your next cut.</span></div>
+    <div class="rule"><span class="ri">🛵</span><span>Delivery inside Beirut $${DELIVERY_FEE}, free over $${FREE_DELIVERY_OVER}.</span></div>
+    <div class="rule"><span class="ri">↩️</span><span>Unopened returns within 14 days, receipt or order code.</span></div>
+  </div>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Product ---------- */
+product:()=>{
+  const p=prod(viewProduct);
+  if(!p)return baseHeader('Product')+'<p class="sub mt16">This product is no longer listed.</p>';
+  const i=products.indexOf(p), out=p.stock<=0, inCart=(cartLine(p.id)||{}).qty||0;
+  const also=products.filter(x=>x.cat===p.cat&&x.id!==p.id&&x.stock>0).slice(0,3);
+  const max=Math.max(1,p.stock-inCart);
+  return `
+  ${baseHeader(p.n,{sub:`${p.brand} · ${p.size}`,right:ICO_CART()})}
+
+  <div class="thumb mt12" style="height:210px;background:${grads[i%grads.length]};align-items:center;justify-content:center;font-size:76px">
+    ${out?'<div class="soldout">SOLD OUT</div>':''}
+    <span style="position:relative;z-index:2">${p.ico}</span>
+    ${p.tag&&!out?`<span style="position:absolute;top:12px;left:12px;z-index:2;font-size:10px;font-weight:800;letter-spacing:.5px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff">${p.tag}</span>`:''}
+  </div>
+
+  <div class="row between mt16">
+    <div>
+      <div style="font-size:24px;font-weight:800">$${p.p}${p.was?`<s class="muted" style="font-size:15px;font-weight:600;margin-inline-start:8px">$${p.was}</s>`:''}</div>
+      <div class="sub" style="margin-top:2px">${p.cat} · ${p.size}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="rating">★ ${p.rate}</div>
+      <div class="sub" style="font-size:11px">${p.revs} reviews</div>
+    </div>
+  </div>
+
+  ${out
+    ? '<div class="card mt12" style="text-align:center"><div style="font-weight:700">Out of stock</div><div class="sub mt8">We restock the house label every Tuesday.</div></div>'
+    : p.stock<=3?`<div class="sub mt12" style="color:var(--danger);font-weight:700">Only ${p.stock} left in stock</div>`:''}
+
+  ${p.pref?`
+  <div class="card mt12" style="border-color:var(--accent);background:var(--accent-soft)">
+    <div class="row"><div style="font-size:22px">✅</div>
+      <div class="grow"><div style="font-weight:700;font-size:14px">Matches your saved preference</div>
+        <div class="sub" style="margin-top:2px">Your profile note: “Sensitive skin — no alcohol aftershave.”</div></div></div>
+  </div>`:''}
+
+  ${sellerCard(p.by)}
+
+  <p class="sub mt16" style="line-height:1.55;font-size:13.5px">${p.desc}</p>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">How to use it</h2>
+  <div class="card mt8"><div class="sub" style="line-height:1.55">${p.use}</div></div>
+
+  ${out?`
+  <button class="btn ghost mt20" onclick="toast('We’ll text you when it’s back')">Notify me when it’s back</button>`:`
+  <div class="row mt20" style="gap:12px">
+    <div>
+      <div class="sub" style="font-weight:600;margin-bottom:7px">Quantity</div>
+      <div class="stepper">
+        <button onclick="setPqty(${pqty-1})" aria-label="Fewer">−</button>
+        <span class="qv">${pqty}</span>
+        <button onclick="setPqty(${pqty+1})" ${pqty>=max?'disabled':''} aria-label="More">+</button>
+      </div>
+    </div>
+    <div class="grow" style="align-self:flex-end">
+      <button class="btn" ${p.stock-inCart>0?'':'disabled'} onclick="addToCart('${p.id}',${pqty})">
+        ${p.stock-inCart>0?`Add to cart · $${p.p*pqty}`:'All of it is in your cart'}</button>
+    </div>
+  </div>
+  ${inCart?`<button class="btn secondary mt12" onclick="show('cart')">View cart · <span data-cart-badge>${cartCount()}</span></button>`:''}`}
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">What clients say</h2>
+  <div class="card mt8">
+    ${PROD_REVIEWS.map(r=>`
+      <div class="list-item">
+        <div class="avatar" style="width:36px;height:36px;font-size:12px">${initials(r.n)}</div>
+        <div class="grow"><div class="row" style="gap:8px"><span style="font-weight:700;font-size:13.5px">${r.n}</span><span class="rating" style="font-size:11px">${stars(r.r)}</span></div>
+          <div class="sub" style="margin-top:3px;line-height:1.45">${r.t}</div></div>
+      </div>`).join('')}
+  </div>
+
+  ${also.length?`
+  <h2 style="font-size:15px;font-weight:800" class="mt24">Goes with it</h2>
+  <div class="chip-scroll mt12" style="gap:12px">
+    ${also.map(x=>`<div style="width:152px;flex:0 0 auto">${productCard(x)}</div>`).join('')}
+  </div>`:''}
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Cart ---------- */
+cart:()=>{
+  const n=cartCount();
+  if(!n)return `
+  ${baseHeader('Cart',{sub:'Nothing in it yet'})}
+  <div class="card mt16" style="text-align:center;padding:34px">
+    <div style="font-size:34px">🛍️</div>
+    <div style="font-weight:700;margin-top:8px">Your cart is empty</div>
+    <div class="sub mt8">Everything here is stocked by an artist you can book</div>
+    <button class="btn mt16" onclick="show('shop')">Browse the shop</button>
+  </div>
+  ${orders.length?`<button class="btn ghost mt12" onclick="show('orders')">My orders</button>`:''}`;
+
+  const sub=cartSubtotal(), fee=deliveryFee(), a=appts[0];
+  return `
+  ${baseHeader('Cart',{sub:`${n} item${n===1?'':'s'} · $${sub}`})}
+
+  <div class="card mt12">
+    ${cart.map(l=>{const p=prod(l.id);return `
+      <div class="list-item">
+        <div class="thumb" data-prod="${p.id}" style="width:56px;height:56px;flex:0 0 auto;background:${grads[products.indexOf(p)%grads.length]};align-items:center;justify-content:center;font-size:26px;cursor:pointer">${p.ico}</div>
+        <div class="grow" data-prod="${p.id}" style="cursor:pointer">
+          <div style="font-weight:700;font-size:14px">${p.n}</div>
+          <div class="sub" style="margin-top:2px">${p.size.split(' · ')[0]} · ${sellerName(p.by).split(' ')[0]}</div>
+          <div style="font-weight:800;margin-top:6px">$${p.p*l.qty}</div>
+        </div>
+        ${stepper(p.id,l.qty,p.stock)}
+      </div>`}).join('')}
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">How do you want it?</h2>
+  <div class="seg mt8">
+    <button class="${fulfil==='pickup'?'active':''}" onclick="setFulfil('pickup')">💈 Pick up</button>
+    <button class="${fulfil==='delivery'?'active':''}" onclick="setFulfil('delivery')">🛵 Delivery</button>
+  </div>
+  <div class="sub mt8" style="font-size:11.5px">${fulfil==='pickup'
+    ? (a?`Free · we can hand it over at your ${a.day.toLowerCase()} cut with ${barbers[a.barber].n.split(' ')[0]}`
+        :'Free · collect it at the shop, Tue–Sun 10:00–20:00')
+    : `Inside Beirut · $${DELIVERY_FEE}, free over $${FREE_DELIVERY_OVER}`}</div>
+
+  <div class="card mt16">
+    <div class="kv"><span class="k">Subtotal</span><span>$${sub}</span></div>
+    <div class="kv"><span class="k">${fulfil==='pickup'?'Pickup':'Delivery'}</span><span>${fee?'$'+fee:'Free'}</span></div>
+    <div class="divider"></div>
+    <div class="row between"><span style="font-weight:700">Total</span><span class="accent" style="font-weight:800;font-size:20px">$${sub+fee}</span></div>
+  </div>
+  ${fulfil==='delivery'&&sub<FREE_DELIVERY_OVER?`<div class="sub mt8" style="font-size:11.5px">Add $${FREE_DELIVERY_OVER-sub} more for free delivery.</div>`:''}
+
+  <button class="btn mt16" onclick="goCheckout()">Checkout · $${sub+fee}</button>
+  <button class="btn ghost mt12" onclick="show('shop')">Keep shopping</button>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Checkout ---------- */
+checkout:()=>{
+  const sub=cartSubtotal(), fee=deliveryFee(), a=appts[0], n=cartCount();
+  return `
+  ${baseHeader('Checkout',{sub:`${n} item${n===1?'':'s'} · $${sub+fee}`})}
+
+  <h2 style="font-size:15px;font-weight:800" class="mt16">Fulfilment</h2>
+  <div class="seg mt8">
+    <button class="${fulfil==='pickup'?'active':''}" onclick="setFulfil('pickup')">💈 Pick up</button>
+    <button class="${fulfil==='delivery'?'active':''}" onclick="setFulfil('delivery')">🛵 Delivery</button>
+  </div>
+
+  ${fulfil==='pickup'?`
+  <div class="card mt12">
+    <div class="kv"><span class="k">Collect from</span><span>FadeRoom · Mar Mikhael</span></div>
+    <div class="kv"><span class="k">Hours</span><span>Tue–Sun · 10:00–20:00</span></div>
+    <div class="kv"><span class="k">Ready</span><span class="accent">Today, within the hour</span></div>
+  </div>
+  ${a?`
+  <label class="card mt12 row" style="gap:12px;cursor:pointer;${pickupWithAppt?'border-color:var(--accent);background:var(--accent-soft)':''}">
+    <input type="checkbox" ${pickupWithAppt?'checked':''} onchange="setPickupAppt(this.checked)" style="accent-color:var(--accent);width:20px;height:20px;flex:0 0 auto"/>
+    <div class="grow"><div style="font-weight:700;font-size:14px">Hand it to me at my next cut</div>
+      <div class="sub" style="margin-top:2px">${a.day} · ${a.time} with ${barbers[a.barber].n}</div></div>
+  </label>`:''}`:`
+  <div class="card mt12">
+    <div class="field" style="margin-top:0"><label>Full name</label>
+      <input class="input" id="ck-name" value="${esc(ship.name)}" oninput="ship.name=this.value"/>
+      <div class="err-msg" id="ck-name-err">Please enter your name</div></div>
+    <div class="field"><label>Phone</label>
+      <input class="input" id="ck-phone" value="${esc(ship.phone)}" oninput="ship.phone=this.value"/>
+      <div class="err-msg" id="ck-phone-err">Enter a valid phone number</div></div>
+    <div class="field"><label>Address</label>
+      <textarea class="input" id="ck-addr" placeholder="Street, building, floor" oninput="ship.addr=this.value">${esc(ship.addr)}</textarea>
+      <div class="err-msg" id="ck-addr-err">We need an address to deliver to</div></div>
+    <div class="field"><label>Rider notes (optional)</label>
+      <input class="input" value="${esc(ship.note)}" oninput="ship.note=this.value" placeholder="e.g. ring the top bell"/></div>
+  </div>
+  <div class="sub mt8" style="font-size:11.5px">Same-day inside Beirut if you order before 17:00.</div>`}
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Payment</h2>
+  <div class="seg mt8">
+    <button class="${payMethod==='cash'?'active':''}" onclick="setPay('cash')">Cash</button>
+    <button class="${payMethod==='card'?'active':''}" onclick="setPay('card')">Card</button>
+  </div>
+  <div class="sub mt8" style="font-size:11.5px">Paid on ${fulfil==='pickup'?'collection at the shop':'delivery, to the rider'} — no card stored in the app.</div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Your order</h2>
+  <div class="card mt8">
+    ${cart.map(l=>{const p=prod(l.id);return `
+      <div class="kv"><span class="k">${l.qty} × ${p.n}</span><span>$${p.p*l.qty}</span></div>`}).join('')}
+    <div class="divider"></div>
+    <div class="kv"><span class="k">Subtotal</span><span>$${sub}</span></div>
+    <div class="kv"><span class="k">${fulfil==='pickup'?'Pickup':'Delivery'}</span><span>${fee?'$'+fee:'Free'}</span></div>
+    <div class="row between mt12"><span style="font-weight:700">Total</span><span class="accent" style="font-weight:800;font-size:20px">$${sub+fee}</span></div>
+  </div>
+
+  <button class="btn mt16" onclick="placeOrder()">Place order · $${sub+fee}</button>
+  <button class="btn ghost mt12" onclick="show('cart')">Back to cart</button>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Client: Orders ---------- */
+orders:()=>`
+  ${baseHeader('My orders',{sub:'Product orders · your cuts live under Appointments'})}
+  ${orders.length?orders.map(o=>`
+    <div class="card mt12" data-order="${o.id}" style="cursor:pointer;${orderOpen(o)?'border-color:var(--accent)':''}">
+      <div class="row between">
+        <span class="badge ${orderOpen(o)?'gold':'dim'}">${orderLabel(o)}</span>
+        <span class="sub">${ago(o.ts)}</span>
+      </div>
+      <div class="row mt12">
+        <div style="font-size:26px">${o.fulfil==='pickup'?'🛍️':'🛵'}</div>
+        <div class="grow">
+          <div style="font-weight:700;font-size:14px">${o.items.map(x=>x.qty+'× '+x.n).join(', ')}</div>
+          <div class="sub mt8">Order ${o.code} · ${o.fulfil==='pickup'?'pickup':'delivery'} · $${o.total}</div>
+        </div>
+        <span style="color:var(--muted)">›</span>
+      </div>
+    </div>`).join('')
+  :`<div class="card mt16" style="text-align:center;padding:34px">
+      <div style="font-size:34px">📦</div><div style="font-weight:700;margin-top:8px">No orders yet</div>
+      <div class="sub mt8">Products you buy will show up here</div>
+      <button class="btn mt16" onclick="show('shop')">Browse the shop</button>
+    </div>`}
+  <button class="btn ghost mt20" onclick="resetShop()">Reset shop demo data</button>
+  <div style="height:10px"></div>
+`,
+
+/* ---------- Artist: Check-in QR + redemption ---------- */
+'ar-checkin':()=>`
+  ${baseHeader('Check-in',{back:false,sub:'Artist portal · Chair 1',
+    left:'<div class="avatar" style="width:42px;height:42px;font-size:13px">KN</div>',
+    right:ICO_THEME})}
+
+  <div class="card mt12" style="text-align:center">
+    <span class="badge gold">SHOW THIS TO YOUR CLIENT</span>
+    <div class="qrbox mt12" id="shop-qr" style="max-width:230px;margin:12px auto 0"></div>
+    <div class="row between mt16" style="align-items:flex-end">
+      <div style="text-align:left">
+        <div class="sub" style="font-size:11px">Or read out this code</div>
+        <div class="code-out" id="shop-code">------</div>
+      </div>
+      <div style="text-align:right">
+        <div class="sub" style="font-size:11px">Refreshes in</div>
+        <div style="font-weight:800;font-size:22px" id="shop-ttl">—</div>
+      </div>
+    </div>
+    <p class="sub mt12" style="font-size:11px">Show it once the cut is done. It rotates every minute, so it can’t be photographed and reused.</p>
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">Redeem a free cut</h2>
+  <div class="card mt8">
+    <div class="sub">Ask for the client’s 6-character claim code, or scan the code on their phone.</div>
+    <div class="row mt12" style="gap:10px">
+      <input class="input grow" id="rdm-code" maxlength="6" autocapitalize="characters" placeholder="CLAIM CODE"
+             style="text-transform:uppercase;letter-spacing:4px;font-weight:700;text-align:center"/>
+      <button class="btn" style="width:auto;padding:15px 20px" onclick="artistRedeem()">Check</button>
+    </div>
+    ${liveRewards().length?`<div class="sub mt12" style="font-size:11px">Demo hint — Elie’s live code: <b class="accent">${liveRewards()[0].code}</b></div>`:''}
+  </div>
+
+  <div class="row between mt24">
+    <h2 style="font-size:17px;font-weight:800">Today’s check-ins</h2>
+    <span class="badge dim">${checkins.length} events</span>
+  </div>
+  <div class="mt8">
+    ${checkins.length?checkins.map(c=>{
+      const meta=c.kind==='redeemed'?{b:'gold',t:'FREE CUT USED',s:`Claim ${c.code} · $${FREE_CUT_VALUE} off`}
+               :c.kind==='earned' ?{b:'gold',t:'EARNED A FREE CUT',s:`Claim code ${c.code}`}
+                                  :{b:'ok',  t:'CHECKED IN',      s:`Stamp ${c.n} of ${LOYALTY_GOAL}`};
+      return `<div class="list-item">
+        <div class="avatar" style="width:40px;height:40px;font-size:13px">${initials(c.name)}</div>
+        <div class="grow"><div style="font-weight:700;font-size:14px">${c.name}</div><div class="sub" style="margin-top:2px">${meta.s} · ${ago(c.ts)}</div></div>
+        <span class="badge ${meta.b}">${meta.t}</span>
+      </div>`}).join('')
+    :'<p class="sub" style="text-align:center;padding:24px">No check-ins yet today</p>'}
+  </div>
+
+  <h2 style="font-size:15px;font-weight:800" class="mt24">Programme rules</h2>
+  <div class="card mt8">
+    <div class="rule"><span class="ri">🎯</span><span>${LOYALTY_GOAL} check-ins → 1 free standard haircut ($${FREE_CUT_VALUE}). Add-ons stay chargeable.</span></div>
+    <div class="rule"><span class="ri">⏱️</span><span>Your QR is valid for 60 seconds. Never print it or leave it on display.</span></div>
+    <div class="rule"><span class="ri">🔒</span><span>Only you can redeem a free cut — the client can’t mark it used themselves.</span></div>
+    <div class="rule"><span class="ri">🚫</span><span>One stamp per client per visit; repeat scans in the same session are ignored.</span></div>
+    <div class="rule"><span class="ri">💈</span><span>Stamps follow the client across the shop, so any chair can hand one out.</span></div>
+  </div>
+  <div style="height:10px"></div>
+`,
+
+/* ---------- Artist: Schedule ---------- */
+'ar-schedule':()=>{
+  const revenue=agenda.filter(a=>a.status==='done').reduce((t,a)=>t+a.price,0);
+  const booked=agenda.length;
+  return `
+  ${baseHeader('Karim Nasr',{back:false,sub:'Artist portal · Chair 1',
+    left:'<div class="avatar" style="width:42px;height:42px;font-size:13px">KN</div>',
+    right:ICO_THEME+ICO_LOGOUT})}
+
+  <div class="row mt12" style="gap:10px">
+    <div class="stat"><div class="n accent">${booked}</div><div class="l">Today's bookings</div></div>
+    <div class="stat"><div class="n">$${revenue}</div><div class="l">Earned so far</div></div>
+    <div class="stat"><div class="n">4:30</div><div class="l">Next chair</div></div>
+  </div>
+
+  <div class="seg mt16" id="sched-seg">
+    <button class="active" data-sched-tab="today">Today</button>
+    <button data-sched-tab="week">This week</button>
+  </div>
+
+  <div id="sched-today">
+    <div class="row between mt20"><h2 style="font-size:17px;font-weight:800">Today's chair</h2><a class="accent" style="font-size:13px;cursor:pointer" onclick="blockSheet()">+ Block time</a></div>
+    <div class="mt12">
+      ${agenda.map((a,i)=>{
+        const freeCut=agendaFree(a);
+        return `
+        <div class="timeline-item ${a.status==='now'?'on':''}" data-agenda="${i}" style="cursor:pointer">
+          <div class="timeline-time">${a.time}</div>
+          <div class="timeline-body">
+            <div class="card" style="padding:13px;${a.status==='now'?'border-color:var(--accent);background:var(--accent-soft)':''};${freeCut?'border-color:var(--accent)':''};${a.status==='done'?'opacity:.55':''}">
+              <div class="row">
+                <div class="avatar" style="width:36px;height:36px;font-size:12px">${initials(a.client)}</div>
+                <div class="grow"><div style="font-weight:700;font-size:14px">${a.client}</div>
+                  <div class="sub" style="margin-top:2px">${a.service} · ${a.mins} min · ${freeCut?`<s style="opacity:.5">$${a.price}</s> free`:'$'+a.price}</div></div>
+                <div style="text-align:right">
+                  <span class="badge ${a.status==='done'?'dim':a.status==='now'?'gold':'ok'}">${a.status==='done'?'Done':a.status==='now'?'In chair':'Upcoming'}</span>
+                  ${freeCut?'<div class="badge gold" style="margin-top:5px">🎁 FREE CUT</div>':''}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`}).join('')}
+    </div>
+    <div class="card mt12" style="border-style:dashed;text-align:center;cursor:pointer" onclick="walkInSheet()">
+      <div style="font-size:24px">➕</div>
+      <div style="font-weight:700;margin-top:6px">Add walk-in</div>
+      <div class="sub mt8">Log a client who came without booking</div>
+    </div>
+  </div>
+
+  <div id="sched-week" class="hidden">
+    <h2 style="font-size:17px;font-weight:800" class="mt20">Week overview</h2>
+    <div class="card mt12">
+      ${[['Tue','8 cuts','$210'],['Wed','6 cuts','$164'],['Thu','9 cuts','$248'],['Fri','11 cuts','$312'],['Sat','12 cuts','$358'],['Sun','5 cuts','$132'],['Mon','Day off','—']].map(r=>`
+        <div class="kv"><span class="k">${r[0]}</span><span>${r[1]} <b class="accent" style="margin-inline-start:10px">${r[2]}</b></span></div>`).join('')}
+    </div>
+    <div class="row mt16" style="gap:10px">
+      <div class="stat"><div class="n accent">$1,424</div><div class="l">Week revenue</div></div>
+      <div class="stat"><div class="n">51</div><div class="l">Cuts</div></div>
+      <div class="stat"><div class="n">4.9</div><div class="l">Rating</div></div>
+    </div>
+    <h2 style="font-size:15px;font-weight:800" class="mt20">Working hours</h2>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Tue – Sat</span><span>10:00 – 20:00</span></div>
+      <div class="kv"><span class="k">Sunday</span><span>11:00 – 17:00</span></div>
+      <div class="kv"><span class="k">Monday</span><span class="muted">Closed</span></div>
+    </div>
+    <button class="btn ghost mt12" onclick="toast('Availability editor — demo')">Edit availability</button>
+  </div>
+  <div style="height:10px"></div>
+`},
+
+/* ---------- Artist: Clients ---------- */
+'ar-clients':()=>`
+  ${baseHeader('Clients',{sub:'Your book · preferences saved per client'})}
+  <div class="search-in mt16"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input placeholder="Search your clients…" oninput="filterRoster(this.value)"/></div>
+  <div class="row mt16" style="gap:10px">
+    <div class="stat"><div class="n accent">42</div><div class="l">Total clients</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">New this wk</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Overdue</div></div>
+  </div>
+  <div class="mt8" id="roster-list">
+    ${roster.map((c,i)=>rosterCard(c,i)).join('')}
+  </div>
+`,
+
+/* ---------- Artist: Services & pricing ---------- */
+'ar-services':()=>`
+  ${baseHeader('Services',{sub:'Your menu · what clients can book on your chair'})}
+  <div class="mt16">
+    ${services.map((s,i)=>`
+      <div class="card mt12" data-svc="${i}" style="cursor:pointer">
+        <div class="row">
+          <div class="grow"><div style="font-weight:700">${s.n}</div><div class="sub mt8">${s.desc}</div></div>
+          <div style="text-align:right"><div class="accent" style="font-weight:800;font-size:17px">$${s.p}</div><div class="sub" style="font-size:10px">${s.d} min</div></div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <button class="btn ghost mt20" onclick="serviceSheet(-1)">+ Add a service</button>
+  <h2 style="font-size:15px;font-weight:800" class="mt24">Booking rules</h2>
+  <div class="card mt8">
+    <div class="kv"><span class="k">Auto-accept bookings</span><span class="accent">On</span></div>
+    <div class="kv"><span class="k">Buffer between cuts</span><span>10 min</span></div>
+    <div class="kv"><span class="k">Cancellation window</span><span>4 hours</span></div>
+    <div class="kv"><span class="k">Deposit required</span><span class="muted">Off</span></div>
+  </div>
+  <div style="height:10px"></div>
+`,
+
+/* ---------- Artist: Portfolio ---------- */
+'ar-portfolio':()=>`
+  ${baseHeader('Portfolio',{sub:'Your work · reviewed by the shop before it goes live'})}
+  <div class="card mt16" style="border-style:dashed;text-align:center;cursor:pointer" onclick="uploadSheet()">
+    <div style="font-size:34px">📸</div>
+    <div style="font-weight:700;margin-top:8px">Upload a cut</div>
+    <div class="sub mt8">Photo or short clip · routed through shop approval</div>
+  </div>
+  <div class="row mt16" style="gap:10px">
+    <div class="stat"><div class="n accent">18</div><div class="l">Published</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">In review</div></div>
+    <div class="stat"><div class="n">1.2k</div><div class="l">Saves</div></div>
+  </div>
+  <h2 style="font-size:15px;font-weight:800" class="mt20">Recent uploads</h2>
+  <div class="mt8">
+    ${[
+      {n:'Mid skin fade — Hadi',s:'Photo · today',b:'warn',bt:'In review'},
+      {n:'Beard sculpt before/after',s:'Photo · yesterday',b:'warn',bt:'In review'},
+      {n:'Textured crop — Marc',s:'Photo · 3 days ago',b:'ok',bt:'Published'},
+      {n:'Hard part design',s:'Clip · 0:22',b:'ok',bt:'Published'},
+    ].map((u,i)=>`
+      <div class="list-item">
+        <div class="thumb" style="width:64px;height:48px;background:${grads[i+2]}"></div>
+        <div class="grow"><div style="font-weight:600">${u.n}</div><div class="sub mt8">${u.s}</div></div>
+        <span class="badge ${u.b}">${u.bt}</span>
+      </div>`).join('')}
+  </div>
+  <div style="height:10px"></div>
+`,
+};
+
+/* =========================================================
+   BUILD screens into DOM
+   ========================================================= */
+Object.keys(SCREENS).forEach(id=>{
+  const div=document.createElement('div');
+  div.className='screen';div.id='scr-'+id;div.innerHTML=SCREENS[id]();
+  screensEl.appendChild(div);
+});
+/* Re-render a screen in place. Scroll position is restored, so refreshing a
+   screen the user is reading (adding to cart, taking a stamp) doesn't throw
+   them back to the top. show() still resets scroll on real navigation. */
+function rebuild(id){
+  const el=document.getElementById('scr-'+id);
+  if(!el)return;
+  const y=el.scrollTop;
+  el.innerHTML=SCREENS[id]();
+  if(y)el.scrollTop=y;
+}
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+screensEl.addEventListener('click',e=>{
+  const rc=e.target.closest('[data-role]');
+  if(rc){document.querySelectorAll('[data-role]').forEach(x=>x.classList.remove('active'));rc.classList.add('active');currentRole=rc.dataset.role;}
+  const otpM=e.target.closest('[data-otp-method]');
+  if(otpM){otpM.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));otpM.classList.add('active');}
+});
+document.querySelectorAll('[data-tab]').forEach(t=>t.addEventListener('click',()=>show(t.dataset.goto)));
+
+const isEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const isPhone=v=>/^[+]?[\d\s()-]{7,}$/.test(v);
+function setErr(id,show){const i=document.getElementById(id);const e=document.getElementById(id+'-err');if(i)i.classList.toggle('err',show);if(e)e.classList.toggle('show',show);}
+
+function doLogin(){
+  const u=document.getElementById('li-user').value.trim();
+  const p=document.getElementById('li-pass').value;
+  let ok=true;
+  if(!(isEmail(u)||isPhone(u))){setErr('li-user',true);ok=false;}else setErr('li-user',false);
+  if(p.length<6){setErr('li-pass',true);ok=false;}else setErr('li-pass',false);
+  if(!ok)return;
+  enterApp();
+}
+function doRegister(){
+  let ok=true;
+  const name=document.getElementById('rg-name').value.trim();
+  const email=document.getElementById('rg-email').value.trim();
+  const phone=document.getElementById('rg-phone').value.trim();
+  const pass=document.getElementById('rg-pass').value;
+  setErr('rg-name',!name);if(!name)ok=false;
+  setErr('rg-email',!isEmail(email));if(!isEmail(email))ok=false;
+  setErr('rg-phone',!isPhone(phone));if(!isPhone(phone))ok=false;
+  setErr('rg-pass',pass.length<6);if(pass.length<6)ok=false;
+  if(!ok)return;
+  rebuild('otp');
+  document.getElementById('scr-otp').querySelector('#otp-dest').textContent=email;
+  show('otp');initOtp();
+}
+function doForgot(){
+  const u=document.getElementById('fg-user').value.trim();
+  if(!(isEmail(u)||isPhone(u))){setErr('fg-user',true);return;}
+  setErr('fg-user',false);
+  rebuild('otp');
+  document.getElementById('scr-otp').querySelector('#otp-dest').textContent=u;
+  show('otp');initOtp();
+}
+function initOtp(){
+  const inputs=[...document.querySelectorAll('#scr-otp .otp input')];
+  inputs.forEach((inp,i)=>{
+    inp.value='';
+    inp.oninput=()=>{if(inp.value&&inputs[i+1])inputs[i+1].focus();};
+    inp.onkeydown=e=>{if(e.key==='Backspace'&&!inp.value&&inputs[i-1])inputs[i-1].focus();};
+  });
+  inputs[0]&&inputs[0].focus();
+}
+function doVerifyOtp(){
+  const code=[...document.querySelectorAll('#scr-otp .otp input')].map(i=>i.value).join('');
+  if(code!=='1234'){toast('Invalid code — try 1234');return;}
+  enterApp();
+}
+function enterApp(){
+  if(currentRole==='artist'){rebuild('ar-schedule');show('ar-schedule',{reset:true});toast('Welcome back, Karim 💈');}
+  else{rebuild('home');show('home',{reset:true});toast('Signed in ✓');}
+}
+function logout(){
+  currentRole='client';rebuild('login');show('login',{reset:true});
+  document.querySelectorAll('.tabbar').forEach(t=>t.classList.add('hidden'));toast('Logged out');
+}
+
+/* =========================================================
+   CLIENT — booking
+   ========================================================= */
+screensEl.addEventListener('click',e=>{
+  const bc=e.target.closest('[data-barber-card]');
+  if(bc){booking.barber=+bc.dataset.barberCard;booking.time=null;rebuild('book');show('book');return;}
+
+  const bb=e.target.closest('[data-bk-barber]');
+  if(bb){booking.barber=+bb.dataset.bkBarber;booking.time=null;rebuild('book');return;}
+
+  const bs=e.target.closest('[data-bk-service]');
+  if(bs){booking.service=+bs.dataset.bkService;rebuild('book');return;}
+
+  const bd=e.target.closest('[data-bk-day]');
+  if(bd){
+    const days=dayList();const i=+bd.dataset.bkDay;
+    if(barbers[booking.barber].off.includes(days[i].wd)){booking.day=i;booking.time=null;rebuild('book');return;}
+    booking.day=i;booking.time=null;rebuild('book');return;
+  }
+
+  const bt=e.target.closest('[data-bk-time]');
+  if(bt){booking.time=bt.dataset.bkTime;rebuild('book');return;}
+});
+
+function reviewBooking(){
+  const b=barbers[booking.barber],s=services[booking.service],d=dayList()[booking.day];
+  openSheet(`
+    <h2 style="font-size:20px;font-weight:800">Review booking</h2>
+    <p class="sub mt8">Confirm the details before we hold your chair</p>
+    <div class="card mt16">
+      <div class="row"><div class="avatar" style="width:44px;height:44px;font-size:14px">${initials(b.n)}</div>
+      <div class="grow"><div style="font-weight:700">${b.n}</div><div class="sub mt8">${b.chair} · ★ ${b.rate}</div></div></div>
+      <div class="divider"></div>
+      <div class="kv"><span class="k">Service</span><span>${s.n}</span></div>
+      <div class="kv"><span class="k">Duration</span><span>${s.d} min</span></div>
+      <div class="kv"><span class="k">When</span><span>${d.label} · ${fmt12(booking.time)}</span></div>
+      <div class="kv"><span class="k">Pay</span><span>Cash at the shop</span></div>
+    </div>
+    ${availableReward()?`
+    <label class="card mt12 row" style="gap:12px;cursor:pointer;border-color:var(--accent);background:var(--accent-soft)">
+      <input type="checkbox" id="use-free" style="accent-color:var(--accent);width:20px;height:20px;flex:0 0 auto" onchange="toggleFreeTotal(${s.p})"/>
+      <div class="grow"><div style="font-weight:700;font-size:14px">🎁 Use my free haircut</div>
+        <div class="sub" style="margin-top:2px">Code ${availableReward().code} · your artist confirms it at the chair</div></div>
+    </label>`:''}
+    <div class="field"><label>Notes for your artist (optional)</label><textarea class="input" id="bk-notes" placeholder="e.g. #2 on the sides, keep the top long"></textarea></div>
+    <div class="row between mt16"><span style="font-weight:700">Total</span><span class="accent" style="font-weight:800;font-size:20px" id="bk-total">$${s.p}</span></div>
+    <button class="btn mt16" onclick="confirmBooking()">Confirm booking</button>
+    <button class="btn ghost mt12" onclick="closeSheet()">Back</button>
+  `);
+}
+function toggleFreeTotal(price){
+  const on=document.getElementById('use-free').checked;
+  const t=document.getElementById('bk-total');
+  if(t)t.innerHTML=on?`<span style="text-decoration:line-through;opacity:.45;font-size:14px">$${price}</span> FREE`:'$'+price;
+}
+function confirmBooking(){
+  const b=barbers[booking.barber],s=services[booking.service],d=dayList()[booking.day];
+  const notesEl=document.getElementById('bk-notes');
+  const freeEl=document.getElementById('use-free');
+  let rewardCode=null;
+  if(freeEl&&freeEl.checked){
+    /* Reserved, not redeemed — the artist still has to confirm it in person. */
+    const rw=availableReward();
+    if(rw){rw.status='reserved';rewardCode=rw.code;saveLoyalty();}
+  }
+  appts.unshift({id:Date.now(),barber:booking.barber,service:booking.service,day:d.label,time:fmt12(booking.time),status:'confirmed',notes:notesEl?notesEl.value:'',free:!!rewardCode,rewardCode});
+  closeSheet();
+  openSheet(`<div style="text-align:center;padding:10px 0">
+    <div style="font-size:52px">💈</div>
+    <h2 style="font-size:22px;font-weight:800;margin-top:10px">Chair booked!</h2>
+    <p class="sub mt8">${s.n} with ${b.n}</p>
+    <div class="card mt16" style="text-align:left">
+      <div class="kv"><span class="k">When</span><span>${d.label} · ${fmt12(booking.time)}</span></div>
+      <div class="kv"><span class="k">Where</span><span>FadeRoom · ${b.chair}</span></div>
+      <div class="kv"><span class="k">Total</span><span class="accent" style="font-weight:700">${rewardCode?'FREE 🎁':'$'+s.p}</span></div>
+      ${rewardCode?`<div class="kv"><span class="k">Claim code</span><span style="font-weight:700;letter-spacing:2px">${rewardCode}</span></div>`:''}
+    </div>
+    <p class="sub mt16" style="font-size:11px">${rewardCode
+      ? 'Your free cut is held for this booking. Show the claim code at the chair — your artist confirms it there.'
+      : "We'll remind you 2 hours before. Free cancellation up to 4 hours ahead."}</p>
+    <button class="btn mt16" onclick="closeSheet();booking.time=null;rebuild('book');refreshLoyaltyUI();show('appointments')">View my appointments</button>
+  </div>`);
+}
+function rescheduleSheet(id){
+  const a=appts.find(x=>x.id===id);
+  openSheet(`<h2 style="font-size:20px;font-weight:800">Reschedule</h2>
+    <p class="sub mt8">Currently ${a.day} · ${a.time}</p>
+    <div class="chip-scroll mt16" style="margin:16px -20px 0;padding:0 20px">
+      ${dayList().map((d,i)=>`<div class="day ${i===1?'active':''}"><div class="dn">${d.dn}</div><div class="dd">${d.dd}</div></div>`).join('')}
+    </div>
+    <div class="slot-grid">
+      ${SLOTS.slice(0,9).map((t,i)=>`<div class="slot ${slotTaken(1,i)?'taken':''} ${i===4?'sel':''}">${fmt12(t)}</div>`).join('')}
+    </div>
+    <button class="btn mt20" onclick="closeSheet();toast('Reschedule request sent')">Request new time</button>`);
+}
+function cancelSheet(id){
+  openSheet(`<div style="text-align:center;padding:6px 0">
+    <div style="font-size:40px">🗓️</div>
+    <h2 style="font-size:20px;font-weight:800;margin-top:8px">Cancel this booking?</h2>
+    <p class="sub mt8">You're outside the 4-hour window, so there's no fee.</p>
+    <button class="btn danger mt20" onclick="doCancel(${id})">Yes, cancel it</button>
+    <button class="btn ghost mt12" onclick="closeSheet()">Keep my chair</button>
+  </div>`);
+}
+function doCancel(id){
+  /* Cancelling releases any free cut held for that booking — never lose a reward. */
+  const a=appts.find(x=>x.id===id);
+  if(a&&a.rewardCode){
+    const rw=loyalty.rewards.find(r=>r.code===a.rewardCode&&r.status==='reserved');
+    if(rw){rw.status='available';saveLoyalty();toast('Booking cancelled · free cut back in your card');}
+  }
+  appts=appts.filter(x=>x.id!==id);
+  closeSheet();refreshLoyaltyUI();show('appointments');
+  if(!(a&&a.rewardCode))toast('Booking cancelled');
+}
+function rebookLast(){
+  const p=past[0];booking.barber=p.barber;booking.service=p.service;booking.time=null;
+  rebuild('book');show('book');toast('Loaded your last cut — pick a time');
+}
+function prefSheet(){
+  openSheet(`<h2 style="font-size:20px;font-weight:800">Cut preferences</h2><p class="sub mt8">Your artist sees this before every visit</p>
+    <div class="field"><label>Clipper guard</label><input class="input" value="#2 sides, scissor top"/></div>
+    <div class="field"><label>Beard</label><input class="input" value="Line up, keep length"/></div>
+    <div class="field"><label>Notes</label><textarea class="input" placeholder="Anything your barber should know">Sensitive skin — no alcohol aftershave.</textarea></div>
+    <button class="btn mt20" onclick="closeSheet();toast('Preferences saved ✓')">Save</button>`);
+}
+
+/* appointments seg */
+screensEl.addEventListener('click',e=>{
+  const t=e.target.closest('[data-appt-tab]');
+  if(t){
+    t.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));t.classList.add('active');
+    const up=t.dataset.apptTab==='up';
+    document.getElementById('appt-up').classList.toggle('hidden',!up);
+    document.getElementById('appt-past').classList.toggle('hidden',up);
+  }
+  const st=e.target.closest('[data-sched-tab]');
+  if(st){
+    st.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));st.classList.add('active');
+    const today=st.dataset.schedTab==='today';
+    document.getElementById('sched-today').classList.toggle('hidden',!today);
+    document.getElementById('sched-week').classList.toggle('hidden',today);
+  }
+});
+
+/* =========================================================
+   CLIENT — styles
+   ========================================================= */
+screensEl.addEventListener('click',e=>{
+  const f=e.target.closest('[data-fav]');
+  if(f){const i=+f.dataset.fav;styles[i].fav=!styles[i].fav;f.textContent=styles[i].fav?'♥':'♡';toast(styles[i].fav?'Saved to your lookbook':'Removed');e.stopPropagation();return;}
+  const s=e.target.closest('[data-style]');
+  if(s){styleSheet(+s.dataset.style);return;}
+  const cc=e.target.closest('#style-cats .chip');
+  if(cc){
+    document.querySelectorAll('#style-cats .chip').forEach(x=>x.classList.remove('active'));cc.classList.add('active');
+    const cat=cc.dataset.cat;
+    let list=styles.map((v,i)=>({v,i}));
+    if(cat==='fav')list=list.filter(o=>o.v.fav);
+    else if(cat!=='All')list=list.filter(o=>o.v.cat===cat);
+    document.getElementById('style-grid').innerHTML=list.length?list.map(o=>styleThumb(o.v,o.i)).join(''):'<p class="sub" style="grid-column:1/3;text-align:center;padding:30px">Nothing saved in this category yet</p>';
+  }
+});
+function styleSheet(i){
+  const s=styles[i];
+  openSheet(`<h2 style="font-size:20px;font-weight:800">${s.t}</h2><p class="sub mt8">${s.cat} · ${s.dur} · from $${s.price}</p>
+    <div class="thumb mt16" style="height:200px;background:${grads[i%grads.length]}"></div>
+    <div class="card mt16"><div class="row"><div class="avatar" style="width:38px;height:38px;font-size:12px">KN</div>
+      <div class="grow"><div style="font-weight:700;font-size:14px">Karim Nasr</div><div class="sub" style="margin-top:2px">Artist for this look · ★ 4.9</div></div>
+      <span class="rating">★ 4.9</span></div></div>
+    <p class="sub mt16">Ask for: skin fade to a #2 guard, blended at the temple, with a scissor-cut textured top. Holds shape ~3 weeks.</p>
+    <button class="btn mt20" onclick="bookThisStyle(${i})">Book this look</button>
+    <button class="btn ghost mt12" onclick="closeSheet()">Close</button>`);
+}
+function bookThisStyle(i){
+  const s=styles[i];
+  const match=services.findIndex(x=>x.d===parseInt(s.dur,10));
+  booking.service=s.cat==='Beard'?1:(match>-1?match:0);
+  booking.time=null;
+  closeSheet();rebuild('book');show('book');toast('Pick your artist and time');
+}
+
+/* =========================================================
+   CLIENT — search
+   ========================================================= */
+function quickSearch(q){document.getElementById('q').value=q;runSearch(q);}
+function runSearch(q){
+  q=q.trim().toLowerCase();
+  const box=document.getElementById('search-results');
+  if(!q){box.innerHTML='<p class="sub" style="text-align:center;margin-top:40px">Start typing to search the shop</p>';return;}
+  const bs=barbers.map((b,i)=>({b,i})).filter(o=>o.b.n.toLowerCase().includes(q)||o.b.spec.toLowerCase().includes(q));
+  const svc=services.filter(s=>s.n.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q));
+  const st=styles.map((v,i)=>({v,i})).filter(o=>o.v.t.toLowerCase().includes(q)||o.v.cat.toLowerCase().includes(q));
+  let html='';
+  if(bs.length){
+    html+='<div class="sub" style="font-weight:700;margin-bottom:8px">Artists</div>';
+    html+=bs.map(o=>`<div class="list-item" data-barber-card="${o.i}" style="cursor:pointer"><div class="avatar" style="width:38px;height:38px;font-size:13px">${initials(o.b.n)}</div><div class="grow"><div style="font-weight:600">${o.b.n}</div><div class="sub mt8">${o.b.spec}</div></div><span class="rating">★ ${o.b.rate}</span></div>`).join('');
+  }
+  if(svc.length){
+    html+='<div class="sub" style="font-weight:700;margin:14px 0 8px">Services</div>';
+    html+=svc.map(s=>`<div class="list-item"><div class="avatar" style="width:38px;height:38px;font-size:14px">✂</div><div class="grow"><div style="font-weight:600">${s.n}</div><div class="sub mt8">${s.d} min</div></div><b>$${s.p}</b></div>`).join('');
+  }
+  if(st.length){
+    html+='<div class="sub" style="font-weight:700;margin:14px 0 8px">Styles</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+st.map(o=>styleThumb(o.v,o.i)).join('')+'</div>';
+  }
+  const pr=products.filter(p=>p.n.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)
+                             ||p.cat.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q));
+  if(pr.length){
+    html+='<div class="sub" style="font-weight:700;margin:14px 0 8px">Products</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+pr.map(p=>productCard(p)).join('')+'</div>';
+  }
+  box.innerHTML=html||'<p class="sub" style="text-align:center;margin-top:40px">No results found</p>';
+}
+
+/* =========================================================
+   CLIENT — marketplace
+   ========================================================= */
+screensEl.addEventListener('click',e=>{
+  /* the + badge is nested inside the tile, so it has to win first */
+  const add=e.target.closest('[data-add]');
+  if(add){addToCart(add.dataset.add,1);e.stopPropagation();return;}
+
+  const pc=e.target.closest('[data-prod]');
+  if(pc){openProduct(pc.dataset.prod);return;}
+
+  const ct=e.target.closest('[data-shop-cat]');
+  if(ct){
+    shopFilter.cat=ct.dataset.shopCat;
+    document.querySelectorAll('[data-shop-cat]').forEach(x=>x.classList.toggle('active',x===ct));
+    renderShopGrid();
+    return;
+  }
+
+  const or=e.target.closest('[data-order]');
+  if(or){orderSheet(+or.dataset.order);return;}
+});
+
+function openProduct(id){
+  if(!prod(id))return;
+  viewProduct=id;pqty=1;
+  rebuild('product');show('product');
+}
+function setPqty(q){
+  const p=prod(viewProduct);if(!p)return;
+  const inCart=(cartLine(p.id)||{}).qty||0;
+  pqty=Math.max(1,Math.min(q,Math.max(1,p.stock-inCart)));
+  rebuild('product');
+}
+
+/* Filtering repaints only the grid — rebuilding the screen would pull the
+   caret out of the search box mid-word. */
+function shopSearch(v){shopFilter.q=v;renderShopGrid();}
+function renderShopGrid(){
+  const g=document.getElementById('shop-grid');
+  if(!g)return;
+  const l=shopList();
+  g.innerHTML=l.length?l.map(p=>productCard(p)).join('')
+    :'<p class="sub" style="grid-column:1/3;text-align:center;padding:34px">Nothing matches that — try another category</p>';
+  const c=document.getElementById('shop-count');
+  if(c)c.textContent=l.length+' item'+(l.length===1?'':'s');
+}
+
+function addToCart(id,qty){
+  const p=prod(id);
+  if(!p)return;
+  if(p.stock<=0){toast('That one is sold out');return;}
+  const line=cartLine(id), have=line?line.qty:0;
+  const want=Math.min(have+(qty||1),p.stock);
+  if(want===have){toast(`Only ${p.stock} in stock — already in your cart`);return;}
+  if(line)line.qty=want;else cart.push({id,qty:want});
+  pqty=1;
+  saveShop();refreshShopUI();
+  toast(`${p.n} added${want-have>1?' ×'+(want-have):''}`);
+}
+function setQty(id,q){
+  const p=prod(id), line=cartLine(id);
+  if(!p||!line)return;
+  q=Math.max(0,Math.min(q,p.stock));
+  if(q===0){cart=cart.filter(l=>l.id!==id);toast(`${p.n} removed`);}
+  else line.qty=q;
+  saveShop();refreshShopUI();
+}
+
+function setFulfil(m){
+  fulfil=m;
+  if(m==='delivery')pickupWithAppt=false;
+  rebuild('cart');rebuild('checkout');
+}
+function setPay(m){payMethod=m;rebuild('checkout');}
+function setPickupAppt(on){pickupWithAppt=on;rebuild('checkout');}
+
+function goCheckout(){
+  if(!cart.length){toast('Your cart is empty');return;}
+  rebuild('checkout');show('checkout');
+}
+
+function placeOrder(){
+  if(!cart.length){toast('Your cart is empty');return;}
+  if(fulfil==='delivery'){
+    let ok=true;
+    const bad=(id,cond)=>{setErr(id,cond);if(cond)ok=false;};
+    bad('ck-name',!ship.name.trim());
+    bad('ck-phone',!isPhone(ship.phone.trim()));
+    bad('ck-addr',ship.addr.trim().length<6);
+    if(!ok){toast('Check your delivery details');return;}
+  }
+  const id=Date.now(), a=appts[0];
+  const o={
+    id, ts:id, code:orderCode(id), fulfil, pay:payMethod,
+    items:cart.map(l=>{const p=prod(l.id);return {id:p.id,n:p.n,p:p.p,qty:l.qty,ico:p.ico};}),
+    subtotal:cartSubtotal(), fee:deliveryFee(), total:cartTotal(),
+    addr:fulfil==='delivery'?Object.assign({},ship):null,
+    withAppt:!!(fulfil==='pickup'&&pickupWithAppt&&a),
+    apptLabel:(fulfil==='pickup'&&pickupWithAppt&&a)?`${a.day} · ${a.time}`:null,
+    status:fulfil==='delivery'?'packing':'ready',
+  };
+  /* Stock is shop-side data — the CMS will own it. Here it just moves so
+     you can see the sold-out and low-stock states behave. */
+  cart.forEach(l=>{const p=prod(l.id);p.stock=Math.max(0,p.stock-l.qty);});
+  orders.unshift(o);
+  cart=[];pickupWithAppt=false;
+  saveShop();refreshShopUI();rebuild('checkout');
+  /* Land on the order list, so dismissing the sheet doesn't drop the user
+     back onto a checkout screen for an order they already placed. */
+  show('orders',{reset:true});
+  orderPlacedSheet(o);
+}
+
+function orderPlacedSheet(o){
+  openSheet(`<div style="text-align:center;padding:8px 0">
+    <div style="font-size:52px">${o.fulfil==='pickup'?'🛍️':'🛵'}</div>
+    <h2 style="font-size:22px;font-weight:800;margin-top:10px">Order placed</h2>
+    <p class="sub mt8">${o.items.reduce((t,x)=>t+x.qty,0)} item${o.items.reduce((t,x)=>t+x.qty,0)===1?'':'s'} · $${o.total} · ${o.pay==='cash'?'cash':'card'} on ${o.fulfil==='pickup'?'collection':'delivery'}</p>
+    ${o.fulfil==='pickup'?`
+      <div class="card mt16">
+        <div class="sub">Pickup code</div>
+        <div class="code-out mt8">${o.code}</div>
+        <div class="qrbox mt12" style="max-width:190px;margin:12px auto 0">${QR.svg('FR1|O|'+o.code)}</div>
+      </div>
+      <p class="sub mt16" style="font-size:11.5px">${o.withAppt
+        ? `We’ll have it bagged at your ${o.apptLabel} cut. Show this code at the chair.`
+        : 'Ready within the hour. Show this code at the shop, Tue–Sun 10:00–20:00.'}</p>`
+    :`
+      <div class="card mt16" style="text-align:left">
+        <div class="kv"><span class="k">Deliver to</span><span>${esc(o.addr.name)}</span></div>
+        <div class="kv"><span class="k">Address</span><span style="max-width:60%;text-align:right">${esc(o.addr.addr)}</span></div>
+        <div class="kv"><span class="k">Phone</span><span>${esc(o.addr.phone)}</span></div>
+        <div class="kv"><span class="k">Order</span><span style="font-weight:700;letter-spacing:2px">${o.code}</span></div>
+      </div>
+      <p class="sub mt16" style="font-size:11.5px">Same day if you ordered before 17:00. We’ll text you when the rider leaves.</p>`}
+    <button class="btn mt16" onclick="closeSheet();orderSheet(${o.id})">Track my order</button>
+    <button class="btn ghost mt12" onclick="closeSheet();show('shop')">Keep shopping</button>
+  </div>`);
+}
+
+function orderSheet(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o)return;
+  const steps=orderSteps(o), at=orderStepIndex(o);
+  openSheet(`
+    <div class="row between">
+      <div><h2 style="font-size:20px;font-weight:800">Order ${o.code}</h2>
+        <p class="sub mt8">${ago(o.ts)} · ${o.fulfil==='pickup'?'pickup':'delivery'}</p></div>
+      <span class="badge ${orderOpen(o)?'gold':'dim'}">${orderLabel(o)}</span>
+    </div>
+
+    <div class="card mt16">
+      ${steps.map((s,i)=>`
+        <div class="ostep ${i===at?'on':''} ${i>at?'off':''}">
+          <div class="dot"></div>
+          <div class="grow"><div class="ot">${s[1]}</div><div class="sub" style="margin-top:2px">${s[2]}</div></div>
+          ${i<at?'<span class="badge ok">✓</span>':''}
+        </div>`).join('')}
+    </div>
+
+    ${o.fulfil==='pickup'&&orderOpen(o)?`
+      <div class="card mt12" style="text-align:center;border-color:var(--accent)">
+        <div class="sub">Show this at the chair</div>
+        <div class="code-out mt8">${o.code}</div>
+        <div class="qrbox mt12" style="max-width:180px;margin:12px auto 0">${QR.svg('FR1|O|'+o.code)}</div>
+        ${o.withAppt?`<div class="sub mt12" style="font-size:11px">Bagged for your ${o.apptLabel} cut</div>`:''}
+      </div>`:''}
+
+    ${o.addr?`
+      <div class="card mt12">
+        <div class="kv"><span class="k">Deliver to</span><span>${esc(o.addr.name)}</span></div>
+        <div class="kv"><span class="k">Address</span><span style="max-width:60%;text-align:right">${esc(o.addr.addr)}</span></div>
+        ${o.addr.note?`<div class="kv"><span class="k">Notes</span><span style="max-width:60%;text-align:right">${esc(o.addr.note)}</span></div>`:''}
+      </div>`:''}
+
+    <h2 style="font-size:15px;font-weight:800" class="mt20">Items</h2>
+    <div class="card mt8">
+      ${o.items.map(x=>`<div class="kv"><span class="k">${x.ico} ${x.qty} × ${x.n}</span><span>$${x.p*x.qty}</span></div>`).join('')}
+      <div class="divider"></div>
+      <div class="kv"><span class="k">Subtotal</span><span>$${o.subtotal}</span></div>
+      <div class="kv"><span class="k">${o.fulfil==='pickup'?'Pickup':'Delivery'}</span><span>${o.fee?'$'+o.fee:'Free'}</span></div>
+      <div class="row between mt12"><span style="font-weight:700">Total</span><span class="accent" style="font-weight:800;font-size:18px">$${o.total}</span></div>
+    </div>
+
+    <button class="btn mt20" onclick="reorder(${o.id})">Order these again</button>
+    ${orderOpen(o)?`<button class="btn ghost mt12" onclick="advanceOrder(${o.id})">▶ Advance status (demo)</button>`:''}
+    <button class="btn ghost mt12" onclick="closeSheet()">Close</button>`);
+}
+
+/* Demo affordance — stands in for the artist marking the order handed over,
+   which is what the CMS will do from the artist portal. */
+function advanceOrder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o||!orderOpen(o))return;
+  o.status=orderSteps(o)[orderStepIndex(o)+1][0];
+  saveShop();refreshShopUI();
+  closeSheet();orderSheet(id);
+  toast(orderLabel(o));
+}
+function reorder(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o)return;
+  let skipped=0;
+  o.items.forEach(it=>{
+    const p=prod(it.id);
+    if(!p||p.stock<=0){skipped++;return;}
+    const line=cartLine(it.id), want=Math.min((line?line.qty:0)+it.qty,p.stock);
+    if(line)line.qty=want;else cart.push({id:it.id,qty:want});
+  });
+  saveShop();closeSheet();refreshShopUI();show('cart');
+  toast(skipped?`Added what’s in stock · ${skipped} unavailable`:'Added to your cart');
+}
+
+/* Every screen that prints a cart count or a stock figure, re-rendered in
+   one place — and the shop search box put back the way the user left it. */
+function refreshShopUI(){
+  const act=document.activeElement;
+  const keep=act&&act.id==='shop-q'?{pos:act.selectionStart}:null;
+  ['home','shop','product','cart','orders','profile'].forEach(rebuild);
+  syncCartBadges();
+  if(keep){
+    const el=document.getElementById('shop-q');
+    if(el){el.focus();try{el.setSelectionRange(keep.pos,keep.pos);}catch(e){}}
+  }
+}
+function syncCartBadges(){
+  const n=cartCount();
+  document.querySelectorAll('[data-cart-badge]').forEach(b=>{
+    b.textContent=n;
+    if(b.classList.contains('cart-badge'))b.classList.toggle('hidden',!n);
+  });
+}
+
+/* =========================================================
+   ARTIST
+   ========================================================= */
+screensEl.addEventListener('click',e=>{
+  const a=e.target.closest('[data-agenda]');
+  if(a){agendaSheet(+a.dataset.agenda);return;}
+  const c=e.target.closest('[data-client]');
+  if(c){clientSheet(+c.dataset.client);return;}
+  const s=e.target.closest('[data-svc]');
+  if(s){serviceSheet(+s.dataset.svc);return;}
+});
+
+/* The demo client's live loyalty state drives their row on the agenda. */
+function agendaFree(a){return a.client==='Elie Saide'&&!!reservedReward();}
+
+function agendaSheet(i){
+  const a=agenda[i];
+  const isDemoClient=a.client==='Elie Saide';
+  const rw=isDemoClient?(reservedReward()||availableReward()):null;
+  openSheet(`<h2 style="font-size:20px;font-weight:800">${a.time} · ${a.client}</h2>
+    <p class="sub mt8">${a.service} · ${a.mins} min · ${agendaFree(a)?`<s style="opacity:.5">$${a.price}</s> free`:'$'+a.price}</p>
+    <div class="card mt16"><div class="kv"><span class="k">Status</span><span>${a.status==='done'?'Completed':a.status==='now'?'In the chair':'Upcoming'}</span></div>
+      <div class="kv"><span class="k">Client notes</span><span>#2 sides, scissor top</span></div>
+      <div class="kv"><span class="k">Last visit</span><span>2 weeks ago</span></div>
+      ${isDemoClient?`<div class="kv"><span class="k">Loyalty</span><span>${loyalty.stamps.length}/${LOYALTY_GOAL} check-ins</span></div>`:''}
+      <div class="kv"><span class="k">Payment</span><span>${agendaFree(a)?'Free cut · claim '+reservedReward().code:'Cash at chair'}</span></div></div>
+    ${rw?`
+      <div class="card mt12" style="border-color:var(--accent);background:var(--accent-soft)">
+        <div class="row between"><div><div style="font-weight:700;font-size:14px">🎁 Free haircut owed</div>
+          <div class="sub" style="margin-top:2px">Claim ${rw.code} · ${rw.status==='reserved'?'held for this booking':'not yet attached'}</div></div>
+          <span class="badge gold">$${FREE_CUT_VALUE}</span></div>
+        <button class="btn mt12" style="padding:12px" onclick="closeSheet();redeemSheet(loyalty.rewards.find(x=>x.code==='${rw.code}'))">Redeem free cut</button>
+      </div>`:''}
+    ${a.status==='done'?'<button class="btn secondary mt20" onclick="closeSheet()">Close</button>':`
+      <button class="btn mt20" onclick="setAgenda(${i},'done')">Mark as completed</button>
+      <div class="row mt12" style="gap:10px">
+        <button class="btn secondary" style="padding:12px;font-size:14px" onclick="closeSheet();toast('Client notified')">Running late</button>
+        <button class="btn danger" style="padding:12px;font-size:14px" onclick="setAgenda(${i},'noshow')">No-show</button>
+      </div>`}`);
+}
+function setAgenda(i,st){
+  if(st==='noshow'){agenda.splice(i,1);toast('Marked no-show · slot freed');closeSheet();rebuild('ar-schedule');return;}
+  agenda[i].status='done';
+  closeSheet();rebuild('ar-schedule');
+  /* A completed cut is exactly when the client should be checking in. */
+  openSheet(`<div style="text-align:center;padding:8px 0">
+    <div style="font-size:46px">✂️</div>
+    <h2 style="font-size:21px;font-weight:800;margin-top:8px">Cut completed</h2>
+    <p class="sub mt8">Show your check-in QR so ${agenda[i].client.split(' ')[0]} gets their stamp.</p>
+    <button class="btn mt20" onclick="closeSheet();show('ar-checkin')">Show check-in QR</button>
+    <button class="btn ghost mt12" onclick="closeSheet()">Skip</button>
+  </div>`);
+}
+function walkInSheet(){
+  openSheet(`<h2 style="font-size:20px;font-weight:800">Add walk-in</h2><p class="sub mt8">Log a client who came without booking</p>
+    <div class="field"><label>Client name</label><input class="input" placeholder="e.g. Ziad Karam"/></div>
+    <div class="field"><label>Service</label><input class="input" value="Haircut" readonly/></div>
+    <div class="field"><label>Time</label><input class="input" value="Now" readonly/></div>
+    <button class="btn mt20" onclick="closeSheet();toast('Walk-in added to your chair')">Add to schedule</button>`);
+}
+function blockSheet(){
+  openSheet(`<h2 style="font-size:20px;font-weight:800">Block time</h2><p class="sub mt8">Clients won't be able to book these hours</p>
+    <div class="field"><label>Reason</label><input class="input" placeholder="Lunch, errand, personal…"/></div>
+    <div class="row mt12" style="gap:10px"><input class="input" value="13:00"/><input class="input" value="14:00"/></div>
+    <button class="btn mt20" onclick="closeSheet();toast('Time blocked ✓')">Block it</button>`);
+}
+function filterRoster(q){
+  q=q.trim().toLowerCase();
+  const box=document.getElementById('roster-list');
+  const list=roster.map((c,i)=>({c,i})).filter(o=>!q||o.c.n.toLowerCase().includes(q)||o.c.fav.toLowerCase().includes(q));
+  box.innerHTML=list.length?list.map(o=>rosterCard(o.c,o.i)).join('')
+    :'<p class="sub" style="text-align:center;padding:30px">No clients match that search</p>';
+}
+function clientSheet(i){
+  const c=roster[i], n=clientStamps(i), rw=i===0?liveRewards():[];
+  openSheet(`<h2 style="font-size:20px;font-weight:800">${c.n}</h2><p class="sub mt8">${c.tag} · last visit ${c.last}</p>
+    <div class="row mt16" style="gap:10px">
+      <div class="stat"><div class="n accent">${c.visits}</div><div class="l">Visits</div></div>
+      <div class="stat"><div class="n">$${c.visits*25}</div><div class="l">Lifetime</div></div>
+      <div class="stat"><div class="n">3 wks</div><div class="l">Avg cycle</div></div>
+    </div>
+
+    <h2 style="font-size:15px;font-weight:800" class="mt20">Loyalty card</h2>
+    <div class="card mt8">
+      <div class="row between"><span class="sub">Check-ins toward a free cut</span><span class="badge ${n>=LOYALTY_GOAL-1?'gold':'dim'}">${n}/${LOYALTY_GOAL}</span></div>
+      <div class="mt12">${punchStrip(n)}</div>
+      ${rw.length?`
+        <div class="divider"></div>
+        ${rw.map(r=>`<div class="row between">
+          <div><div style="font-weight:700;font-size:14px">🎁 Free haircut owed</div><div class="sub" style="margin-top:2px">Claim ${r.code} · earned ${ago(r.earnedAt)}</div></div>
+          <span class="badge gold">${r.status==='reserved'?'BOOKED':'READY'}</span></div>
+          <button class="btn mt12" style="padding:12px" onclick="closeSheet();redeemSheet(loyalty.rewards.find(x=>x.code==='${r.code}'))">Redeem this free cut</button>`).join('')}
+      `:`<div class="sub mt12">${LOYALTY_GOAL-n} more check-in${LOYALTY_GOAL-n===1?'':'s'} before a free cut is owed.</div>`}
+    </div>
+
+    <h2 style="font-size:15px;font-weight:800" class="mt20">Saved preferences</h2>
+    <div class="card mt8">
+      <div class="kv"><span class="k">Usual cut</span><span>${c.fav}</span></div>
+      <div class="kv"><span class="k">Beard</span><span>Line up only</span></div>
+      <div class="kv"><span class="k">Notes</span><span>Sensitive skin</span></div>
+    </div>
+    <h2 style="font-size:15px;font-weight:800" class="mt20">Visit history</h2>
+    <div class="card mt8">
+      <div class="kv"><span class="k">28 Jun</span><span>Haircut + Beard · $32</span></div>
+      <div class="kv"><span class="k">12 Jun</span><span>Haircut · $25</span></div>
+      <div class="kv"><span class="k">30 May</span><span>Haircut · $25</span></div>
+    </div>
+    <button class="btn mt20" onclick="closeSheet();toast('Reminder sent to ${c.n.split(' ')[0]}')">Send booking reminder</button>
+    <button class="btn ghost mt12" onclick="closeSheet();toast('Note saved')">Add a note</button>`);
+}
+function serviceSheet(i){
+  const s=i>-1?services[i]:{n:'',d:'',p:'',desc:''};
+  openSheet(`<h2 style="font-size:20px;font-weight:800">${i>-1?'Edit service':'New service'}</h2>
+    <div class="field"><label>Name</label><input class="input" value="${s.n}" placeholder="e.g. Haircut"/></div>
+    <div class="field"><label>Description</label><input class="input" value="${s.desc}" placeholder="What's included"/></div>
+    <div class="row mt12" style="gap:10px">
+      <div class="grow"><label class="sub" style="font-weight:600">Duration (min)</label><input class="input mt8" value="${s.d}" inputmode="numeric"/></div>
+      <div class="grow"><label class="sub" style="font-weight:600">Price ($)</label><input class="input mt8" value="${s.p}" inputmode="numeric"/></div>
+    </div>
+    <button class="btn mt20" onclick="closeSheet();toast('${i>-1?'Service updated ✓':'Service added ✓'}')">${i>-1?'Save changes':'Add to my menu'}</button>
+    ${i>-1?'<button class="btn danger mt12" onclick="closeSheet();toast(\'Service removed\')">Remove service</button>':''}`);
+}
+function uploadSheet(){
+  openSheet(`<h2 style="font-size:20px;font-weight:800">Upload your work</h2><p class="sub mt8">Goes to the shop for approval before clients see it.</p>
+    <div class="field"><label>Title</label><input class="input" placeholder="e.g. Mid skin fade — Hadi"/></div>
+    <div class="field"><label>Category</label><input class="input" placeholder="Fades"/></div>
+    <div class="card mt16" style="border-style:dashed;text-align:center"><div style="font-size:30px">📷</div><div class="sub mt8">Tap to choose photo or clip</div></div>
+    <label class="row mt16" style="gap:8px;color:var(--muted);font-size:13px"><input type="checkbox" checked style="accent-color:var(--accent)"/> Client gave permission to post</label>
+    <button class="btn mt20" onclick="closeSheet();toast('Submitted for shop approval')">Submit for review</button>`);
+}
+
+/* =========================================================
+   QR CHECK-IN — client side (camera)
+   ========================================================= */
+let camStream=null, camRAF=null, camDet=null, camLast=0, scanLock=0;
+
+function scanHint(msg){const h=document.getElementById('scan-hint');if(h)h.textContent=msg;}
+
+async function startScanner(){
+  if(camStream)return;                                   /* idempotent */
+  if(!document.getElementById('cam'))return;
+  const canDetect='BarcodeDetector' in window;
+  const slow=setTimeout(()=>scanHint('Waiting for camera permission…'),2500);
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    clearTimeout(slow);
+    /* The permission prompt is slow — the screen may have changed underneath us. */
+    const v=document.getElementById('cam');
+    if(currentScreen!=='scan'||!v){stream.getTracks().forEach(t=>t.stop());return;}
+    camStream=stream;
+    v.srcObject=stream;
+    await v.play();
+    if(canDetect){
+      camDet=new BarcodeDetector({formats:['qr_code']});
+      scanHint('Point at the code on your artist’s phone');
+      camRAF=requestAnimationFrame(scanLoop);
+    }else{
+      scanHint('This browser can’t read QR codes — use the 6-character code below');
+    }
+  }catch(err){
+    clearTimeout(slow);
+    camStream=null;
+    const box=document.getElementById('scanner');
+    if(box)box.classList.add('nocam');
+    scanHint('Camera unavailable — type the code below, or tap “Simulate a scan”');
+  }
+}
+function stopScanner(){
+  if(camRAF){cancelAnimationFrame(camRAF);camRAF=null;}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  camDet=null;
+}
+function scanLoop(){
+  camRAF=requestAnimationFrame(scanLoop);
+  const v=document.getElementById('cam');
+  if(!v||!camDet||v.readyState<2)return;
+  const now=performance.now();
+  if(now-camLast<350)return;                             /* ~3 reads a second is plenty */
+  camLast=now;
+  camDet.detect(v).then(codes=>{
+    if(codes.length)cameraScan(codes[0].rawValue);
+  }).catch(()=>{});
+}
+/* Camera reads fire continuously, so swallow repeats for a moment. */
+function cameraScan(raw){
+  if(Date.now()<scanLock)return;
+  scanLock=Date.now()+2500;
+  doCheckin(raw);
+}
+
+function manualCheckin(){
+  const el=document.getElementById('chk-code');
+  const v=el?el.value:'';
+  if(el)el.value='';
+  doCheckin(v);
+}
+function demoScan(){doCheckin(chkToken(ARTIST_INDEX,chkWindow()),true);}
+
+function doCheckin(raw,demo){
+  const v=validateCheckin(raw);
+  if(!v.ok){toast(v.why);return;}
+  const res=addStamp(v.barber,demo);
+  if(!res.ok){toast(res.why);return;}
+  stopScanner();
+  refreshLoyaltyUI();
+  checkinSheet(res,v.barber);
+}
+
+function checkinSheet(res,barberIdx){
+  const b=barbers[barberIdx];
+  if(res.reward){
+    openSheet(`<div style="text-align:center;padding:8px 0">
+      <div style="font-size:54px">🎁</div>
+      <h2 style="font-size:23px;font-weight:800;margin-top:8px">Free haircut unlocked!</h2>
+      <p class="sub mt8">${LOYALTY_GOAL} check-ins done — your next cut is on FadeRoom.</p>
+      <div class="card mt16">
+        <div class="sub">Claim code</div>
+        <div class="code-out mt8">${res.reward.code}</div>
+        <div class="qrbox mt12" style="max-width:190px;margin:12px auto 0">${QR.svg(rewardToken(res.reward.code))}</div>
+      </div>
+      <p class="sub mt16" style="font-size:11.5px">Show this at the chair. Your artist confirms it in their portal — that’s what marks it used.</p>
+      <button class="btn mt16" onclick="closeSheet();show('loyalty')">Open my card</button>
+      <button class="btn ghost mt12" onclick="closeSheet();startScanner()">Done</button>
+    </div>`);
+  }else{
+    const left=LOYALTY_GOAL-res.count;
+    openSheet(`<div style="text-align:center;padding:8px 0">
+      <div style="font-size:50px">✂️</div>
+      <h2 style="font-size:22px;font-weight:800;margin-top:8px">Checked in</h2>
+      <p class="sub mt8">Stamp ${res.count} of ${LOYALTY_GOAL} · ${b.n}</p>
+      <div class="mt20">${punchStrip(res.count)}</div>
+      <p class="sub mt20">${left} more check-in${left===1?'':'s'} and your next cut is free.</p>
+      <button class="btn mt16" onclick="closeSheet();show('loyalty')">See my card</button>
+      <button class="btn ghost mt12" onclick="closeSheet();startScanner()">Done</button>
+    </div>`);
+  }
+}
+
+/* The client's side of redemption: display only — they cannot burn it. */
+function showClaim(code){
+  const r=loyalty.rewards.find(x=>x.code===code);
+  if(!r)return;
+  openSheet(`<div style="text-align:center;padding:6px 0">
+    <span class="badge gold">FREE HAIRCUT · $${FREE_CUT_VALUE}</span>
+    <h2 style="font-size:22px;font-weight:800;margin-top:10px">Show this to your artist</h2>
+    <div class="qrbox mt16" style="max-width:220px;margin:16px auto 0">${QR.svg(rewardToken(r.code))}</div>
+    <div class="card mt16"><div class="sub">Claim code</div><div class="code-out mt8">${r.code}</div></div>
+    <p class="sub mt16" style="font-size:11.5px">Earned ${ago(r.earnedAt)}. It stays valid until your artist redeems it — you can’t mark it used yourself.</p>
+    <button class="btn ghost mt16" onclick="closeSheet()">Close</button>
+  </div>`);
+}
+
+/* =========================================================
+   QR CHECK-IN — artist side (rotating code + redemption)
+   ========================================================= */
+let qrTimer=null;
+function startShopQR(){
+  stopShopQR();
+  const paint=()=>{
+    const box=document.getElementById('shop-qr');
+    if(!box){stopShopQR();return;}
+    const w=chkWindow(), tok=chkToken(ARTIST_INDEX,w);
+    if(box.dataset.tok!==tok){box.dataset.tok=tok;box.innerHTML=QR.svg(tok);}
+    const code=document.getElementById('shop-code');
+    if(code)code.textContent=chkSig(ARTIST_INDEX,w);
+    const ttl=document.getElementById('shop-ttl');
+    if(ttl)ttl.textContent=Math.ceil((TOKEN_WINDOW-Date.now()%TOKEN_WINDOW)/1000)+'s';
+  };
+  paint();
+  qrTimer=setInterval(paint,1000);
+}
+function stopShopQR(){if(qrTimer){clearInterval(qrTimer);qrTimer=null;}}
+
+function artistRedeem(){
+  const el=document.getElementById('rdm-code');
+  const res=findReward(el?el.value:'');
+  if(!res.ok){toast(res.why);return;}
+  if(el)el.value='';
+  redeemSheet(res.reward);
+}
+function redeemSheet(r){
+  openSheet(`<div style="text-align:center;padding:6px 0">
+    <div style="font-size:46px">🎁</div>
+    <h2 style="font-size:21px;font-weight:800;margin-top:8px">Valid free cut</h2>
+    <p class="sub mt8">Claim ${r.code}</p>
+    <div class="card mt16" style="text-align:left">
+      <div class="kv"><span class="k">Client</span><span style="font-weight:700">Elie Saide</span></div>
+      <div class="kv"><span class="k">Reward</span><span>1 standard haircut</span></div>
+      <div class="kv"><span class="k">Value</span><span class="accent" style="font-weight:700">$${FREE_CUT_VALUE}</span></div>
+      <div class="kv"><span class="k">Earned</span><span>${ago(r.earnedAt)}</span></div>
+      <div class="kv"><span class="k">Status</span><span>${r.status==='reserved'?'Attached to a booking':'Ready to use'}</span></div>
+    </div>
+    <p class="sub mt16" style="font-size:11.5px">Redeeming burns the code — it can’t be used a second time.</p>
+    <button class="btn mt16" onclick="confirmRedeem('${r.code}')">Redeem — this cut is free</button>
+    <button class="btn ghost mt12" onclick="closeSheet()">Not now</button>
+  </div>`);
+}
+function confirmRedeem(code){
+  const r=loyalty.rewards.find(x=>x.code===code);
+  if(!r||r.status==='redeemed'){toast('That free cut was already used');closeSheet();return;}
+  burnReward(r);
+  appts.forEach(a=>{if(a.rewardCode===code){a.free=false;a.rewardCode=null;a.freeUsed=true;}});
+  closeSheet();
+  refreshLoyaltyUI();
+  show('ar-checkin');
+  toast('Free cut redeemed ✓');
+}
+
+/* One place to re-render everything that shows a stamp count.
+   rebuild() only swaps innerHTML, so the .active class survives. */
+function refreshLoyaltyUI(){
+  ['home','profile','loyalty','scan','appointments','ar-checkin','ar-clients','ar-schedule'].forEach(rebuild);
+  if(currentScreen==='ar-checkin')startShopQR();     /* the QR box was just replaced */
+}
+
+/* =========================================================
+   FIT THE DEVICE TO THE VIEWPORT
+   Scales the 440×952 mockup down so it always sits fully on
+   screen. On a real phone (<=500px) the CSS takes over and
+   the app runs edge-to-edge instead.
+   ========================================================= */
+const DEVICE_W=440, DEVICE_H=952;
+function fitDevice(){
+  const root=document.documentElement;
+  if(window.matchMedia('(max-width:500px)').matches){root.style.setProperty('--scale',1);return;}
+  const title=document.querySelector('.stage-title');
+  const titleH=title?title.offsetHeight+18:0;          /* + .stage gap */
+  const availH=window.innerHeight-titleH-40;           /* - body padding */
+  const availW=window.innerWidth-32;
+  const s=Math.min(1, availH/DEVICE_H, availW/DEVICE_W);
+  root.style.setProperty('--scale', Math.max(s,.3).toFixed(3));
+}
+window.addEventListener('resize',fitDevice);
+window.addEventListener('orientationchange',fitDevice);
+fitDevice();
+
+/* live clock */
+function tick(){const d=new Date();let h=d.getHours(),m=d.getMinutes();const c=document.getElementById('clock');if(c)c.textContent=h+':'+String(m).padStart(2,'0');}
+setInterval(tick,10000);
+
+/* boot */
+let savedTheme='light';
+try{savedTheme=localStorage.getItem('faderoom-theme')||'light';}catch(e){}
+setTheme(savedTheme);
+loadLoyalty();
+loadShop();
+['home','profile','loyalty','scan','ar-checkin','ar-clients','shop','product','cart','orders'].forEach(rebuild);
+show('login');
+</script>
+</body>
+</html>

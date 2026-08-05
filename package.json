@@ -1,0 +1,23 @@
+{
+  "name": "faderoom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FadeRoom — barber shop platform: API, back-office CMS and the React Native client app",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix cms install && npm --prefix mobile install",
+    "seed": "npm --prefix server run seed",
+    "server": "npm --prefix server run dev",
+    "cms": "npm --prefix cms run dev",
+    "metro": "npm --prefix mobile run start",
+    "android": "npm --prefix mobile run reverse && npm --prefix mobile run android",
+    "test": "npm --prefix server test && npm --prefix mobile test",
+    "typecheck:mobile": "npm --prefix mobile run typecheck",
+    "build:cms": "npm --prefix cms run build",
+    "test:api": "npm --prefix server test",
+    "test:mobile": "npm --prefix mobile test"
+  },
+  "workspaces": [],
+  "engines": {
+    "node": ">=22"
+  }
+}

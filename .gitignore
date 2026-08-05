@@ -1,0 +1,20 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+
+# API
+server/uploads/
+
+# CMS
+cms/dist/
+
+# Mobile — native build output
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/build/
+mobile/android/.cxx/
+mobile/ios/Pods/
+mobile/ios/build/
+mobile/*.jsbundle
