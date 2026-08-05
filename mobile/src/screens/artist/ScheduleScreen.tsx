@@ -21,6 +21,7 @@ import { useAuth } from '../../store/AuthContext';
 import { useColors } from '../../store/ThemeContext';
 import { useDialog } from '../../store/DialogContext';
 import { useToast } from '../../store/ToastContext';
+import { useNotifications } from '../../store/NotificationsContext';
 import { api, ApiError } from '../../api/client';
 import { radius, space } from '../../theme';
 import type { AgendaEntry } from '../../types';
@@ -46,6 +47,7 @@ export function ArtistScheduleScreen() {
   const { artist } = useAuth();
   const { toast } = useToast();
   const { confirm, showError } = useDialog();
+  const { unread } = useNotifications();
   const [offset, setOffset] = useState(0);
   const [busy, setBusy] = useState(false);
 
@@ -123,7 +125,48 @@ export function ArtistScheduleScreen() {
           <Title>{artist?.displayName.split(' ')[0] ?? 'Your'}’s chair</Title>
           <Muted style={{ marginTop: 2 }}>{artist?.chair ?? 'Artist portal'}</Muted>
         </View>
-        <Avatar name={artist?.displayName ?? 'A'} />
+        <Row style={{ gap: space.sm }}>
+          <Pressable
+            onPress={() => nav.navigate('Notifications')}
+            accessibilityRole="button"
+            accessibilityLabel={unread ? `Notifications, ${unread} unread` : 'Notifications'}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: radius.md,
+              backgroundColor: c.surface2,
+              borderColor: c.line,
+              borderWidth: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 18 }}>🔔</Text>
+            {unread > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  minWidth: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  paddingHorizontal: 5,
+                  backgroundColor: c.danger,
+                  borderWidth: 2,
+                  borderColor: c.bg,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ color: '#fff', fontSize: 10.5, fontWeight: '800' }}>
+                  {unread > 9 ? '9+' : unread}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+          <Avatar name={artist?.displayName ?? 'A'} />
+        </Row>
       </Between>
 
       <Row style={{ marginTop: space.lg, gap: space.md }}>

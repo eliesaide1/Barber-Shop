@@ -219,9 +219,13 @@ Artists can message their own clients or one named client, never the whole shop.
   scanning sooner, the options are to downgrade to `vision-camera@4` (which has a working
   `useCodeScanner`, but predates React Native 0.86's architecture) or swap in a dedicated
   scanner such as `@react-native-ml-kit/barcode-scanning`.
-- **Push notifications are in-app only.** Device tokens are collected (`POST /api/auth/devices`)
-  and the delivery path is built, but no FCM/APNs credentials are wired up — messages arrive over
-  Socket.IO while the app is open, and are stored for when it next opens.
+- **Push notifications are in-app only.** A message composed in the CMS reaches the app over
+  Socket.IO within a second — an app-wide heads-up banner, an unread badge on the bell, and the
+  inbox — but only while the app is open. Waking a closed app needs Firebase, and
+  `mobile/src/api/push.ts` is the single seam it plugs into: both transports hand messages to the
+  same `deliver()`, which de-duplicates by id. Device tokens are already collected
+  (`POST /api/auth/devices`) and `resolveTargets()` already resolves audiences; what's missing is
+  the FCM credentials and the sending call.
 - **No payment provider.** Orders are cash or card *on collection*; nothing is charged in-app.
 - **Product reviews are placeholder copy** shared across every product.
 - **iOS is unbuilt.** The code is cross-platform and the Podfile is in place, but it has only been

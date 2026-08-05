@@ -24,6 +24,7 @@ import { useAuth } from '../store/AuthContext';
 import { useCart } from '../store/CartContext';
 import { useTheme, useColors } from '../store/ThemeContext';
 import { useDialog } from '../store/DialogContext';
+import { useNotifications } from '../store/NotificationsContext';
 import { useToast } from '../store/ToastContext';
 import { api, ApiError } from '../api/client';
 import { space } from '../theme';
@@ -369,16 +370,19 @@ export function AppointmentsScreen() {
 
 export function NotificationsScreen() {
   const c = useColors();
-  const { data: items, loading, reload } = useApi<AppNotification[]>('/notifications');
-
-  useSocketEvent('notification:new', () => reload(true));
+  /* The provider already holds these and keeps them live — the screen just
+     renders them, so the badge and the list can never disagree. */
+  const { items, loading, unread, markAllRead } = useNotifications();
 
   React.useEffect(() => {
-    /* Opening the inbox is the read receipt. */
-    api.post('/notifications/read-all').catch(() => {});
+    /* Opening the inbox is the read receipt. Runs once on mount rather than on
+       every render, so arriving messages still show as new until you come
+       back. */
+    if (unread > 0) markAllRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading && !items) return <Loading />;
+  if (loading && !items.length) return <Loading />;
 
   return (
     <Screen>

@@ -32,6 +32,8 @@ import { ArtistOrdersScreen } from '../screens/artist/OrdersScreen';
 import { ArtistMoreScreen, ArtistBroadcastScreen } from '../screens/artist/MoreScreen';
 import { ArtistPortfolioScreen } from '../screens/artist/PortfolioScreen';
 
+import { navigationRef } from './ref';
+
 import type {
   ArtistStackParamList,
   ArtistTabParamList,
@@ -250,7 +252,7 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
       {user && isAdmin ? (
         <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
           <RootStack.Screen name="Tabs" component={AdminNotice} />
@@ -275,6 +277,11 @@ export function RootNavigator() {
             name="Portfolio"
             component={ArtistPortfolioScreen}
             options={{ title: 'Portfolio' }}
+          />
+          <ArtistStack.Screen
+            name="Notifications"
+            component={NotificationsScreen}
+            options={{ title: 'Notifications' }}
           />
         </ArtistStack.Navigator>
       ) : user ? (

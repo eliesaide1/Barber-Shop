@@ -27,7 +27,7 @@ src/
 ├── navigation/  role-branched: client tabs, artist tabs, or the auth stack
 ├── screens/     grouped by area: auth, home, book, scan, shop, orders, profile
 │   └── artist/  the artist portal — schedule, clients, check-in QR, orders, more
-├── store/       Theme, Auth, Cart, Toast and Dialog contexts
+├── store/       Theme, Auth, Cart, Toast, Dialog and Notifications contexts
 ├── config.ts    where the API lives, as seen from the device
 ├── theme.ts     the light and dark palettes
 └── types.ts     the API's shapes
@@ -77,6 +77,44 @@ included; setting it by hand produces a body the server cannot parse.
 
 An admin gets neither: they have no chair and no loyalty card, so the client app would show empty
 bookings and the artist portal would ask the API for a check-in code it cannot mint for them.
+
+## Realtime notifications
+
+Messages sent from the CMS arrive over Socket.IO while the app is open.
+`store/NotificationsContext.tsx` owns the whole path — one listener for the
+entire app, the unread count, the inbox, and the heads-up banner that floats
+above every screen.
+
+It is a provider rather than a screen-level hook on purpose. The listener used
+to live on the Home screen, which meant nothing arrived until that screen had
+been visited, and nothing ever arrived in the artist portal at all.
+
+```tsx
+const { items, unread, markAllRead } = useNotifications();
+```
+
+The banner (`components/NotificationBanner.tsx`) is what a push looks like while
+the app is already open: top of the screen, tappable to open the inbox,
+swipe-up to dismiss, auto-hiding after five seconds. Tapping navigates through
+`navigation/ref.ts`, because the provider wraps the navigator and so cannot use
+`useNavigation`.
+
+### Adding Firebase later
+
+`api/push.ts` is the seam, and it is the only file that has to change. Every
+message — socket or push — is handed to the same `deliver()`, which drops
+anything whose id it has already seen, so the two transports can overlap
+safely.
+
+```ts
+setPushAdapter({ requestPermission, getToken, onMessage });  // from @react-native-firebase/messaging
+```
+
+The server half is already built: `POST /api/auth/devices` stores up to five
+device tokens per user, and `resolveTargets()` in the notifications route
+already works out who a message is for. What is missing is the Firebase
+credentials and the sending call — see the walkthrough at the top of
+`api/push.ts`.
 
 ## Dialogs
 

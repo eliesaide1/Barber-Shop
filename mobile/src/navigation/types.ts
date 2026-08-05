@@ -35,6 +35,7 @@ export type ArtistStackParamList = {
   ArtistTabs: undefined;
   Broadcast: undefined;
   Portfolio: undefined;
+  Notifications: undefined;
 };
 
 export type ArtistTabParamList = {

@@ -14,6 +14,7 @@ import { ToastProvider } from './src/store/ToastContext';
 import { DialogProvider } from './src/store/DialogContext';
 import { AuthProvider } from './src/store/AuthContext';
 import { CartProvider } from './src/store/CartContext';
+import { NotificationsProvider } from './src/store/NotificationsContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 function Shell() {
@@ -28,7 +29,9 @@ function Shell() {
         <DialogProvider>
           <AuthProvider>
             <CartProvider>
-              <RootNavigator />
+              <NotificationsProvider>
+                <RootNavigator />
+              </NotificationsProvider>
             </CartProvider>
           </AuthProvider>
         </DialogProvider>

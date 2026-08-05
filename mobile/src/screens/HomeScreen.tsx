@@ -23,6 +23,7 @@ import { useAuth } from '../store/AuthContext';
 import { useCart } from '../store/CartContext';
 import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
+import { useNotifications } from '../store/NotificationsContext';
 import { absoluteUrl } from '../config';
 import { useDialog } from '../store/DialogContext';
 import { radius, space } from '../theme';
@@ -46,6 +47,7 @@ export function HomeScreen() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { showError } = useDialog();
+  const { unread } = useNotifications();
 
   const { data: appointments, reload: reloadAppointments } = useApi<Appointment[]>('/appointments');
   const { data: card, reload: reloadCard } = useApi<LoyaltyCard>('/loyalty/card');
@@ -57,7 +59,6 @@ export function HomeScreen() {
   useSocketEvent('loyalty:updated', () => reloadCard(true));
   useSocketEvent('order:status', () => reloadOrders(true));
   useSocketEvent('appointment:status', () => reloadAppointments(true));
-  useSocketEvent('notification:new', (n: { title: string }) => toast(n.title));
 
   const next = appointments?.find(
     (a) => ['confirmed', 'pending'].includes(a.status) && new Date(a.startsAt).getTime() > Date.now(),
@@ -86,6 +87,8 @@ export function HomeScreen() {
         <Row style={{ gap: space.sm }}>
           <Pressable
             onPress={() => nav.navigate('Notifications')}
+            accessibilityRole="button"
+            accessibilityLabel={unread ? `Notifications, ${unread} unread` : 'Notifications'}
             style={{
               width: 44,
               height: 44,
@@ -98,6 +101,28 @@ export function HomeScreen() {
             }}
           >
             <Text style={{ fontSize: 18 }}>🔔</Text>
+            {unread > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  minWidth: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  paddingHorizontal: 5,
+                  backgroundColor: c.danger,
+                  borderWidth: 2,
+                  borderColor: c.bg,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ color: '#fff', fontSize: 10.5, fontWeight: '800' }}>
+                  {unread > 9 ? '9+' : unread}
+                </Text>
+              </View>
+            )}
           </Pressable>
           <CartButton />
         </Row>
