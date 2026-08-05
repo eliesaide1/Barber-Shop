@@ -55,10 +55,11 @@ services:
       # PORT is deliberately absent: Render assigns it and the API reads it.
 
   # ---------------------------------------------------------------- CMS ----
+  # No `plan` here. Static sites have no instance tier -- there is nothing
+  # running to size -- and Render rejects the blueprint outright if one is set.
   - type: web
     name: faderoom-cms
     runtime: static
-    plan: free
     rootDir: cms
     buildCommand: npm install && npm run build
     staticPublishPath: dist
