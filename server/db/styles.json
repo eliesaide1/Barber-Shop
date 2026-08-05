@@ -1,0 +1,178 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692219a"
+    },
+    "title": "Mid Skin Fade",
+    "category": "Fades",
+    "durationMin": 45,
+    "price": 25,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa6922178"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692219b"
+    },
+    "title": "Textured Crop",
+    "category": "Textured",
+    "durationMin": 45,
+    "price": 25,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa6922180"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692219c"
+    },
+    "title": "Classic Side Part",
+    "category": "Classic",
+    "durationMin": 40,
+    "price": 22,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa692217c"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692219d"
+    },
+    "title": "Beard Sculpt",
+    "category": "Beard",
+    "durationMin": 20,
+    "price": 12,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e940130c1c2fa6922184"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692219e"
+    },
+    "title": "Buzz + Line Up",
+    "category": "Fades",
+    "durationMin": 25,
+    "price": 18,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa6922178"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692219f"
+    },
+    "title": "Pompadour",
+    "category": "Classic",
+    "durationMin": 50,
+    "price": 28,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa692217c"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221a0"
+    },
+    "title": "Curly Taper",
+    "category": "Textured",
+    "durationMin": 45,
+    "price": 26,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa6922180"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221a1"
+    },
+    "title": "Hard Part Design",
+    "category": "Design",
+    "durationMin": 55,
+    "price": 30,
+    "images": [],
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa6922180"
+    },
+    "status": "published",
+    "savedBy": [],
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.169Z"
+    }
+  }
+]

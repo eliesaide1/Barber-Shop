@@ -64,6 +64,36 @@ npm run cms             # back office on :5173
 npm run android         # adb reverse + build and install the app
 ```
 
+### The database in the repo
+
+`server/db/` holds the database as Extended JSON, one file per collection.
+
+```bash
+npm run db:dump                          # database  → server/db/*.json
+npm --prefix server run db:restore       # server/db → database
+npm --prefix server run db:restore -- --force   # …over an existing one
+```
+
+This is not a replacement for `npm run seed`. The seed builds a fresh shop from
+code; the dump reproduces a **captured state exactly** — same ObjectIds, same
+timestamps, same loyalty progress — which is what makes a bug someone else hit
+reproducible on your machine.
+
+It is Extended JSON rather than `mongodump`'s BSON on purpose. BSON is the right
+format for a backup and the wrong one for a repository: binary, so a reviewer
+cannot see what changed, and any edit rewrites the whole file. These are text,
+sorted by `_id` and pretty-printed, so `git diff` shows the individual document
+that moved and re-dumping unchanged data produces **no diff at all**.
+
+Two things to know:
+
+- The dump contains **bcrypt password hashes and email addresses**. That is
+  harmless for the seeded demo accounts, but do not dump a database holding real
+  client records into a repository.
+- `server/uploads/` stays gitignored, so a restore elsewhere will show uploaded
+  product and portfolio photos as missing. `db:dump` tells you how many
+  documents reference one.
+
 ### Seeded logins
 
 | Role   | Email                | Password    |

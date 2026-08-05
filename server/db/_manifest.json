@@ -1,0 +1,15 @@
+{
+  "database": "faderoom",
+  "collections": {
+    "appointments": 2,
+    "artists": 4,
+    "checkins": 0,
+    "loyalties": 4,
+    "notifications": 4,
+    "orders": 0,
+    "products": 12,
+    "services": 6,
+    "styles": 8,
+    "users": 9
+  }
+}

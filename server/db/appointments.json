@@ -1,0 +1,66 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e941130c1c2fa69221b7"
+    },
+    "user": {
+      "$oid": "6a71e940130c1c2fa69221a3"
+    },
+    "artist": {
+      "$oid": "6a71e93f130c1c2fa6922178"
+    },
+    "service": {
+      "$oid": "6a71e940130c1c2fa6922186"
+    },
+    "serviceName": "Haircut",
+    "startsAt": {
+      "$date": "2026-08-04T13:30:00Z"
+    },
+    "durationMin": 45,
+    "price": 25,
+    "status": "confirmed",
+    "notes": "#2 on the sides, keep the top long",
+    "free": false,
+    "rewardCode": null,
+    "walkIn": false,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:37.176Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:37.176Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e941130c1c2fa69221b9"
+    },
+    "user": {
+      "$oid": "6a71e940130c1c2fa69221ad"
+    },
+    "artist": {
+      "$oid": "6a71e940130c1c2fa6922184"
+    },
+    "service": {
+      "$oid": "6a71e940130c1c2fa6922189"
+    },
+    "serviceName": "Hot towel shave",
+    "startsAt": {
+      "$date": "2026-08-05T09:30:00Z"
+    },
+    "durationMin": 40,
+    "price": 20,
+    "status": "confirmed",
+    "notes": "",
+    "free": false,
+    "rewardCode": null,
+    "walkIn": false,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:37.178Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:37.178Z"
+    },
+    "__v": 0
+  }
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922186"
+    },
+    "name": "Haircut",
+    "description": "Consultation, cut, wash & style",
+    "durationMin": 45,
+    "price": 25,
+    "artist": null,
+    "active": true,
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922187"
+    },
+    "name": "Beard trim",
+    "description": "Shape up, line, oil finish",
+    "durationMin": 20,
+    "price": 12,
+    "artist": null,
+    "active": true,
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922188"
+    },
+    "name": "Haircut + Beard",
+    "description": "Full grooming session",
+    "durationMin": 60,
+    "price": 32,
+    "artist": null,
+    "active": true,
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922189"
+    },
+    "name": "Hot towel shave",
+    "description": "Straight razor, hot towel, balm",
+    "durationMin": 40,
+    "price": 20,
+    "artist": null,
+    "active": true,
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692218a"
+    },
+    "name": "Kids cut",
+    "description": "Under 12 · patient & quick",
+    "durationMin": 30,
+    "price": 15,
+    "artist": null,
+    "active": true,
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692218b"
+    },
+    "name": "Line up / edge",
+    "description": "Clean edges between visits",
+    "durationMin": 15,
+    "price": 10,
+    "artist": null,
+    "active": true,
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.157Z"
+    }
+  }
+]

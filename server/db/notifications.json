@@ -1,0 +1,122 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e941130c1c2fa69221bb"
+    },
+    "title": "The FadeRoom shop is open",
+    "body": "Every product our artists use at the chair is now in the app. Free pickup, or delivery inside Beirut.",
+    "audience": "clients",
+    "targetUser": null,
+    "targetArtist": null,
+    "image": "",
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "createdByName": "Shop Admin",
+    "readBy": [
+      {
+        "$oid": "6a71e940130c1c2fa69221a3"
+      }
+    ],
+    "deliveredCount": 0,
+    "sentAt": {
+      "$date": "2026-08-04T13:29:37.179Z"
+    },
+    "createdAt": {
+      "$date": "2026-08-04T13:29:37.179Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-05T06:25:18.258Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a72d6e5502877eb9b2dc83f"
+    },
+    "title": "Saturday slots just opened",
+    "body": "Two chairs free after 4pm with Karim and Tony. Book from the app.",
+    "audience": "clients",
+    "targetUser": null,
+    "targetArtist": null,
+    "image": "",
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "createdByName": "Shop Admin",
+    "readBy": [
+      {
+        "$oid": "6a71e940130c1c2fa69221a3"
+      }
+    ],
+    "deliveredCount": 1,
+    "sentAt": {
+      "$date": "2026-08-05T06:23:33.493Z"
+    },
+    "createdAt": {
+      "$date": "2026-08-05T06:23:33.493Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-05T06:25:18.258Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a72d74b502877eb9b2dc853"
+    },
+    "title": "Blade oil back in stock",
+    "body": "Karim restocked the clipper oil. Pick one up at your next cut.",
+    "audience": "clients",
+    "targetUser": null,
+    "targetArtist": null,
+    "image": "",
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "createdByName": "Shop Admin",
+    "readBy": [
+      {
+        "$oid": "6a71e940130c1c2fa69221a3"
+      }
+    ],
+    "deliveredCount": 1,
+    "sentAt": {
+      "$date": "2026-08-05T06:25:15.101Z"
+    },
+    "createdAt": {
+      "$date": "2026-08-05T06:25:15.101Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-05T06:25:18.258Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a72d7bf502877eb9b2dc868"
+    },
+    "title": "Staff meeting Thursday",
+    "body": "Ten minutes before opening. New product line walkthrough.",
+    "audience": "artists",
+    "targetUser": null,
+    "targetArtist": null,
+    "image": "",
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "createdByName": "Shop Admin",
+    "readBy": [],
+    "deliveredCount": 1,
+    "sentAt": {
+      "$date": "2026-08-05T06:27:11.560Z"
+    },
+    "createdAt": {
+      "$date": "2026-08-05T06:27:11.560Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-05T06:27:11.600Z"
+    },
+    "__v": 0
+  }
+]

@@ -1,0 +1,406 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692218d"
+    },
+    "name": "Matte Clay Pomade",
+    "brand": "FadeRoom Label",
+    "category": "Hair",
+    "price": 18,
+    "compareAtPrice": 22,
+    "size": "100 ml",
+    "description": "Strong hold, zero shine. Reactivates with water so you can reshape it any time during the day.",
+    "howToUse": "Warm a fingertip between dry palms, work through towel-dried hair, shape with your fingers.",
+    "icon": "🧴",
+    "images": [],
+    "stock": 14,
+    "rating": 4.8,
+    "reviewsCount": 64,
+    "tag": "BESTSELLER",
+    "owner": {
+      "$oid": "6a71e93f130c1c2fa6922178"
+    },
+    "status": "published",
+    "featured": true,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.163Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.163Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692218e"
+    },
+    "name": "Sea Salt Texture Spray",
+    "brand": "Nasr Shelf",
+    "category": "Hair",
+    "price": 16,
+    "compareAtPrice": null,
+    "size": "150 ml",
+    "description": "Adds grit and volume to a soft or fine top. The trick behind most of the textured crops in the lookbook.",
+    "howToUse": "Spray on damp hair, scrunch, then rough-dry with your hands.",
+    "icon": "🌊",
+    "images": [],
+    "stock": 22,
+    "rating": 4.6,
+    "reviewsCount": 41,
+    "tag": "",
+    "owner": {
+      "$oid": "6a71e93f130c1c2fa6922178"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.163Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.163Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa692218f"
+    },
+    "name": "Cedar & Tonka Beard Oil",
+    "brand": "Tony’s Bench",
+    "category": "Beard",
+    "price": 14,
+    "compareAtPrice": null,
+    "size": "30 ml",
+    "description": "Jojoba and argan base. Stops the itch in the first two weeks of growing a beard out.",
+    "howToUse": "Three drops into your palm, work down to the skin, comb through.",
+    "icon": "🧔",
+    "images": [],
+    "stock": 9,
+    "rating": 4.9,
+    "reviewsCount": 88,
+    "tag": "ARTIST PICK",
+    "owner": {
+      "$oid": "6a71e940130c1c2fa6922184"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922190"
+    },
+    "name": "Shea Beard Balm",
+    "brand": "Tony’s Bench",
+    "category": "Beard",
+    "price": 15,
+    "compareAtPrice": null,
+    "size": "60 ml",
+    "description": "Heavier than the oil — for shaping a longer beard and taming the flyaways along the jaw.",
+    "howToUse": "Scrape a thumbnail, melt between palms, press through from the cheeks down.",
+    "icon": "🧈",
+    "images": [],
+    "stock": 11,
+    "rating": 4.7,
+    "reviewsCount": 35,
+    "tag": "",
+    "owner": {
+      "$oid": "6a71e940130c1c2fa6922184"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922191"
+    },
+    "name": "Carbon Steel Straight Razor",
+    "brand": "Feghali Tools",
+    "category": "Shave",
+    "price": 48,
+    "compareAtPrice": null,
+    "size": "Full size",
+    "description": "The razor Tony uses on the hot towel shave. Carbon steel takes a keener edge than stainless and holds it longer.",
+    "howToUse": "Strop before every shave, dry it fully after, oil the blade monthly.",
+    "icon": "🪒",
+    "images": [],
+    "stock": 3,
+    "rating": 5,
+    "reviewsCount": 27,
+    "tag": "PRO",
+    "owner": {
+      "$oid": "6a71e940130c1c2fa6922184"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922192"
+    },
+    "name": "Hot Towel Shave Kit",
+    "brand": "FadeRoom Label",
+    "category": "Shave",
+    "price": 34,
+    "compareAtPrice": 40,
+    "size": "5 pieces",
+    "description": "Pre-shave oil, cream, badger brush, alum block and balm — the chair-side ritual, boxed for home.",
+    "howToUse": "Hot towel two minutes, oil, then cream with the brush in small circles.",
+    "icon": "🧖",
+    "images": [],
+    "stock": 6,
+    "rating": 4.9,
+    "reviewsCount": 52,
+    "tag": "BUNDLE",
+    "owner": {
+      "$oid": "6a71e940130c1c2fa6922184"
+    },
+    "status": "published",
+    "featured": true,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922193"
+    },
+    "name": "Pre-Shave Oil",
+    "brand": "FadeRoom Label",
+    "category": "Shave",
+    "price": 12,
+    "compareAtPrice": null,
+    "size": "50 ml",
+    "description": "A thin protective layer so the blade glides instead of dragging. The difference between a close shave and a rash.",
+    "howToUse": "A few drops on damp skin before your cream.",
+    "icon": "💧",
+    "images": [],
+    "stock": 0,
+    "rating": 4.5,
+    "reviewsCount": 19,
+    "tag": "",
+    "owner": null,
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922194"
+    },
+    "name": "Alcohol-Free Aftershave Balm",
+    "brand": "FadeRoom Label",
+    "category": "Aftercare",
+    "price": 13,
+    "compareAtPrice": null,
+    "size": "100 ml",
+    "description": "Calms without the sting. Aloe and witch hazel, no alcohol, no fragrance.",
+    "howToUse": "Pat on straight after the razor while the skin is still damp.",
+    "icon": "🌿",
+    "images": [],
+    "stock": 18,
+    "rating": 4.8,
+    "reviewsCount": 73,
+    "tag": "",
+    "owner": null,
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922195"
+    },
+    "name": "Scalp Tonic",
+    "brand": "Jad’s Shelf",
+    "category": "Aftercare",
+    "price": 19,
+    "compareAtPrice": null,
+    "size": "120 ml",
+    "description": "Menthol and rosemary. For flaking between cuts, or just a cold hit after a summer fade.",
+    "howToUse": "Part the hair, apply to the scalp, massage in. Leave it — no rinse.",
+    "icon": "🧪",
+    "images": [],
+    "stock": 7,
+    "rating": 4.4,
+    "reviewsCount": 22,
+    "tag": "",
+    "owner": {
+      "$oid": "6a71e93f130c1c2fa6922180"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922196"
+    },
+    "name": "Fade Brush",
+    "brand": "Chalhoub Kit",
+    "category": "Tools",
+    "price": 9,
+    "compareAtPrice": null,
+    "size": "Soft bristle",
+    "description": "Sweeps clippings off the neck and out of a fresh fade without dragging the line.",
+    "howToUse": "Brush downward and out. Wash it weekly with soap.",
+    "icon": "🖌️",
+    "images": [],
+    "stock": 25,
+    "rating": 4.5,
+    "reviewsCount": 31,
+    "tag": "",
+    "owner": {
+      "$oid": "6a71e93f130c1c2fa692217c"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922197"
+    },
+    "name": "Carbon Cutting Comb",
+    "brand": "Chalhoub Kit",
+    "category": "Tools",
+    "price": 6,
+    "compareAtPrice": null,
+    "size": "19 cm",
+    "description": "Antistatic and heat resistant. Fine teeth for the line up, wide for the top.",
+    "howToUse": "The one comb worth owning if you only own one.",
+    "icon": "💇",
+    "images": [],
+    "stock": 30,
+    "rating": 4.7,
+    "reviewsCount": 44,
+    "tag": "",
+    "owner": {
+      "$oid": "6a71e93f130c1c2fa692217c"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa6922198"
+    },
+    "name": "Clipper Blade Oil",
+    "brand": "Nasr Shelf",
+    "category": "Tools",
+    "price": 7,
+    "compareAtPrice": null,
+    "size": "60 ml",
+    "description": "Keeps a home trimmer cutting like it did out of the box. Blunt blades pull — this is why yours does.",
+    "howToUse": "Three drops across the blade, run it ten seconds, wipe the excess.",
+    "icon": "⚙️",
+    "images": [],
+    "stock": 16,
+    "rating": 4.8,
+    "reviewsCount": 29,
+    "tag": "",
+    "owner": {
+      "$oid": "6a71e93f130c1c2fa6922178"
+    },
+    "status": "published",
+    "featured": false,
+    "createdBy": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.164Z"
+    }
+  }
+]

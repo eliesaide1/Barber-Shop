@@ -1,0 +1,253 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e93e130c1c2fa6922164"
+    },
+    "name": "Shop Admin",
+    "email": "admin@faderoom.app",
+    "phone": "+961 1 567 890",
+    "role": "admin",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "",
+      "beard": "",
+      "part": "",
+      "notes": "",
+      "preferredArtist": null
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$BnpvbOZHeWLCLPuu5hFYuuyemdBO8HtWPXZHkSiiswADmr358/p/W",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:35.152Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:35.152Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e93f130c1c2fa6922176"
+    },
+    "name": "Karim Nasr",
+    "email": "karim@faderoom.app",
+    "phone": "",
+    "role": "artist",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "",
+      "beard": "",
+      "part": "",
+      "notes": "",
+      "preferredArtist": null
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$zWGNJvmuMM02yuMm7tQgpug6cDzPNYbdugKp/4N7vJqNserlq8gQG",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:35.403Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:35.403Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e93f130c1c2fa692217a"
+    },
+    "name": "Rami Chalhoub",
+    "email": "rami@faderoom.app",
+    "phone": "",
+    "role": "artist",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "",
+      "beard": "",
+      "part": "",
+      "notes": "",
+      "preferredArtist": null
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$.k1Sda5CMoE3.Wr0LLaMG.S9iVOLAofK2xWR7DQ7a6HXVMOJDpASK",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:35.655Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:35.655Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e93f130c1c2fa692217e"
+    },
+    "name": "Jad Semaan",
+    "email": "jad@faderoom.app",
+    "phone": "",
+    "role": "artist",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "",
+      "beard": "",
+      "part": "",
+      "notes": "",
+      "preferredArtist": null
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$DRw4hjhN.3EoSbH3WYpNsOB9qgfYueZHoZoUF4/cpKIUGmcAwyKLy",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:35.904Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:35.904Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e93f130c1c2fa6922182"
+    },
+    "name": "Tony Feghali",
+    "email": "tony@faderoom.app",
+    "phone": "",
+    "role": "artist",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "",
+      "beard": "",
+      "part": "",
+      "notes": "",
+      "preferredArtist": null
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$GhZNbgZT6nvPrkEf/rTgKOLqtkLWnLNLhWQqc31d4SUOjx6UCtSUa",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.153Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.153Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221a3"
+    },
+    "name": "Elie Saide",
+    "email": "elie@faderoom.app",
+    "phone": "+961 70 123 456",
+    "role": "client",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "#2 sides, scissor top",
+      "beard": "Line up, keep length",
+      "part": "Natural left",
+      "notes": "Sensitive skin — no alcohol aftershave.",
+      "preferredArtist": {
+        "$oid": "6a71e93f130c1c2fa6922178"
+      }
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$WcnV1OWoWrfygJF5qyu6Yu4AwJHIWv5EDnZzJ7hAXRgbZihDloZLi",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.417Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.419Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221a8"
+    },
+    "name": "Marc Aoun",
+    "email": "marc@faderoom.app",
+    "phone": "+961 71 200 100",
+    "role": "client",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "#2 sides, scissor top",
+      "beard": "Line up, keep length",
+      "part": "Natural left",
+      "notes": "",
+      "preferredArtist": {
+        "$oid": "6a71e93f130c1c2fa6922178"
+      }
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$UJR.rQXjNLOvEMB68W05L.arL9BqN9OTIswDvkF2UlD3GdfRtL2gW",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.671Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.672Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221ad"
+    },
+    "name": "Hadi Zgheib",
+    "email": "hadi@faderoom.app",
+    "phone": "+961 76 331 220",
+    "role": "client",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "#2 sides, scissor top",
+      "beard": "Line up, keep length",
+      "part": "Natural left",
+      "notes": "",
+      "preferredArtist": {
+        "$oid": "6a71e93f130c1c2fa6922178"
+      }
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$ldPLh.0PuIqCnT3WZW0VGea6HOUM05TKODdcZ.xOccWs8qSBvThaa",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.922Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.923Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221b2"
+    },
+    "name": "Nour Rahme",
+    "email": "nour@faderoom.app",
+    "phone": "+961 3 887 445",
+    "role": "client",
+    "tokenVersion": 0,
+    "active": true,
+    "preferences": {
+      "clipperGuard": "#2 sides, scissor top",
+      "beard": "Line up, keep length",
+      "part": "Natural left",
+      "notes": "",
+      "preferredArtist": {
+        "$oid": "6a71e93f130c1c2fa6922178"
+      }
+    },
+    "devices": [],
+    "passwordHash": "$2a$12$jukQeT8gzE0i5x68TjoClO4wu0EwxR0nvlt8HnFMAf8mr8o7Okev2",
+    "createdAt": {
+      "$date": "2026-08-04T13:29:37.172Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:37.173Z"
+    },
+    "__v": 0
+  }
+]

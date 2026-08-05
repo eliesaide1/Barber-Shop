@@ -1,0 +1,151 @@
+[
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221a6"
+    },
+    "user": {
+      "$oid": "6a71e940130c1c2fa69221a3"
+    },
+    "stamps": [
+      {
+        "at": {
+          "$date": "2026-06-26T13:29:36.421Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa6922178"
+        }
+      },
+      {
+        "at": {
+          "$date": "2026-07-09T13:29:36.421Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa692217c"
+        }
+      },
+      {
+        "at": {
+          "$date": "2026-07-22T13:29:36.421Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa6922180"
+        }
+      }
+    ],
+    "totalCheckIns": 13,
+    "lastCheckInAt": {
+      "$date": "2026-07-22T13:29:36.421Z"
+    },
+    "rewards": [],
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.423Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.423Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221ab"
+    },
+    "user": {
+      "$oid": "6a71e940130c1c2fa69221a8"
+    },
+    "stamps": [
+      {
+        "at": {
+          "$date": "2026-07-22T13:29:36.673Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa6922178"
+        }
+      }
+    ],
+    "totalCheckIns": 6,
+    "lastCheckInAt": {
+      "$date": "2026-07-22T13:29:36.673Z"
+    },
+    "rewards": [],
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.674Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.674Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e940130c1c2fa69221b0"
+    },
+    "user": {
+      "$oid": "6a71e940130c1c2fa69221ad"
+    },
+    "stamps": [
+      {
+        "at": {
+          "$date": "2026-06-13T13:29:36.924Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa6922178"
+        }
+      },
+      {
+        "at": {
+          "$date": "2026-06-26T13:29:36.924Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa692217c"
+        }
+      },
+      {
+        "at": {
+          "$date": "2026-07-09T13:29:36.924Z"
+        },
+        "artist": {
+          "$oid": "6a71e93f130c1c2fa6922180"
+        }
+      },
+      {
+        "at": {
+          "$date": "2026-07-22T13:29:36.924Z"
+        },
+        "artist": {
+          "$oid": "6a71e940130c1c2fa6922184"
+        }
+      }
+    ],
+    "totalCheckIns": 22,
+    "lastCheckInAt": {
+      "$date": "2026-07-22T13:29:36.924Z"
+    },
+    "rewards": [],
+    "createdAt": {
+      "$date": "2026-08-04T13:29:36.925Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:36.925Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "6a71e941130c1c2fa69221b5"
+    },
+    "user": {
+      "$oid": "6a71e940130c1c2fa69221b2"
+    },
+    "stamps": [],
+    "totalCheckIns": 0,
+    "lastCheckInAt": null,
+    "rewards": [],
+    "createdAt": {
+      "$date": "2026-08-04T13:29:37.174Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T13:29:37.174Z"
+    },
+    "__v": 0
+  }
+]
