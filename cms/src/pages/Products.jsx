@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { del, get, patchForm, post, postForm } from '../lib/api.js';
+import { assetUrl } from '../lib/config.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
@@ -105,7 +106,7 @@ export default function Products() {
           {shown.map((p) => (
             <div className="ptile" key={p.id} onClick={() => setEditing(p)}>
               <div className="thumb">
-                {p.images?.[0] ? <img src={p.images[0]} alt={p.name} /> : <span>{p.icon}</span>}
+                {p.images?.[0] ? <img src={assetUrl(p.images[0])} alt={p.name} /> : <span>{p.icon}</span>}
                 <span className={`badge ${STATUS_TONE[p.status]} st`}>{p.status}</span>
               </div>
               <div className="body">
@@ -333,7 +334,7 @@ function Editor({ product, artists, isAdmin, onClose, onSaved, onArchived }) {
             {(previews.length > 0 || product.images?.length > 0) && (
               <div className="row wrap" style={{ gap: 8, marginTop: 10 }}>
                 {product.images?.map((src) => (
-                  <img key={src} src={src} alt="" style={{ width: 68, height: 68, objectFit: 'cover', borderRadius: 9, border: '1px solid var(--line)' }} />
+                  <img key={src} src={assetUrl(src)} alt="" style={{ width: 68, height: 68, objectFit: 'cover', borderRadius: 9, border: '1px solid var(--line)' }} />
                 ))}
                 {previews.map((src) => (
                   <img key={src} src={src} alt="" style={{ width: 68, height: 68, objectFit: 'cover', borderRadius: 9, border: '1px solid var(--accent)' }} />

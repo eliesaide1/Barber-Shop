@@ -1,0 +1,75 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Defines both deployed pieces so the configuration lives in the repository
+# rather than in someone's memory of which boxes they ticked in a dashboard.
+#
+#     Render → New → Blueprint → pick this repo
+#
+# The mobile app is not here; it ships as an APK and only needs the API's URL.
+#
+# Two values cannot be filled in automatically, because the two services refer
+# to each other and neither URL exists until its service is created:
+#
+#   CORS_ORIGINS  (API) needs the CMS's URL
+#   VITE_API_URL  (CMS) needs the API's URL
+#
+# So the first deploy is two passes: create both, then set those two variables
+# and redeploy. They are marked `sync: false`, which makes Render ask for them
+# instead of silently deploying something broken.
+
+services:
+  # ---------------------------------------------------------------- API ----
+  - type: web
+    name: faderoom-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Secrets. `sync: false` keeps them out of this file and out of git —
+      # Render prompts for them once and stores them encrypted.
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: SHOP_SECRET
+        sync: false
+
+      # The CMS origin, as a full URL including https://. Without it the
+      # browser blocks every CMS request to this API.
+      - key: CORS_ORIGINS
+        sync: false
+
+      # This service's own public URL. The API uses it to build absolute links
+      # to uploaded files.
+      - key: PUBLIC_URL
+        sync: false
+
+      # PORT is deliberately absent: Render assigns it and the API reads it.
+
+  # ---------------------------------------------------------------- CMS ----
+  - type: web
+    name: faderoom-cms
+    runtime: static
+    plan: free
+    rootDir: cms
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      # Baked into the bundle at build time, so changing it requires a rebuild,
+      # not a restart. Full URL including https://, no trailing slash.
+      - key: VITE_API_URL
+        sync: false
+    routes:
+      # Single-page app: React Router owns the paths, so anything that is not a
+      # real file has to return index.html rather than a 404.
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -1,3 +1,5 @@
+import { API_BASE } from './config.js';
+
 const ACCESS_KEY = 'faderoom.cms.access';
 const REFRESH_KEY = 'faderoom.cms.refresh';
 
@@ -32,7 +34,7 @@ let refreshing = null;
 
 async function refreshAccess() {
   if (!tokens.refresh) return null;
-  refreshing ??= fetch('/api/auth/refresh', {
+  refreshing ??= fetch(`${API_BASE}/api/auth/refresh`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken: tokens.refresh }),
@@ -59,7 +61,7 @@ export async function api(path, { method = 'GET', body, form, retry = true } = {
   /* Never set Content-Type for FormData — the browser has to add the boundary. */
   if (body && !form) headers['Content-Type'] = 'application/json';
 
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE}/api${path}`, {
     method,
     headers,
     body: form || (body ? JSON.stringify(body) : undefined),

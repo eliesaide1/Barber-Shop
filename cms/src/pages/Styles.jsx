@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { get, post } from '../lib/api.js';
+import { assetUrl } from '../lib/config.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
@@ -105,7 +106,7 @@ export default function Styles() {
           {shown.map((look) => (
             <div className="ptile" key={look.id} style={{ cursor: 'default' }}>
               <div className="thumb">
-                {look.images?.[0] ? <img src={look.images[0]} alt={look.title} /> : <span>✂️</span>}
+                {look.images?.[0] ? <img src={assetUrl(look.images[0])} alt={look.title} /> : <span>✂️</span>}
                 <span className={`badge ${STATUS_TONE[look.status]} st`}>{look.status}</span>
               </div>
               <div className="body">
