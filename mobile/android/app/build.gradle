@@ -92,15 +92,32 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+
+        // Real signing key, configured from android/keystore.properties.
+        //
+        // That file and the .keystore it names are both gitignored: anyone
+        // holding them can publish an update that Android accepts as genuinely
+        // ours. They are absent on a fresh clone, so this block is conditional
+        // and `assembleRelease` still works for a contributor who only wants to
+        // check the release build compiles -- it just produces an APK signed
+        // with the debug key, which cannot be distributed.
+        if (rootProject.file('keystore.properties').exists()) {
+            release {
+                def props = new Properties()
+                rootProject.file('keystore.properties').withInputStream { props.load(it) }
+                storeFile file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.findByName('release') ?: signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

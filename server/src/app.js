@@ -30,7 +30,12 @@ export function createApp() {
       origin(origin, cb) {
         /* No Origin header = a native app or curl, which CORS does not govern. */
         if (!origin || env.corsOrigins.includes(origin)) return cb(null, true);
-        return cb(new Error(`Origin ${origin} is not allowed`));
+        /* Deny by withholding the header, not by raising. An unknown origin is
+           an ordinary event on a public API -- every crawler produces one -- and
+           passing an Error here turns each into a 500 and a logged stack trace.
+           With no Access-Control-Allow-Origin the browser blocks the response
+           itself, which is the actual enforcement either way. */
+        return cb(null, false);
       },
       credentials: true,
     }),
