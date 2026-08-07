@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
 import { useSocketEvent } from '../hooks/useRealtime.js';
+import Icon from '../components/Icon.jsx';
 
 const time = (iso) =>
   new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -94,7 +95,7 @@ export default function Schedule() {
       <div className="card" style={{ padding: '16px 4px' }}>
         {agenda.length === 0 ? (
           <div className="empty">
-            <div className="ico">🗓️</div>
+            <div className="ico"><Icon name="calendar" size={32} /></div>
             Nothing booked for this day
           </div>
         ) : (

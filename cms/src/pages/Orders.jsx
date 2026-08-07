@@ -4,6 +4,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
 import { useSocketEvent } from '../hooks/useRealtime.js';
 import Modal from '../components/Modal.jsx';
+import Icon from '../components/Icon.jsx';
 
 const FLOW = {
   pickup: [['ready', 'Ready at the shop'], ['collected', 'Collected']],
@@ -109,7 +110,7 @@ export default function Orders() {
       <div className="card" style={{ padding: '16px 4px' }}>
         {shown.length === 0 ? (
           <div className="empty">
-            <div className="ico">🛍</div>
+            <div className="ico"><Icon name="bag" size={32} /></div>
             {tab === 'open' ? 'Nothing waiting' : 'No closed orders yet'}
           </div>
         ) : (

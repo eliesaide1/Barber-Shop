@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
 import { useSocketEvent } from '../hooks/useRealtime.js';
+import Icon from '../components/Icon.jsx';
 
 const STATUS_TONE = { published: 'ok', pending: 'warn', rejected: 'red' };
 
@@ -95,7 +96,7 @@ export default function Styles() {
         <div className="empty">Loading…</div>
       ) : shown.length === 0 ? (
         <div className="card empty">
-          <div className="ico">🖼️</div>
+          <div className="ico"><Icon name="image" size={32} /></div>
           <div style={{ fontWeight: 700, color: 'var(--text)' }}>
             {filter === 'pending' ? 'Nothing waiting for review' : 'Nothing here'}
           </div>

@@ -6,6 +6,7 @@ import { useDialog } from '../context/DialogContext.jsx';
 import { useSocketEvent } from '../hooks/useRealtime.js';
 import QRCode from '../components/QRCode.jsx';
 import Modal from '../components/Modal.jsx';
+import Icon from '../components/Icon.jsx';
 
 const ago = (iso) => {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -180,7 +181,7 @@ export default function CheckIns() {
             </div>
             {feed.length === 0 ? (
               <div className="empty">
-                <div className="ico">💈</div>
+                <div className="ico"><Icon name="qr" size={32} /></div>
                 No check-ins yet
               </div>
             ) : (

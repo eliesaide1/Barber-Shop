@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
 import { useSocketEvent } from '../hooks/useRealtime.js';
 import Modal from '../components/Modal.jsx';
+import Icon from '../components/Icon.jsx';
 
 const CATEGORIES = ['Hair', 'Beard', 'Shave', 'Tools', 'Aftercare'];
 const STATUS_TONE = { published: 'ok', pending: 'warn', draft: 'dim', archived: 'red' };
@@ -97,7 +98,7 @@ export default function Products() {
         <div className="empty">Loading…</div>
       ) : shown.length === 0 ? (
         <div className="card empty">
-          <div className="ico">▦</div>
+          <div className="ico"><Icon name="box" size={32} /></div>
           <div style={{ fontWeight: 700, color: 'var(--text)' }}>Nothing here yet</div>
           <div style={{ marginTop: 6 }}>Add a product and upload a photo of it.</div>
         </div>

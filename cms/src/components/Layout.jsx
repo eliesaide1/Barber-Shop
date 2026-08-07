@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useConnection, useSocketEvent } from '../hooks/useRealtime.js';
 import { get } from '../lib/api.js';
+import Icon from './Icon.jsx';
 
 const initials = (name = '') =>
   name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
@@ -10,7 +11,7 @@ const initials = (name = '') =>
 function Nav({ to, icon, label, count }) {
   return (
     <NavLink to={to} end={to === '/'} className={({ isActive }) => `navlink ${isActive ? 'active' : ''}`}>
-      <span aria-hidden>{icon}</span>
+      <Icon name={icon} />
       <span>{label}</span>
       {count > 0 && <span className="count">{count}</span>}
     </NavLink>
@@ -59,7 +60,7 @@ export default function Layout({ children }) {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="mark">✂</div>
+          <div className="mark"><Icon name="scissors" size={20} strokeWidth={2} /></div>
           <div>
             <b>FadeRoom</b>
             <span>{isAdmin ? 'Shop admin' : artist?.chair || 'Artist'}</span>
@@ -67,16 +68,16 @@ export default function Layout({ children }) {
         </div>
 
         <div className="navgroup">CHAIR</div>
-        <Nav to="/" icon="◧" label="Dashboard" />
-        <Nav to="/schedule" icon="▤" label="Schedule" />
-        <Nav to="/check-ins" icon="▣" label="Check-in & QR" />
+        <Nav to="/" icon="dashboard" label="Dashboard" />
+        <Nav to="/schedule" icon="calendar" label="Schedule" />
+        <Nav to="/check-ins" icon="qr" label="Check-in & QR" />
 
         <div className="navgroup">SHOP</div>
-        <Nav to="/products" icon="▦" label="Products" />
-        <Nav to="/orders" icon="🛍" label="Orders" count={openOrders} />
-        <Nav to="/lookbook" icon="🖼" label="Lookbook" count={pendingLooks} />
-        <Nav to="/notifications" icon="✦" label="Notifications" />
-        {isAdmin && <Nav to="/artists" icon="◍" label="Artists" />}
+        <Nav to="/products" icon="box" label="Products" />
+        <Nav to="/orders" icon="bag" label="Orders" count={openOrders} />
+        <Nav to="/lookbook" icon="image" label="Lookbook" count={pendingLooks} />
+        <Nav to="/notifications" icon="bell" label="Notifications" />
+        {isAdmin && <Nav to="/artists" icon="users" label="Artists" />}
 
         <div className="spacer" />
 
@@ -93,7 +94,8 @@ export default function Layout({ children }) {
             className="btn ghost sm grow"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
-            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={15} />
+            {theme === 'dark' ? 'Light' : 'Dark'}
           </button>
           <button type="button" className="btn ghost sm grow" onClick={signOut}>
             Sign out

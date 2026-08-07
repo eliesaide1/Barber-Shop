@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
+import Icon from '../components/Icon.jsx';
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -26,7 +27,7 @@ export default function Login() {
       <form className="login" onSubmit={submit}>
         <div className="row" style={{ marginBottom: 22 }}>
           <div className="brand" style={{ padding: 0 }}>
-            <div className="mark">✂</div>
+            <div className="mark"><Icon name="scissors" size={20} strokeWidth={2} /></div>
             <div>
               <b style={{ fontSize: 17 }}>FadeRoom</b>
               <span>Back office</span>
