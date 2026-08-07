@@ -1,4 +1,13 @@
-/* FadeRoom back office — same palette as the client app, laid out for a desk. */
+/* FadeRoom back office — same palette as the client app.
+ *
+ * Laid out for a desk, but it has to survive a phone: an artist works this
+ * surface standing at the chair, on whatever they have in their pocket. So the
+ * layout is fluid from ~320px up, and there are three breakpoints:
+ *
+ *   1024px  the sidebar stops being a column and becomes an off-canvas drawer
+ *    760px  tables become stacked cards, and top-bar controls take their own row
+ *    560px  phone spacing: bottom-sheet modals, two-up tiles
+ */
 :root {
   --accent: #d9a441;
   --accent-2: #e9cf9a;
@@ -47,16 +56,22 @@ body {
 
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
+/* An uploaded photo is whatever size the artist's camera produced; it must
+   never be the thing that widens the page. */
+img { max-width: 100%; }
 
 /* ---------- shell ---------- */
-.shell { display: grid; grid-template-columns: var(--sidebar) 1fr; min-height: 100vh; }
+.shell {
+  display: grid; grid-template-columns: var(--sidebar) 1fr;
+  min-height: 100vh; min-height: 100dvh;
+}
 
 .sidebar {
   background: var(--surface);
   border-right: 1px solid var(--line);
   padding: 20px 14px;
   display: flex; flex-direction: column; gap: 4px;
-  position: sticky; top: 0; height: 100vh;
+  position: sticky; top: 0; height: 100vh; height: 100dvh;
 }
 .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; }
 .brand .mark {
@@ -80,11 +95,34 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .navgroup { font-size: 10.5px; letter-spacing: 0.8px; color: var(--muted); padding: 16px 12px 6px; font-weight: 700; }
 
-.main { padding: 22px 26px 60px; min-width: 0; }
-.topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+/* The page padding is a custom property because the app bar bleeds to the
+   edges on mobile by negating it — one value, so the two can't drift apart. */
+.main {
+  --pad-x: 26px;
+  --pad-t: 22px;
+  padding: var(--pad-t) var(--pad-x) calc(60px + env(safe-area-inset-bottom));
+  min-width: 0;
+}
+.topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
 .topbar h1 { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
 .topbar .sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+/* Filters and pickers sitting in a page header keep a common width rather than
+   each page inventing one inline, so one media query can widen them all. */
+.topbar .input, .topbar select.input { width: 180px; }
+.topbar .input.code { width: 170px; }
 .spacer { flex: 1; }
+
+/* App bar — the hamburger and brand only exist below the drawer breakpoint. */
+.navtoggle, .appbar-brand, .drawer-close { display: none; }
+.iconbtn {
+  align-items: center; justify-content: center; flex: 0 0 auto;
+  width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); color: var(--text);
+  transition: 0.14s;
+}
+.iconbtn:hover { background: var(--surface-2); }
+.appbar-brand { font-size: 15px; font-weight: 800; letter-spacing: -0.2px; }
+.nav-backdrop { display: none; }
 
 /* live connection dot */
 .live { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
@@ -96,11 +134,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .card + .card { margin-top: 14px; }
 .card h2 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
 .card .hint { font-size: 12px; color: var(--muted); }
+/* A card that holds nothing but a table: the table draws its own edges. */
+.card.tablecard { padding: 16px 4px; }
 
+/* `min(x, 100%)` rather than a bare track minimum: on a narrow phone the track
+   would otherwise hold its minimum and push the whole page sideways. */
 .grid { display: grid; gap: 14px; }
-.grid.stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-.grid.cols2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-.grid.products { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.grid.stats { grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); }
+.grid.cols2 { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.grid.products { grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); }
 
 .stat .n { font-size: 25px; font-weight: 800; letter-spacing: -0.6px; }
 .stat .l { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
@@ -113,6 +155,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   font-weight: 700; padding: 0 12px 10px;
 }
 .table td { padding: 12px; border-top: 1px solid var(--line); vertical-align: middle; }
+.table td.right { text-align: right; }
 .table tr.clickable { cursor: pointer; }
 .table tr.clickable:hover td { background: var(--surface-2); }
 
@@ -140,6 +183,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .input:focus { border-color: var(--accent); }
 .input.err { border-color: var(--danger); }
+/* Codes are read off a screen and typed back in — never lower case, always centred. */
+.input.code { text-align: center; text-transform: uppercase; }
 textarea.input { min-height: 88px; resize: vertical; font-family: inherit; }
 .err-msg { color: var(--danger); font-size: 11.5px; margin-top: 5px; }
 
@@ -189,8 +234,11 @@ textarea.input { min-height: 88px; resize: vertical; font-family: inherit; }
 }
 .modal {
   background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
-  width: min(560px, 100%); padding: 20px; max-height: 90vh; overflow-y: auto;
+  width: min(560px, 100%); padding: 20px; max-height: 90vh; max-height: 90dvh; overflow-y: auto;
 }
+/* A class rather than an inline width, so the phone breakpoint can override it
+   — an inline style beats every selector, however specific. */
+.modal.wide { width: min(760px, 100%); }
 .modal h2 { font-size: 18px; font-weight: 800; }
 .modal .close { margin-left: auto; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
 
@@ -245,7 +293,7 @@ textarea.input { min-height: 88px; resize: vertical; font-family: inherit; }
 .empty .ico { display: flex; justify-content: center; margin-bottom: 10px; opacity: 0.55; }
 
 /* ---------- login ---------- */
-.login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px;
+.login-wrap { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px;
   background: radial-gradient(900px 500px at 20% -10%, #2b2013 0%, transparent 55%), var(--bg); }
 .login { width: min(380px, 100%); }
 
@@ -254,8 +302,145 @@ textarea.input { min-height: 88px; resize: vertical; font-family: inherit; }
 .qrbox svg { width: 100%; height: auto; display: block; }
 .ttl { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-@media (max-width: 900px) {
+/* ==========================================================================
+   1024px — the sidebar becomes a drawer.
+   A permanent 236px column is a poor trade once the content column drops
+   under ~700px: the nav is read a few times a session, the content all the
+   time. So it slides in over the page and gives every pixel back.
+   ========================================================================== */
+@media (max-width: 1024px) {
   .shell { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; flex-direction: row; overflow-x: auto; }
-  .navgroup { display: none; }
+
+  .sidebar {
+    position: fixed; top: 0; bottom: 0; left: 0; z-index: 220;
+    width: min(280px, 84vw);
+    padding-top: calc(20px + env(safe-area-inset-top));
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.22s cubic-bezier(0.3, 0.8, 0.4, 1);
+    box-shadow: 0 0 44px rgba(0, 0, 0, 0.45);
+  }
+  .shell.nav-open .sidebar { transform: none; }
+
+  .nav-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 210;
+    background: rgba(0, 0, 0, 0.55);
+    animation: dlg-fade 0.16s ease;
+  }
+
+  .navtoggle, .drawer-close { display: inline-flex; }
+  .appbar-brand { display: block; }
+  .drawer-close { width: 32px; height: 32px; }
+
+  /* The app bar stays put while the page scrolls, so the menu is always one
+     tap away. It bleeds to the window edges by negating the page padding. */
+  .appbar {
+    position: sticky; top: 0; z-index: 90;
+    margin: calc(var(--pad-t) * -1) calc(var(--pad-x) * -1) 18px;
+    padding: calc(8px + env(safe-area-inset-top)) var(--pad-x) 8px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    gap: 10px;
+  }
+}
+
+/* Honour a reduced-motion preference for the one thing here that moves. */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+  .nav-backdrop, .dlg, .toast { animation: none; }
+}
+
+/* ==========================================================================
+   760px — one narrow column.
+   Table rows become cards, and anything that shared a line with a page title
+   takes a line of its own.
+   ========================================================================== */
+@media (max-width: 760px) {
+  .main { --pad-x: 14px; --pad-t: 14px; }
+
+  .topbar { gap: 10px; margin-bottom: 16px; }
+  /* With the header wrapped there is nothing left to push apart. */
+  .topbar .spacer { display: none; }
+  .topbar .input,
+  .topbar select.input,
+  .topbar .input.code,
+  .topbar > form,
+  .topbar > .btn { width: 100%; }
+
+  /* Five filters do not fit on a phone. Scroll them rather than stacking
+     them, which would push the content they filter off the screen. */
+  .seg { display: flex; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .seg::-webkit-scrollbar { display: none; }
+  .seg button { flex: 0 0 auto; }
+
+  /* A seven-column table on a phone is either unreadable or a sideways
+     scroll. Each row becomes its own card, with the column headings moving
+     into the rows as labels — so the action you came to tap is a full-width
+     button, not a 30px target at the end of a scroll. */
+  .card.tablecard { padding: 0; background: transparent; border-color: transparent; }
+
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table thead { display: none; }
+
+  .table tr {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 4px 14px 10px;
+  }
+  .table tr + tr { margin-top: 10px; }
+  .table tr.clickable:hover { border-color: var(--accent); }
+  .table tr.clickable:hover td { background: none; }
+
+  .table td, .table td.right {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px;
+    padding: 9px 0; text-align: left;
+  }
+  .table td::before {
+    content: attr(data-label);
+    flex: 0 0 84px;
+    font-size: 10.5px; letter-spacing: 0.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .table td:first-child { border-top: none; }
+  /* An order with nowhere left to go has an empty action cell. */
+  .table td:empty { display: none; }
+
+  .table td.actions { padding-top: 11px; }
+  .table td.actions::before { content: none; }
+  .table td.actions > .btn { width: 100%; }
+  .table td.actions > .row { width: 100%; }
+  .table td.actions > .row > .btn { flex: 1; }
+  .table td.actions .btn { padding: 9px 14px; font-size: 13px; }
+
+  .toasts { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .toast { min-width: 0; }
+}
+
+/* ==========================================================================
+   560px — phone.
+   ========================================================================== */
+@media (max-width: 560px) {
+  .topbar h1 { font-size: 19px; }
+
+  /* Two tiles across reads far better than one enormous one. The minimum has
+     to clear two columns at 320px — the narrowest phone still in use — or the
+     grid quietly drops back to one and the thumbnail fills the screen. */
+  .grid { gap: 10px; }
+  .grid.products { grid-template-columns: repeat(auto-fill, minmax(min(132px, 100%), 1fr)); }
+  .ptile .body { padding: 9px 10px 11px; }
+
+  /* Modals become bottom sheets: reachable by thumb, and the tall ones (the
+     product editor) get the full height instead of a letterboxed 90%. */
+  .backdrop { padding: 0; align-items: end; }
+  .modal, .modal.wide {
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 18px 18px 0 0;
+    border-bottom: none;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .dlg-backdrop { padding: 16px; }
+  .login-wrap { padding: 16px; }
+  .card { padding: 14px; }
+  .empty { padding: 30px 16px; }
 }

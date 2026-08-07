@@ -71,12 +71,12 @@ export default function Schedule() {
         </div>
         <div className="spacer" />
         {isAdmin && (
-          <select className="input" style={{ width: 180 }} value={artist} onChange={(e) => setArtist(e.target.value)}>
+          <select className="input" value={artist} onChange={(e) => setArtist(e.target.value)}>
             <option value="">All chairs</option>
             {artists.map((a) => <option key={a.id} value={a.id}>{a.displayName}</option>)}
           </select>
         )}
-        <input className="input" style={{ width: 160 }} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
       </div>
 
       <div className="grid stats" style={{ marginBottom: 16 }}>
@@ -92,7 +92,7 @@ export default function Schedule() {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '16px 4px' }}>
+      <div className="card tablecard">
         {agenda.length === 0 ? (
           <div className="empty">
             <div className="ico"><Icon name="calendar" size={32} /></div>
@@ -108,8 +108,10 @@ export default function Schedule() {
                 const meta = STATUS[a.status] || STATUS.confirmed;
                 return (
                   <tr key={a.id}>
-                    <td><b>{time(a.startsAt)}</b><div className="hint">{a.durationMin} min</div></td>
-                    <td>
+                    {/* data-label is what the column heading becomes once the
+                        table folds into cards on a narrow screen. */}
+                    <td data-label="Time"><b>{time(a.startsAt)}</b><div className="hint">{a.durationMin} min</div></td>
+                    <td data-label="Client">
                       <div className="row" style={{ gap: 9 }}>
                         <div className="avatar" style={{ width: 30, height: 30, fontSize: 11 }}>
                           {(a.user?.name || '?').split(' ').map((p) => p[0]).join('').slice(0, 2)}
@@ -122,19 +124,19 @@ export default function Schedule() {
                         </div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Service">
                       {a.serviceName}
                       {isAdmin && a.artist?.displayName && (
                         <div className="hint">{a.artist.displayName}</div>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Price">
                       {a.free
                         ? <span className="badge gold">🎁 FREE CUT</span>
                         : <b>${a.price}</b>}
                     </td>
-                    <td><span className={`badge ${meta.tone}`}>{meta.label}</span></td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="Status"><span className={`badge ${meta.tone}`}>{meta.label}</span></td>
+                    <td className="right actions">
                       {['confirmed', 'pending'].includes(a.status) && (
                         <div className="row" style={{ gap: 7, justifyContent: 'flex-end' }}>
                           <button className="btn sm" disabled={busy} onClick={() => setStatus(a, 'completed')} type="button">

@@ -233,6 +233,20 @@ Form validation stays inline under the field it belongs to, and the app's backgr
 stay silent — `useApi` refetches on every screen focus, so routing those into dialogs would fire
 one on each tab switch over a flaky connection.
 
+**The back office is laid out for a desk but has to survive a phone**, because an artist works it
+standing at the chair. It is fluid from 320px up, with three breakpoints in `cms/src/styles.css`:
+at **1024px** the sidebar stops being a column and becomes an off-canvas drawer behind a sticky app
+bar; at **760px** each table row folds into its own card — the column headings move into the rows as
+labels via `data-label`, so the button you came to tap ("Collected") is full width rather than a
+30px target at the end of a sideways scroll; at **560px** modals become bottom sheets and tiles go
+two-up.
+
+Two rules keep it that way. Track minimums are written `minmax(min(320px, 100%), 1fr)` — a bare
+`minmax(320px, 1fr)` holds its minimum on a narrower phone and pushes the whole page sideways.
+And widths that a breakpoint needs to override live in the stylesheet, never in a `style={{…}}`:
+an inline style beats every selector, however specific, so a fixed inline width is a breakpoint
+that cannot be written.
+
 **Ownership scopes the CMS.** A product's `owner` is an artist or null for the house label. An
 artist sees and edits only their own shelf and their edits return to `pending`; an admin approves.
 Artists can message their own clients or one named client, never the whole shop.

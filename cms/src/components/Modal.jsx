@@ -15,7 +15,7 @@ export default function Modal({ title, subtitle, onClose, children, wide }) {
 
   return (
     <div className="backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={wide ? { width: 'min(760px, 100%)' } : undefined} role="dialog" aria-modal="true">
+      <div className={`modal ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true">
         <div className="row" style={{ marginBottom: 14 }}>
           <div>
             <h2>{title}</h2>

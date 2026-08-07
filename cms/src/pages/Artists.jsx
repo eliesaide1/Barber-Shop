@@ -243,7 +243,7 @@ function ArtistEditor({ artist, onClose, onSaved }) {
           </div>
         </div>
 
-        <div className="row" style={{ marginTop: 20, gap: 10 }}>
+        <div className="row wrap" style={{ marginTop: 20, gap: 10 }}>
           <button className="btn grow" disabled={busy} type="submit">
             {busy ? 'Saving…' : isNew ? 'Add artist' : 'Save changes'}
           </button>

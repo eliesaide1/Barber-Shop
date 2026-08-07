@@ -118,6 +118,10 @@ export default function Icon({ name, size = 18, strokeWidth = 1.8 }) {
       )}
 
       {name === 'moon' && <path d="M20.2 14.4A8.4 8.4 0 0 1 9.6 3.8a8.4 8.4 0 1 0 10.6 10.6" {...s} />}
+
+      {/* Opening and closing the mobile nav drawer. */}
+      {name === 'menu' && <path d="M4 7h16M4 12h16M4 17h16" {...s} />}
+      {name === 'close' && <path d="m6.6 6.6 10.8 10.8M17.4 6.6 6.6 17.4" {...s} />}
     </svg>
   );
 }

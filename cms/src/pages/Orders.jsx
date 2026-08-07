@@ -88,8 +88,7 @@ export default function Orders() {
         <div className="spacer" />
         <form className="row" onSubmit={lookup}>
           <input
-            className="input mono"
-            style={{ width: 170, textAlign: 'center', textTransform: 'uppercase' }}
+            className="input mono code grow"
             placeholder="PICKUP CODE"
             value={code}
             onChange={(e) => setCode(e.target.value)}
@@ -107,7 +106,7 @@ export default function Orders() {
         </button>
       </div>
 
-      <div className="card" style={{ padding: '16px 4px' }}>
+      <div className="card tablecard">
         {shown.length === 0 ? (
           <div className="empty">
             <div className="ico"><Icon name="bag" size={32} /></div>
@@ -126,20 +125,22 @@ export default function Orders() {
                 const step = nextStep(o);
                 return (
                   <tr key={o.id} className="clickable" onClick={() => setDetail(o)}>
-                    <td className="mono accent">{o.code}</td>
-                    <td>{o.user?.name || '—'}</td>
-                    <td className="muted">
+                    {/* data-label is what the column heading becomes once the
+                        table folds into cards on a narrow screen. */}
+                    <td className="mono accent" data-label="Code">{o.code}</td>
+                    <td data-label="Client">{o.user?.name || '—'}</td>
+                    <td className="muted" data-label="Items">
                       {o.items.reduce((t, i) => t + i.qty, 0)} item
                       {o.items.reduce((t, i) => t + i.qty, 0) === 1 ? '' : 's'}
                     </td>
-                    <td><b>${o.total}</b></td>
-                    <td>{o.fulfilment === 'pickup' ? '💈 Pickup' : '🛵 Delivery'}</td>
-                    <td>
+                    <td data-label="Total"><b>${o.total}</b></td>
+                    <td data-label="Type">{o.fulfilment === 'pickup' ? '💈 Pickup' : '🛵 Delivery'}</td>
+                    <td data-label="Status">
                       <span className={`badge ${isOpen(o) ? 'gold' : 'dim'}`}>
                         {(FLOW[o.fulfilment].find(([s]) => s === o.status) || [, o.status])[1]}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td className="right actions">
                       {step && (
                         <button
                           className="btn sm"

@@ -124,7 +124,6 @@ export default function CheckIns() {
         {isAdmin && (
           <select
             className="input"
-            style={{ width: 200 }}
             value={chair}
             onChange={(e) => setChair(e.target.value)}
           >
@@ -163,8 +162,7 @@ export default function CheckIns() {
             <div className="hint">Ask for the client’s 6-character claim code, or scan it from their phone.</div>
             <form className="row" style={{ marginTop: 12 }} onSubmit={findReward}>
               <input
-                className="input grow mono"
-                style={{ textAlign: 'center', textTransform: 'uppercase' }}
+                className="input grow mono code"
                 placeholder="CLAIM CODE"
                 maxLength={20}
                 value={claim}
