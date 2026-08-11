@@ -1,6 +1,7 @@
 import { Notification } from '../models/Notification.js';
 import { emitTo, rooms, connectedCount } from './realtime.js';
 import { pushToUsers } from './push.js';
+import { withImageUrls } from './upload.js';
 import { env } from '../config/env.js';
 
 /**
@@ -35,8 +36,14 @@ import { env } from '../config/env.js';
  * @param {'message'|'booking'|'order'|'loyalty'} [options.kind]
  * @param {object} [options.data] Deep link, e.g. `{ screen: 'Appointments' }`.
  * @param {object} [options.actor] The user who caused it, when there is one.
+ * @param {string} [options.image] A stored upload path. Some messages are mostly
+ *   a picture — "they want this cut again" is one — and a photograph in the
+ *   notification answers the question before the artist has opened anything.
  */
-export async function notify(userId, { title, body, kind = 'message', data = {}, actor = null }) {
+export async function notify(
+  userId,
+  { title, body, kind = 'message', data = {}, actor = null, image = '' },
+) {
   if (!userId) return null;
 
   const room = rooms.user(userId);
@@ -47,6 +54,9 @@ export async function notify(userId, { title, body, kind = 'message', data = {},
     audience: 'user',
     targetUser: userId,
     data,
+    /* Stored bare; `withImageUrls` turns it into a path on the way out, and
+       push.js makes it absolute, because FCM needs a URL it can fetch. */
+    image: image ? String(image).replace('/uploads/', '') : '',
     createdBy: actor?._id ?? null,
     /* Named for whoever caused it, so "Karim confirmed your cut" reads as being
        from Karim rather than from a system. */
@@ -54,7 +64,7 @@ export async function notify(userId, { title, body, kind = 'message', data = {},
     deliveredCount: connectedCount(room),
   });
 
-  emitTo(room, 'notification:new', notification.toJSON());
+  emitTo(room, 'notification:new', withImageUrls(notification));
 
   /* Both transports, always, carrying the same record. An app that is open gets
      it over the socket in a few milliseconds and drops the push as a duplicate;

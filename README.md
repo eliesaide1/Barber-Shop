@@ -188,6 +188,12 @@ deletes the record and unlinks the files, and a test asserts both — the databa
 the fade started are how somebody repeats it. Both go up together, and both come back on the
 reference.
 
+**The reference rides along with the notification.** When a client attaches one, the artist's
+request notification carries the photograph itself — not a line telling them something was attached
+and to go and look. The body says so too, for the lock screen and anywhere an image cannot be drawn.
+FCM fetches images itself, so `PUBLIC_URL` is what makes that half work; without it the picture is
+simply left off rather than sent as a relative path Google cannot resolve.
+
 **Reproducing a cut works two ways, and the second is the one that matters most.** A client can pick
 a past cut when requesting a time (`Appointment.reference`), and it appears on the artist's request
 card and in their day. But most people do not think to — so the artist can also open any client from
@@ -391,7 +397,7 @@ curl -L --retry 8 -C - -o "$HOME/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/g
 ## Tests
 
 ```bash
-npm test                      # 145 API integration tests against a real MongoDB
+npm test                      # 147 API integration tests against a real MongoDB
 npm --prefix mobile test      # 19 QR encoder and client-record tests
 npm run typecheck:mobile
 npm run build:cms

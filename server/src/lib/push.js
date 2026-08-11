@@ -201,6 +201,21 @@ export async function pushToUsers(userIds, notification) {
     }
     if (!tokens.length) return { sent: 0, skipped };
 
+    /**
+     * FCM fetches the image itself, so it needs somewhere it can reach.
+     *
+     * Uploads are stored as `/uploads/x.jpg` on purpose — the API answers on
+     * three different hostnames and each client resolves them against the base
+     * it already uses. Google is not one of those clients: it needs the shop's
+     * public origin spelled out, which is what PUBLIC_URL is for. Left off
+     * entirely if that has not been set, since a relative URL would simply fail
+     * on their side and drop the whole notification.
+     */
+    const image =
+      notification.image && env.publicUrl
+        ? `${env.publicUrl}${notification.image.startsWith('/') ? '' : '/uploads/'}${notification.image}`
+        : null;
+
     const message = {
       notification: { title: notification.title, body: notification.body },
       data: dataPayload(notification),
@@ -209,11 +224,12 @@ export async function pushToUsers(userIds, notification) {
            device for; the shop's news is not, and normal priority lets Android
            batch it into a maintenance window instead of costing battery. */
         priority: isBroadcast ? 'normal' : 'high',
-        notification: { sound: 'default' },
+        notification: { sound: 'default', ...(image ? { imageUrl: image } : {}) },
       },
       apns: {
-        payload: { aps: { sound: 'default', badge: 1 } },
+        payload: { aps: { sound: 'default', badge: 1, 'mutable-content': image ? 1 : 0 } },
         headers: { 'apns-priority': isBroadcast ? '5' : '10' },
+        ...(image ? { fcmOptions: { imageUrl: image } } : {}),
       },
     };
 

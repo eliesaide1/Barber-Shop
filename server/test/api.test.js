@@ -2023,6 +2023,55 @@ describe('previous haircut records', () => {
     });
   });
 
+  test('the artist is notified with the cut they want matched', async () => {
+    /* A notification that made the artist open the app to find out what was
+       attached would have told them only that something was. */
+    const slot = (await availabilityFor(15)).slots.find((s) => s.available);
+    const booked = await api('/api/appointments', {
+      token: ctx.client.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+        reference: ctx.haircut.id,
+      },
+    });
+    assert.equal(booked.status, 201);
+
+    const inbox = await api('/api/notifications', { token: ctx.artistSession.accessToken });
+    const ask = inbox.body.find((n) => /wants a chair/i.test(n.title) && n.image);
+    assert.ok(ask, 'the photograph should ride along with the request');
+    assert.match(ask.image, /^\/uploads\//);
+    assert.match(ask.body, /picked a past cut/i, 'and be said in words, where no image can be drawn');
+    /* And it still says the artist sets the time, which is what they do next. */
+    assert.match(ask.body, /how long to give it/i);
+
+    await api(`/api/appointments/${booked.body.id}/cancel`, {
+      token: ctx.client.accessToken, method: 'POST',
+    });
+  });
+
+  test('a request without one carries no photograph', async () => {
+    const slot = (await availabilityFor(16)).slots.find((s) => s.available);
+    const booked = await api('/api/appointments', {
+      token: ctx.other.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+      },
+    });
+    assert.equal(booked.status, 201);
+
+    const inbox = await api('/api/notifications', { token: ctx.artistSession.accessToken });
+    const ask = inbox.body.find((n) => n.title.startsWith('Marc'));
+    assert.ok(ask);
+    assert.equal(ask.image, '', 'nothing to show, so nothing shown');
+    assert.equal(/picked a past cut/i.test(ask.body), false);
+  });
+
   test('the client can see their choice stuck', async () => {
     /* A selection that leaves no trace is one people make twice, unsure it
        registered. */

@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, PanResponder, Pressable, Text, View } from 'react-native';
+import { Animated, Image, PanResponder, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '../store/ThemeContext';
+import { absoluteUrl } from '../config';
 import { radius, space } from '../theme';
 import type { AppNotification, NotificationKind } from '../types';
 
@@ -105,20 +106,34 @@ export function NotificationBanner({ notification, onPress, onDismiss }: Props) 
           transform: [{ scale: pressed ? 0.99 : 1 }],
         })}
       >
-        <View
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: radius.sm + 2,
-            backgroundColor: c.accent,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Text style={{ fontSize: 19, color: c.onAccent }}>
-            {KIND_GLYPH[notification.kind] ?? KIND_GLYPH.message}
-          </Text>
-        </View>
+        {/* A photograph when there is one — "they want this cut again" is
+            answered by seeing it, not by a glyph standing in for it. */}
+        {notification.image ? (
+          <Image
+            source={{ uri: absoluteUrl(notification.image) }}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: radius.sm + 2,
+              backgroundColor: c.surface3,
+            }}
+          />
+        ) : (
+          <View
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: radius.sm + 2,
+              backgroundColor: c.accent,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 19, color: c.onAccent }}>
+              {KIND_GLYPH[notification.kind] ?? KIND_GLYPH.message}
+            </Text>
+          </View>
+        )}
 
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

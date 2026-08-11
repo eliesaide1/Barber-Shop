@@ -383,12 +383,29 @@ appointmentsRouter.post(
 
     /* The inbox is where the artist's day now starts, so a request landing in it
        has to reach them rather than wait to be found. */
+    /**
+     * The reference goes into the notification, not just onto the record.
+     *
+     * "They want this again" is a picture, and an artist deciding how long to
+     * give a booking wants to have seen it — a notification that made them open
+     * the app to find out what was attached has told them only that something
+     * was. The photograph rides along, and the body says so for anywhere an
+     * image cannot be drawn.
+     */
+    const wanted = reference
+      ? await HaircutRecord.findById(reference).select('images serviceName')
+      : null;
+
     await notify(artist.user, {
       title: `${req.user.name.split(' ')[0]} wants a chair`,
-      body: `${service.name} · ${whenLabel(startsAt)}. Accept it to reserve the time.`,
+      body:
+        `${service.name} · ${whenLabel(startsAt)}. ` +
+        (wanted ? 'They’ve picked a past cut to match. ' : '') +
+        'Accept it to set the time and how long to give it.',
       kind: 'booking',
       data: { screen: 'Today' },
       actor: req.user,
+      image: wanted?.images?.[0] ?? '',
     });
 
     res.status(201).json(payload);
