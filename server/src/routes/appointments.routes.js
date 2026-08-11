@@ -101,15 +101,42 @@ async function releaseReward(appointment) {
   appointment.free = false;
 }
 
-/** Tell the client, the chair and every CMS seat at once. */
+/**
+ * A booking as the chair should see it — with no sign that it is a free one.
+ *
+ * An artist who knows before they start that this cut earns nothing is being
+ * handed a reason, however small and however unintended, to give it less than
+ * the last one. The shop's promise is that a free cut is the same cut, and the
+ * simplest way to keep that promise is for the person holding the clippers not
+ * to know until it is over.
+ *
+ * They find out at the end, when the client shows the claim code and the artist
+ * redeems it — by which point the work is done. Nothing is hidden from the
+ * client, who chose it, or from the redemption record afterwards.
+ */
+export function forChair(appointment) {
+  const json = typeof appointment.toJSON === 'function' ? appointment.toJSON() : { ...appointment };
+  delete json.free;
+  delete json.rewardCode;
+  return json;
+}
+
+/**
+ * Tell the client, the chair and every CMS seat at once.
+ *
+ * Two payloads, not one: the client's own booking says it is free because they
+ * chose that, and the same object going to the artist's room would undo the
+ * whole point of `forChair`.
+ */
 function announce(appointment, event = 'appointment:status') {
-  const payload = appointment.toJSON();
+  const mine = appointment.toJSON();
+  const theirs = forChair(appointment);
   /* Ids may already be populated documents depending on the caller. */
   const userId = appointment.user?._id ?? appointment.user;
   const artistId = appointment.artist?._id ?? appointment.artist;
-  emitTo(rooms.user(userId), event, payload);
-  emitTo(rooms.artist(artistId), event, payload);
-  emitTo(rooms.staff(), event, payload);
+  emitTo(rooms.user(userId), event, mine);
+  emitTo(rooms.artist(artistId), event, theirs);
+  emitTo(rooms.staff(), event, theirs);
 }
 
 /** Shared guard for the artist-side decisions. */
@@ -378,8 +405,8 @@ appointmentsRouter.post(
     });
 
     const payload = await appointment.populate('artist', 'displayName chair');
-    emitTo(rooms.artist(artist._id), 'appointment:created', payload.toJSON());
-    emitTo(rooms.staff(), 'appointment:created', payload.toJSON());
+    emitTo(rooms.artist(artist._id), 'appointment:created', forChair(payload));
+    emitTo(rooms.staff(), 'appointment:created', forChair(payload));
 
     /* The inbox is where the artist's day now starts, so a request landing in it
        has to reach them rather than wait to be found. */
@@ -467,7 +494,9 @@ appointmentsRouter.post(
     }
 
     announce(appointment);
-    res.json(appointment);
+    /* Staff cancelling somebody else's booking must not learn from the reply
+       what the board is careful not to show them. */
+    res.json(isStaff ? forChair(appointment) : appointment.toJSON());
   }),
 );
 
@@ -497,7 +526,7 @@ appointmentsRouter.get(
       .sort({ startsAt: 1 })
       .limit(60);
 
-    res.json(requests);
+    res.json(requests.map(forChair));
   }),
 );
 
@@ -523,7 +552,7 @@ appointmentsRouter.get(
       .populate('reference', 'images notes serviceName takenAt')
       .sort({ startsAt: 1 });
 
-    res.json(agenda);
+    res.json(agenda.map(forChair));
   }),
 );
 
@@ -660,7 +689,7 @@ appointmentsRouter.post(
 
     announce(appointment);
 
-    res.json({ appointment: appointment.toJSON(), declined: superseded.length });
+    res.json({ appointment: forChair(appointment), declined: superseded.length });
   }),
 );
 
@@ -701,7 +730,7 @@ appointmentsRouter.post(
     });
 
     announce(appointment);
-    res.json(appointment);
+    res.json(forChair(appointment));
   }),
 );
 
@@ -732,6 +761,6 @@ appointmentsRouter.post(
     await appointment.save();
 
     announce(appointment);
-    res.json(appointment);
+    res.json(forChair(appointment));
   }),
 );

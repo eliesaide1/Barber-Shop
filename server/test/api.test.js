@@ -806,17 +806,26 @@ describe('loyalty', () => {
     assert.equal(res.body.stamps, 2);
   });
 
-  test('the fifth stamp mints a free cut and resets the card', async () => {
+  test('the goal-th stamp mints a free cut and resets the card', async () => {
+    /* Driven by the shop's configured goal rather than a number written here.
+       It moved from an environment variable to a CMS setting, and a test that
+       hardcodes five would quietly assert the wrong thing the first time an
+       owner changes it. */
+    const { body: config } = await api('/api/config');
+    assert.ok(config.loyaltyGoal >= 1);
+
     let last;
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < config.loyaltyGoal + 1 && !last?.body?.reward; i += 1) {
       const { body: qr } = await api('/api/loyalty/check-in-token', { token: ctx.artistSession.accessToken });
       last = await api('/api/loyalty/check-in', {
         token: ctx.client.accessToken, method: 'POST', body: { code: qr.token },
       });
       assert.equal(last.status, 200);
     }
-    assert.ok(last.body.reward, 'no reward after five check-ins');
+
+    assert.ok(last.body.reward, `no reward after ${config.loyaltyGoal} check-ins`);
     assert.equal(last.body.stamps, 0, 'card did not reset');
+    assert.equal(last.body.goal, config.loyaltyGoal);
     assert.match(last.body.reward.code, /^[A-Z2-9]{6}$/);
     ctx.reward = last.body.reward;
   });
@@ -1194,7 +1203,9 @@ describe('appointments', () => {
     });
     assert.equal(declined.status, 200);
     assert.equal(declined.body.status, 'declined');
-    assert.equal(declined.body.free, false);
+    /* Absent, not false: the artist's reply carries no sign that a reward was
+       ever on this booking. What matters is that the card got it back. */
+    assert.equal('free' in declined.body, false);
 
     const after = await Loyalty.findOne({ user: ctx.client.user.id });
     assert.equal(
@@ -1325,6 +1336,134 @@ describe('turnaround between clients', () => {
         token: artistToken, method: 'PATCH', body: { gapMin },
       });
       assert.equal(res.status, 422, `gapMin ${gapMin} should be refused`);
+    }
+  });
+});
+
+describe('a free cut looks like any other booking', () => {
+  /* The shop's promise is that a free cut is the same cut. The simplest way to
+     keep it is for the person holding the clippers not to know until it is
+     over — so nothing the chair can see may carry it. */
+  test('setup: a client with a reward books it', async () => {
+    const card = await Loyalty.findOne({ user: ctx.other.user.id });
+    card.rewards = [{ code: 'FREEEE', status: 'available', earnedAt: new Date(), expiresAt: null }];
+    await card.save();
+
+    const slot = (await availabilityFor(17)).slots.find((s) => s.available);
+    const res = await api('/api/appointments', {
+      token: ctx.other.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+        useReward: true,
+      },
+    });
+    assert.equal(res.status, 201);
+    ctx.freeBooking = res.body;
+  });
+
+  test('the client knows perfectly well — they chose it', async () => {
+    const mine = await api('/api/appointments', { token: ctx.other.accessToken });
+    const shown = mine.body.find((a) => a.id === ctx.freeBooking.id);
+    assert.equal(shown.free, true);
+    assert.equal(shown.rewardCode, 'FREEEE');
+  });
+
+  test('the artist’s request inbox does not', async () => {
+    const res = await api('/api/appointments/requests', { token: ctx.artistSession.accessToken });
+    const request = res.body.find((r) => r.id === ctx.freeBooking.id);
+    assert.ok(request, 'the booking should still be there — just not marked');
+    assert.equal('free' in request, false);
+    assert.equal('rewardCode' in request, false);
+    /* And it still shows a price, so it reads as an ordinary paid booking. */
+    assert.equal(request.price, 25);
+  });
+
+  test('nor the day, once it is accepted', async () => {
+    const confirmed = await api(`/api/appointments/${ctx.freeBooking.id}/confirm`, {
+      token: ctx.artistSession.accessToken, method: 'POST', body: { durationMin: 30 },
+    });
+    assert.equal(confirmed.status, 200);
+    assert.equal('free' in confirmed.body.appointment, false, 'the reply gave it away');
+
+    const date = new Date(ctx.freeBooking.startsAt).toISOString().slice(0, 10);
+    const agenda = await api(`/api/appointments/agenda?date=${date}`, {
+      token: ctx.artistSession.accessToken,
+    });
+    const entry = agenda.body.find((a) => a.id === ctx.freeBooking.id);
+    assert.ok(entry);
+    assert.equal('free' in entry, false);
+    assert.equal('rewardCode' in entry, false);
+  });
+
+  test('nor the admin’s board — the leak is the same either way', async () => {
+    const date = new Date(ctx.freeBooking.startsAt).toISOString().slice(0, 10);
+    const agenda = await api(
+      `/api/appointments/agenda?date=${date}&artist=${ctx.artist._id}`,
+      { token: ctx.admin.accessToken },
+    );
+    const entry = agenda.body.find((a) => a.id === ctx.freeBooking.id);
+    assert.equal('free' in entry, false);
+  });
+
+  test('but the reward is genuinely held, and burns at the chair', async () => {
+    /* Hidden is not the same as not there. The client presents the code at the
+       end, and only then does the artist learn what it was. */
+    const held = await Loyalty.findOne({ user: ctx.other.user.id });
+    assert.equal(held.rewards.find((r) => r.code === 'FREEEE').status, 'reserved');
+
+    const burn = await api('/api/loyalty/rewards/FREEEE/redeem', {
+      token: ctx.artistSession.accessToken, method: 'POST',
+    });
+    assert.equal(burn.status, 200);
+    assert.equal(burn.body.client, 'Marc Aoun');
+  });
+});
+
+describe('the loyalty goal is the shop’s to set', () => {
+  test('it defaults to eight, not five', async () => {
+    const res = await api('/api/config');
+    assert.equal(res.body.loyaltyGoal, 8, 'every eighth visit earns the ninth cut free');
+  });
+
+  test('an admin can change it, and the card follows', async () => {
+    const res = await api('/api/settings', {
+      token: ctx.admin.accessToken,
+      method: 'PATCH',
+      body: { loyalty: { goal: 10, freeCutValue: 30 } },
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.loyalty.goal, 10);
+
+    const card = await api('/api/loyalty/card', { token: ctx.client.accessToken });
+    assert.equal(card.body.goal, 10, 'the client’s card should read the new goal');
+    assert.equal(card.body.freeCutValue, 30);
+
+    const config = await api('/api/config');
+    assert.equal(config.body.loyaltyGoal, 10);
+
+    await api('/api/settings', {
+      token: ctx.admin.accessToken, method: 'PATCH', body: { loyalty: { goal: 8, freeCutValue: 25 } },
+    });
+  });
+
+  test('an artist cannot change it', async () => {
+    const res = await api('/api/settings', {
+      token: ctx.artistSession.accessToken,
+      method: 'PATCH',
+      body: { loyalty: { goal: 2 } },
+    });
+    assert.equal(res.status, 403);
+  });
+
+  test('and it has to be a number a card could use', async () => {
+    for (const goal of [0, 51]) {
+      const res = await api('/api/settings', {
+        token: ctx.admin.accessToken, method: 'PATCH', body: { loyalty: { goal } },
+      });
+      assert.equal(res.status, 422, `goal ${goal} should be refused`);
     }
   });
 });

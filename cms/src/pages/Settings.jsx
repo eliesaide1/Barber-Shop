@@ -32,6 +32,7 @@ export default function Settings() {
   const [contact, setContact] = useState({ enabled: true, whatsapp: '', greeting: '' });
   const [contactNumber, setContactNumber] = useState(null);
   const [marketplace, setMarketplace] = useState({ hideAllPrices: false, priceEnquiry: '' });
+  const [loyalty, setLoyalty] = useState({ goal: 8, freeCutValue: 25 });
   const [whatsapp, setWhatsapp] = useState({ configured: false });
   const [upcoming, setUpcoming] = useState([]);
   const [fields, setFields] = useState({});
@@ -45,6 +46,7 @@ export default function Settings() {
       setContact(data.contact);
       setContactNumber(data.contactNumber);
       setMarketplace(data.marketplace);
+      setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
     } catch (err) {
       showError(err.message, { title: 'Couldn’t load the settings', icon: '⚙️' });
@@ -64,11 +66,12 @@ export default function Settings() {
     setBusy(true);
     setFields({});
     try {
-      const data = await patch('/settings', { birthday: form, contact, marketplace });
+      const data = await patch('/settings', { birthday: form, contact, marketplace, loyalty });
       setForm(data.birthday);
       setContact(data.contact);
       setContactNumber(data.contactNumber);
       setMarketplace(data.marketplace);
+      setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
       toast('Saved ✓');
     } catch (err) {
@@ -151,6 +154,47 @@ export default function Settings() {
               only</b>. That still works, and needs nobody’s approval.
             </>
           )}
+        </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 14 }}>
+        <h2>Loyalty card</h2>
+        <div className="hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
+          How many visits earn a free cut. Changing this <b>lengthens or shortens the card for
+          everyone part-way through one</b> — somebody on 6 of 8 is suddenly 6 of 10 — so it is a
+          promise you are editing, not just a number.
+        </div>
+        <div className="row wrap" style={{ gap: 10, marginTop: 12 }}>
+          <div className="field grow">
+            <label>Visits per free cut</label>
+            <input
+              className={`input ${fields['loyalty.goal'] ? 'err' : ''}`}
+              inputMode="numeric"
+              value={loyalty.goal}
+              onChange={(e) => setLoyalty((l) => ({ ...l, goal: e.target.value }))}
+            />
+            {fields['loyalty.goal'] && <div className="err-msg">{fields['loyalty.goal']}</div>}
+            <div className="hint">
+              At {loyalty.goal || '—'}, the {Number(loyalty.goal) + 1 || '—'}th cut is the free one.
+            </div>
+          </div>
+          <div className="field grow">
+            <label>A free cut is worth ($)</label>
+            <input
+              className="input"
+              inputMode="decimal"
+              value={loyalty.freeCutValue}
+              onChange={(e) => setLoyalty((l) => ({ ...l, freeCutValue: e.target.value }))}
+            />
+            <div className="hint">Shown on the client’s card and when an artist redeems one.</div>
+          </div>
+        </div>
+        <div className="hint" style={{ marginTop: 10, lineHeight: 1.6 }}>
+          {/* The rule the whole free-cut design turns on, said where somebody
+              configuring it will read it. */}
+          Artists are <b>not shown</b> which bookings are free — not on the board, not in the
+          request, not in the notification. They find out when the client presents the claim code at
+          the end. A free cut should be the same cut.
         </div>
       </div>
 

@@ -19,6 +19,7 @@ import {
 import { emitTo, rooms } from '../lib/realtime.js';
 import { notify } from '../lib/notify.js';
 import { rewardLabel, rewardValue, dateLabel } from '../lib/rewards.js';
+import { getSettings } from '../models/ShopSettings.js';
 import { env } from '../config/env.js';
 
 export const loyaltyRouter = Router();
@@ -28,14 +29,14 @@ const cardFor = async (userId) => {
   return card || Loyalty.create({ user: userId });
 };
 
-const cardJson = (card) => ({
+const cardJson = (card, loyalty) => ({
   stamps: card.stamps.length,
-  goal: env.loyaltyGoal,
+  goal: loyalty.goal,
   totalCheckIns: card.totalCheckIns,
   lastCheckInAt: card.lastCheckInAt,
   history: card.stamps,
   rewards: card.rewards,
-  freeCutValue: env.freeCutValue,
+  freeCutValue: loyalty.freeCutValue,
 });
 
 /* ---------------- client ---------------- */
@@ -44,7 +45,8 @@ loyaltyRouter.get(
   '/card',
   requireAuth,
   asyncHandler(async (req, res) => {
-    res.json(cardJson(await cardFor(req.user._id)));
+    const { loyalty } = await getSettings();
+    res.json(cardJson(await cardFor(req.user._id), loyalty));
   }),
 );
 
@@ -69,6 +71,9 @@ loyaltyRouter.post(
     const artist = artists.find((a) => String(a._id) === String(verdict.artistId));
     if (!artist) throw new ApiError(400, 'That chair is not taking check-ins');
 
+    /* The goal is the shop's setting, not the deployment's — an owner moving
+       from every fifth cut to every eighth should not need a redeploy. */
+    const { loyalty } = await getSettings();
     const card = await cardFor(req.user._id);
 
     /* One stamp per visit. A valid code scanned five times in a row is still
@@ -84,7 +89,7 @@ loyaltyRouter.post(
     card.lastCheckInAt = new Date();
 
     let reward = null;
-    if (card.stamps.length >= env.loyaltyGoal) {
+    if (card.stamps.length >= loyalty.goal) {
       card.stamps = []; /* card starts over at zero */
       reward = { code: rewardCode(req.user._id), earnedAt: new Date(), status: 'available' };
       card.rewards.push(reward);
@@ -97,7 +102,7 @@ loyaltyRouter.post(
         userName: req.user.name,
         artist: artist._id,
         kind: 'stamp',
-        stampNumber: reward ? env.loyaltyGoal : card.stamps.length,
+        stampNumber: reward ? loyalty.goal : card.stamps.length,
       }),
     ];
     if (reward) {
@@ -117,7 +122,7 @@ loyaltyRouter.post(
       emitTo(rooms.artist(artist._id), 'checkin:new', event.toJSON());
       emitTo(rooms.staff(), 'checkin:new', event.toJSON());
     }
-    emitTo(rooms.user(req.user._id), 'loyalty:updated', cardJson(card));
+    emitTo(rooms.user(req.user._id), 'loyalty:updated', cardJson(card, loyalty));
 
     /* The stamp itself says nothing — the client watched it land. Earning the
        free cut is worth a notification, because the claim code is a thing they
@@ -125,7 +130,7 @@ loyaltyRouter.post(
     if (reward) {
       await notify(req.user._id, {
         title: 'Your next cut is free 🎁',
-        body: `${env.loyaltyGoal} visits done. Claim code ${reward.code} — show it at the chair.`,
+        body: `${loyalty.goal} visits done. Claim code ${reward.code} — show it at the chair.`,
         kind: 'loyalty',
         data: { screen: 'Loyalty' },
       });
@@ -133,10 +138,10 @@ loyaltyRouter.post(
 
     res.json({
       stamps: reward ? 0 : card.stamps.length,
-      goal: env.loyaltyGoal,
+      goal: loyalty.goal,
       artist: { id: artist._id, displayName: artist.displayName },
       reward,
-      card: cardJson(card),
+      card: cardJson(card, loyalty),
     });
   }),
 );
@@ -272,9 +277,17 @@ loyaltyRouter.post(
     });
 
     emitTo(rooms.staff(), 'checkin:new', event.toJSON());
-    emitTo(rooms.user(card.user._id), 'loyalty:updated', cardJson(card));
+    const { loyalty } = await getSettings();
+    emitTo(rooms.user(card.user._id), 'loyalty:updated', cardJson(card, loyalty));
 
-    res.json({ ok: true, code, client: card.user.name, value: env.freeCutValue });
+    /* The reward's own worth when it has one — a birthday gift need not be the
+       price of a standard cut. */
+    res.json({
+      ok: true,
+      code,
+      client: card.user.name,
+      value: card.rewards.find((r) => r.code === code)?.value ?? loyalty.freeCutValue,
+    });
   }),
 );
 
@@ -289,6 +302,7 @@ loyaltyRouter.get(
       .sort({ updatedAt: -1 })
       .limit(100);
 
+    const { loyalty } = await getSettings();
     const now = Date.now();
     res.json(
       cards
@@ -309,7 +323,7 @@ loyaltyRouter.get(
           return {
             user: c.user,
             stamps: c.stamps.length,
-            goal: env.loyaltyGoal,
+            goal: loyalty.goal,
             totalCheckIns: c.totalCheckIns,
             lastCheckInAt: c.lastCheckInAt,
             dueAt,

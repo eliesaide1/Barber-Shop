@@ -55,6 +55,16 @@ const contactBody = z.object({
   greeting: z.string().max(300).optional(),
 });
 
+const loyaltyBody = z.object({
+  goal: z.coerce
+    .number()
+    .int()
+    .min(1, 'At least one visit')
+    .max(50, 'Fifty is not a loyalty card')
+    .optional(),
+  freeCutValue: z.coerce.number().min(0).max(10_000).optional(),
+});
+
 const marketplaceBody = z.object({
   hideAllPrices: z.boolean().optional(),
   priceEnquiry: z.string().min(2).max(300).optional(),
@@ -71,6 +81,7 @@ settingsRouter.get(
       birthday: settings.birthday,
       contact: settings.contact,
       marketplace: settings.marketplace,
+      loyalty: settings.loyalty,
       /* What the app will actually dial, so the CMS shows the effect of what
          was typed rather than the typing. */
       contactNumber: toWhatsAppNumber(settings.contact.whatsapp),
@@ -92,12 +103,14 @@ settingsRouter.patch(
         birthday: birthdayBody.optional(),
         contact: contactBody.optional(),
         marketplace: marketplaceBody.optional(),
+        loyalty: loyaltyBody.optional(),
       })
       .parse(req.body);
 
     const settings = await getSettings();
     if (body.contact) Object.assign(settings.contact, body.contact);
     if (body.marketplace) Object.assign(settings.marketplace, body.marketplace);
+    if (body.loyalty) Object.assign(settings.loyalty, body.loyalty);
     if (body.birthday) {
       Object.assign(settings.birthday, body.birthday);
       /* Switching it on with no template would send nothing and report success,
@@ -117,6 +130,7 @@ settingsRouter.patch(
       birthday: settings.birthday,
       contact: settings.contact,
       marketplace: settings.marketplace,
+      loyalty: settings.loyalty,
       contactNumber: toWhatsAppNumber(settings.contact.whatsapp),
       whatsapp: { configured: whatsappConfigured() },
     });

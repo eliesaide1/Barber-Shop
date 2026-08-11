@@ -15,7 +15,8 @@ A barber shop platform in three parts, sharing one MongoDB and one realtime chan
 ## What it does
 
 **Clients** ask for a chair, browse and buy the products their artist actually uses, collect a
-loyalty stamp by scanning a QR at the chair, and earn a free haircut every five visits.
+loyalty stamp by scanning a QR at the chair, and earn a free haircut on a schedule the shop
+sets — every eighth visit by default.
 
 **Artists** run their chair from either the app or the CMS. The mobile portal is the at-the-chair
 half — the request inbox, today's schedule, the client book, the rotating check-in QR, redeeming
@@ -219,11 +220,36 @@ It holds progress toward the next free cut, the rewards on it, and the visit his
 live: an artist burning a code in their portal changes the client's screen while they are looking at
 it. `PunchStrip` draws the stamps, and each reward carries a claim code the client can show as a QR.
 
-**Rewards are not all the same thing**, and the card says so. One earned over five visits is a free
+**Rewards are not all the same thing**, and the card says so. One earned over a full card is a free
 cut with no deadline. One given as a birthday gift may be a beard trim or a discount, may be worth
 something different, and **expires** — so it shows its own name, its own value, and the days it has
 left, in red under a week. A lapsed one moves to *Ran out* rather than sitting among the usable ones
 offering a code the chair would refuse.
+
+### A free cut is the same cut
+
+Every eighth visit earns the ninth free — **and the artist is not told which booking that is.** Not
+on the board, not in the request, not in the notification, not in the reply to accepting it. The
+booking shows its ordinary price and looks like any other.
+
+An artist who knows before they start that this one earns nothing has been handed a reason, however
+small and however unintended, to give it less than the last. The shop's promise is that a free cut
+is the same cut, and the cheapest way to keep a promise is to remove the temptation rather than rely
+on it being resisted.
+
+They find out at the end, when the client presents the claim code and the artist redeems it — by
+which point the work is done. Nothing is hidden from the *client*, who chose it, nor from the
+redemption record afterwards, which is where the shop reconciles.
+
+`forChair()` in the appointments route is the single place that strips it, and `announce()` sends
+**two payloads** rather than one: the client's own booking says it is free because they chose that,
+and the same object going to the artist's room would undo the whole thing. On the app side `free`
+and `rewardCode` are absent from the `AgendaEntry` type, so the compiler — not a reviewer — is what
+stops a screen putting the badge back.
+
+**The goal is a shop setting, not a deployment.** "Every fifth cut" becoming "every eighth" was a
+redeploy; it is now a field in the back office, beside a note that changing it lengthens the card
+for everyone part-way through one. That is a promise being edited, not just a number.
 
 ### The loyalty programme, and why it is hard to cheat
 
@@ -397,7 +423,7 @@ curl -L --retry 8 -C - -o "$HOME/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/g
 ## Tests
 
 ```bash
-npm test                      # 147 API integration tests against a real MongoDB
+npm test                      # 157 API integration tests against a real MongoDB
 npm --prefix mobile test      # 19 QR encoder and client-record tests
 npm run typecheck:mobile
 npm run build:cms
@@ -574,7 +600,7 @@ up in the figures. Birthday rewards carry a label (they need not be a free cut),
 **expiry**, enforced in all three places a reward can be claimed: lookup, burn, *and reservation
 against a booking*. Enforcing it at the chair but not at booking would be worse than no expiry —
 the client is told the cut is free and finds out otherwise once they are sitting down. Rewards
-*earned* over five visits never expire: that one was paid for, and taking it back would be theft.
+*earned* over a full card never expire: that one was paid for, and taking it back would be theft.
 
 ### Appointment reminders
 

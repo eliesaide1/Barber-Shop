@@ -58,7 +58,6 @@ function Request({ request, isAdmin, busy, onAccept, onDecline }) {
       <div className="grow">
         <div className="t">
           {request.user?.name || 'Walk-in'}
-          {request.free && <span className="badge gold" style={{ marginLeft: 8 }}>🎁 FREE CUT</span>}
         </div>
         <div className="s">
           Asked for {day(request.startsAt)} · {time(request.startsAt)} · {request.serviceName}
@@ -196,9 +195,10 @@ export default function Schedule() {
     const who = request.user?.name?.split(' ')[0] || 'this client';
     const ok = await confirm({
       title: `Turn down ${who}’s request?`,
-      message: request.free
-        ? 'They are told, and the free cut goes straight back into their card.'
-        : 'They are told, and the time stays open for someone else.',
+      /* One message either way — anything owed goes back on the client's card
+         regardless, and saying so here would tell the board what it is
+         deliberately not shown. */
+      message: 'They are told, and the time stays open for someone else.',
       icon: '🗓️',
       tone: 'danger',
       confirmLabel: 'Decline it',
@@ -232,7 +232,7 @@ export default function Schedule() {
   };
 
   const revenue = agenda
-    .filter((a) => a.status === 'completed' && !a.free)
+    .filter((a) => a.status === 'completed')
     .reduce((sum, a) => sum + a.price, 0);
 
   return (
@@ -259,9 +259,12 @@ export default function Schedule() {
         </div>
         <div className="card stat"><div className="n">{agenda.length}</div><div className="l">Booked today</div></div>
         <div className="card stat"><div className="n">${revenue}</div><div className="l">Earned so far</div></div>
+        {/* "Free cuts booked" used to sit here. It is not shown any more —
+            which cuts are free is not on this board by design. Redemptions are
+            in the check-in feed, after the work is done. */}
         <div className="card stat">
-          <div className="n">{agenda.filter((a) => a.free).length}</div>
-          <div className="l">Free cuts booked</div>
+          <div className="n">{agenda.filter((a) => a.status === 'completed').length}</div>
+          <div className="l">Done today</div>
         </div>
       </div>
 
@@ -335,9 +338,9 @@ export default function Schedule() {
                       )}
                     </td>
                     <td data-label="Price">
-                      {a.free
-                        ? <span className="badge gold">🎁 FREE CUT</span>
-                        : <b>${a.price}</b>}
+                      {/* Always the price. A cut somebody earned and one they
+                          are paying for look the same on the board. */}
+                      <b>${a.price}</b>
                     </td>
                     <td data-label="Status"><span className={`badge ${meta.tone}`}>{meta.label}</span></td>
                     <td className="right actions">

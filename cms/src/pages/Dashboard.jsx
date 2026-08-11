@@ -129,9 +129,7 @@ export default function Dashboard() {
                   <div className="t">{a.user?.name || 'Walk-in'}</div>
                   <div className="s">{a.serviceName} · {a.durationMin} min</div>
                 </div>
-                {a.free
-                  ? <span className="badge gold">🎁 FREE</span>
-                  : <b>${a.price}</b>}
+                <b>${a.price}</b>
               </div>
             ))
           )}

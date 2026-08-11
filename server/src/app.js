@@ -55,7 +55,9 @@ export function createApp() {
     res.json({
       ok: true,
       env: env.nodeEnv,
-      loyaltyGoal: env.loyaltyGoal,
+      /* Health stays a liveness probe: no database read, so it still answers
+         when Mongo is the thing that is down. The loyalty goal moved to shop
+         settings and belongs in /api/config with the rest of the shop's rules. */
       checkinWindowMs: env.checkinWindowMs,
       time: Date.now(),
     }),
@@ -74,8 +76,8 @@ export function createApp() {
       };
 
       res.json({
-        loyaltyGoal: env.loyaltyGoal,
-        freeCutValue: env.freeCutValue,
+        loyaltyGoal: settings.loyalty.goal,
+        freeCutValue: settings.loyalty.freeCutValue,
         deliveryFee: env.deliveryFee,
         freeDeliveryOver: env.freeDeliveryOver,
         checkinWindowMs: env.checkinWindowMs,

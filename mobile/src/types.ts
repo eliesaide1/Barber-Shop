@@ -238,11 +238,13 @@ export interface AgendaEntry {
   price: number;
   status: AppointmentStatus;
   notes: string;
-  free: boolean;
-  rewardCode: string | null;
   declineReason?: string;
   /** "This again" — a past cut of theirs, for the artist to work from. */
   reference?: Pick<HaircutRecord, 'id' | 'images' | 'notes' | 'serviceName' | 'takenAt'> | null;
+  /* `free` and `rewardCode` are deliberately absent. The server strips them
+     from everything the chair sees, and leaving them on the type would let a
+     screen render a badge that quietly never appears — or worse, appear the day
+     somebody changed the server back. The compiler is the enforcement. */
 }
 
 /** What `POST /appointments/:id/confirm` answers with. */

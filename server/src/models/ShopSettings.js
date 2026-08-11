@@ -125,6 +125,26 @@ const marketplaceSchema = new mongoose.Schema(
   { _id: false },
 );
 
+/**
+ * The loyalty programme, as the shop sets it rather than as it was deployed.
+ *
+ * This was an environment variable, which meant changing "every fifth cut" to
+ * "every eighth" was a redeploy — a business decision behind an engineering
+ * task. It belongs where the owner can reach it.
+ *
+ * Raising the goal lengthens the card for everyone mid-way through one. That is
+ * a real change to a promise already made, so the CMS says so beside the field
+ * rather than letting somebody discover it from a complaint.
+ */
+const loyaltySchema = new mongoose.Schema(
+  {
+    goal: { type: Number, default: 8, min: 1, max: 50 },
+    /** What a free cut is worth, for the card and for the artist's confirmation. */
+    freeCutValue: { type: Number, default: 25, min: 0 },
+  },
+  { _id: false },
+);
+
 const shopSettingsSchema = new mongoose.Schema(
   {
     /* A fixed key, so there can only ever be one of these. Upserting on it is
@@ -133,6 +153,7 @@ const shopSettingsSchema = new mongoose.Schema(
     birthday: { type: birthdaySchema, default: () => ({}) },
     contact: { type: contactSchema, default: () => ({}) },
     marketplace: { type: marketplaceSchema, default: () => ({}) },
+    loyalty: { type: loyaltySchema, default: () => ({}) },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   },
   { timestamps: true },

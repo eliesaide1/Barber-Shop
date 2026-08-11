@@ -16,7 +16,10 @@ export const env = {
 
   shopSecret: process.env.SHOP_SECRET || 'dev-only-change-me-shop',
 
-  loyaltyGoal: num(process.env.LOYALTY_GOAL, 5),
+  /* The goal itself now lives in shop settings, where the owner can reach it.
+     This remains only so a fresh database has something sane before anybody
+     opens the CMS, and is what `getSettings()` defaults from. */
+  loyaltyGoal: num(process.env.LOYALTY_GOAL, 8),
   checkinWindowMs: num(process.env.CHECKIN_WINDOW_MS, 60_000),
   checkinCooldownMs: num(process.env.CHECKIN_COOLDOWN_MS, 4 * 60 * 60 * 1000),
   freeCutValue: num(process.env.FREE_CUT_VALUE, 25),

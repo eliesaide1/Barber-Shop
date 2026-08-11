@@ -16,6 +16,7 @@ import { Appointment } from './models/Appointment.js';
 import { Order } from './models/Order.js';
 import { CheckIn } from './models/CheckIn.js';
 import { Notification } from './models/Notification.js';
+import { ShopSettings, getSettings } from './models/ShopSettings.js';
 import { env } from './config/env.js';
 
 const PASSWORD = 'password1';
@@ -168,7 +169,7 @@ async function seed() {
   await connectDb();
   console.log('Clearing…');
   await Promise.all(
-    [User, Artist, Service, Product, Style, Loyalty, Appointment, Order, CheckIn, Notification].map(
+    [User, Artist, Service, Product, Style, Loyalty, Appointment, Order, CheckIn, Notification, ShopSettings].map(
       (m) => m.deleteMany({}),
     ),
   );
@@ -299,6 +300,14 @@ async function seed() {
     });
   }
 
+  /* The shop's own settings, so a fresh clone has a loyalty card rather than
+     whatever a first CMS visit happens to create. */
+  console.log('Shop settings…');
+  const settings = await getSettings();
+  settings.loyalty.goal = env.loyaltyGoal;
+  settings.loyalty.freeCutValue = env.freeCutValue;
+  await settings.save();
+
   console.log('Welcome message…');
   await Notification.create({
     title: 'The FadeRoom shop is open',
@@ -316,7 +325,8 @@ Seeded.
   Client  elie@faderoom.app    / ${PASSWORD}   (also marc@, hadi@, nour@)
 
   ${artists.length} artists · ${services.length} services · ${PRODUCTS.length} products · ${STYLES.length} looks
-  Loyalty goal: ${env.loyaltyGoal} check-ins for a free cut worth $${env.freeCutValue}
+  Loyalty: every ${settings.loyalty.goal} visits earns a free cut worth $${settings.loyalty.freeCutValue}
+  (edit that in the back office under Settings — artists are never shown which bookings are free)
 `);
 
   await disconnectDb();

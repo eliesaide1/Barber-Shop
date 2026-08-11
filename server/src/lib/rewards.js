@@ -16,7 +16,14 @@ import { env } from '../config/env.js';
 export const rewardLabel = (reward) =>
   (reward?.label || '').trim() || 'free cut';
 
-/** What it is worth, falling back to the shop's standard free-cut value. */
+/**
+ * What it is worth, falling back to the shop's standard free-cut value.
+ *
+ * The fallback stays on `env` deliberately: this is called from places that are
+ * not async and have no settings to hand, and it is only a default for a reward
+ * that never named its own worth. The settings value is what the card and the
+ * redemption actually report.
+ */
 export const rewardValue = (reward) =>
   reward?.value === null || reward?.value === undefined ? env.freeCutValue : reward.value;
 

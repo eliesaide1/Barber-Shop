@@ -97,7 +97,7 @@ function RequestCard({
           </Text>
           <Muted>{dayLabel(startsAt.toISOString())}</Muted>
         </Row>
-        {request.free ? <Badge label="🎁 FREE" tone="gold" /> : <Badge label="REQUESTED" tone="warn" />}
+        <Badge label="REQUESTED" tone="warn" />
       </Between>
 
       <Row style={{ marginTop: space.md }}>
@@ -106,7 +106,7 @@ function RequestCard({
           <Body style={{ fontWeight: '700' }}>{request.user?.name ?? 'Client'}</Body>
           <Muted style={{ marginTop: 2 }}>{request.serviceName}</Muted>
         </View>
-        {!request.free && <Text style={{ fontWeight: '800', color: c.text }}>${request.price}</Text>}
+        <Text style={{ fontWeight: '800', color: c.text }}>${request.price}</Text>
       </Row>
 
       {!!request.user?.preferences?.clipperGuard && (
@@ -271,9 +271,10 @@ export function ArtistScheduleScreen() {
     const who = request.user?.name.split(' ')[0] ?? 'this client';
     const ok = await confirm({
       title: `Turn down ${who}?`,
-      message: request.free
-        ? 'They’re told, and their free cut goes straight back into their card.'
-        : 'They’re told, and the time stays open for someone else.',
+      /* One message whether or not a reward is riding on it. Anything the shop
+         puts back on the client's card is put back either way, and saying so
+         here would be telling the chair exactly what it is not told. */
+      message: 'They’re told, and the time stays open for someone else.',
       icon: '🗓️',
       tone: 'danger',
       confirmLabel: 'Decline it',
@@ -356,7 +357,7 @@ export function ArtistScheduleScreen() {
   };
 
   const takings = (agenda ?? [])
-    .filter((a) => a.status === 'completed' && !a.free)
+    .filter((a) => a.status === 'completed')
     .reduce((sum, a) => sum + a.price, 0);
   const remaining = (agenda ?? []).filter((a) => a.status === 'confirmed').length;
   const waiting = requests?.length ?? 0;
@@ -497,11 +498,9 @@ export function ArtistScheduleScreen() {
                   <Body style={{ fontWeight: '700' }}>{a.user?.name ?? 'Walk-in'}</Body>
                   <Muted style={{ marginTop: 2 }}>{a.serviceName}</Muted>
                 </View>
-                {a.free ? (
-                  <Badge label="🎁 FREE" tone="gold" />
-                ) : (
-                  <Text style={{ fontWeight: '800', color: c.text }}>${a.price}</Text>
-                )}
+                {/* Always the price. A booking the client is paying for and one
+                    they earned look identical here, which is the point. */}
+                <Text style={{ fontWeight: '800', color: c.text }}>${a.price}</Text>
               </Row>
 
               {/* What the client asked for, so it's readable without tapping through. */}
@@ -537,11 +536,6 @@ export function ArtistScheduleScreen() {
                     )}
                   </View>
                 </Row>
-              )}
-              {!!a.rewardCode && (
-                <Muted style={{ marginTop: 4 }}>
-                  Free cut held · claim <Text style={{ color: c.accentInk, fontWeight: '700' }}>{a.rewardCode}</Text>
-                </Muted>
               )}
 
               {/* Most people do not attach a reference when they book, so the
