@@ -544,6 +544,29 @@ export function ArtistScheduleScreen() {
                 </Muted>
               )}
 
+              {/* Most people do not attach a reference when they book, so the
+                  way to reproduce their last cut has to be reachable from the
+                  chair rather than depending on them having planned ahead. */}
+              {!!a.user && (
+                <Pressable
+                  onPress={() =>
+                    nav.navigate('ClientHistory', {
+                      userId: a.user!.id,
+                      name: a.user!.name,
+                      phone: a.user!.phone,
+                      dateOfBirth: a.user!.dateOfBirth,
+                      visitFrequencyWeeks: a.user!.visitFrequencyWeeks,
+                    })
+                  }
+                  accessibilityRole="button"
+                  style={{ marginTop: space.md }}
+                >
+                  <Text style={{ color: c.accentInk, fontWeight: '700', fontSize: 13 }}>
+                    {a.reference ? 'See their other cuts →' : 'See their past cuts →'}
+                  </Text>
+                </Pressable>
+              )}
+
               {/* A request has no chair yet, so there is nothing to close out —
                   it is answered in the inbox above. */}
               {a.status === 'pending' ? (

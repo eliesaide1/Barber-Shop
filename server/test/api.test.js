@@ -2060,6 +2060,45 @@ describe('previous haircut records', () => {
     assert.equal(fs.existsSync(onDisk), false, 'the photograph is still on the server');
   });
 
+  test('an artist can look a client up without a booking reference', async () => {
+    /* Most people do not attach a reference when they book. "Reproduce the same
+       haircut on a future visit" cannot depend on them having planned ahead. */
+    const res = await api(`/api/haircuts/client/${ctx.client.user.id}`, {
+      token: ctx.artistSession.accessToken,
+    });
+    assert.equal(res.status, 200);
+    assert.ok(res.body.some((r) => r.id === ctx.haircut.id));
+  });
+
+  test('but only what that client agreed to share', async () => {
+    /* A record still pending somebody else's answer must not reach a colleague
+       through the client book. */
+    const proposed = await propose(ctx.artistSession.accessToken, {
+      user: ctx.other.user.id,
+      serviceName: 'Fade',
+    });
+    assert.equal(proposed.status, 201);
+
+    const asOther = await api(`/api/haircuts/client/${ctx.other.user.id}`, {
+      token: ctx.admin.accessToken,
+    });
+    assert.equal(
+      asOther.body.some((r) => r.id === proposed.body.id),
+      false,
+      'a pending photo reached somebody who was not the artist who took it',
+    );
+
+    /* The artist who took it does see it, so they know they have asked. */
+    const asMine = await api(`/api/haircuts/client/${ctx.other.user.id}`, {
+      token: ctx.artistSession.accessToken,
+    });
+    assert.equal(asMine.body.some((r) => r.id === proposed.body.id), true);
+
+    await api(`/api/haircuts/${proposed.body.id}/decline`, {
+      token: ctx.other.accessToken, method: 'POST',
+    });
+  });
+
   test('a client only ever sees their own', async () => {
     const res = await api('/api/haircuts/mine', { token: ctx.other.accessToken });
     assert.equal(res.status, 200);

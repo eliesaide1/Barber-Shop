@@ -36,6 +36,15 @@ export type ArtistStackParamList = {
   ArtistTabs: undefined;
   Broadcast: undefined;
   Portfolio: undefined;
+  /* Params rather than a fetch: the client book already has these, and the
+     screen should not re-request what the caller is holding. */
+  ClientHistory: {
+    userId: string;
+    name?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    visitFrequencyWeeks?: number | null;
+  };
   Notifications: undefined;
 };
 

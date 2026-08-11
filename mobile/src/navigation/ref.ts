@@ -27,7 +27,7 @@ const CLIENT_SCREENS = [
   'Loyalty', 'Appointments', 'Notifications', 'Preferences', 'Lookbook', 'Haircuts',
 ];
 const ARTIST_TABS = ['Today', 'Clients', 'CheckIn', 'Orders', 'More'];
-const ARTIST_SCREENS = ['Broadcast', 'Portfolio', 'Notifications'];
+const ARTIST_SCREENS = ['Broadcast', 'Portfolio', 'Notifications', 'ClientHistory'];
 
 /**
  * Open what a notification is about.

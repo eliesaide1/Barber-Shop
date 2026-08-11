@@ -219,7 +219,14 @@ export interface ShopConfig {
 /** An appointment as the artist's agenda returns it — client is populated. */
 export interface AgendaEntry {
   id: string;
-  user: { id: string; name: string; phone?: string; preferences?: User['preferences'] } | null;
+  user: {
+    id: string;
+    name: string;
+    phone?: string;
+    dateOfBirth?: string;
+    visitFrequencyWeeks?: number | null;
+    preferences?: User['preferences'];
+  } | null;
   artist: { id: string; displayName: string; chair: string } | null;
   serviceName: string;
   startsAt: string;

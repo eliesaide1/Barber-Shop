@@ -188,11 +188,16 @@ deletes the record and unlinks the files, and a test asserts both — the databa
 the fade started are how somebody repeats it. Both go up together, and both come back on the
 reference.
 
-The point of keeping them is `Appointment.reference`: a client picks a past cut when requesting a
-time, and it appears on the artist's request card and in their day. A photo on a profile nobody
-looks at before a visit is a filing cabinet, not a service. A reference must be the client's own and
-approved — otherwise the booking route would be a way to put somebody else's photograph, or one
-still pending its owner's answer, in front of an artist.
+**Reproducing a cut works two ways, and the second is the one that matters most.** A client can pick
+a past cut when requesting a time (`Appointment.reference`), and it appears on the artist's request
+card and in their day. But most people do not think to — so the artist can also open any client from
+the book, or from the booking in front of them, and see their history. "Reproduce the same haircut
+during a future visit" cannot depend on the client having planned ahead.
+
+A reference must be the client's own and approved, otherwise the booking route would be a way to put
+somebody else's photograph — or one still pending its owner's answer — in front of an artist. The
+same rule holds when browsing: a colleague sees only what that client agreed to share, and an
+artist's own pending proposals, so they know they have asked and are waiting.
 
 > Uploads are served from `/uploads` without authentication, as they always have been. Filenames are
 > random hex so a URL is unguessable, but a private haircut photo is a stronger reason than a product
@@ -386,7 +391,7 @@ curl -L --retry 8 -C - -o "$HOME/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/g
 ## Tests
 
 ```bash
-npm test                      # 142 API integration tests against a real MongoDB
+npm test                      # 144 API integration tests against a real MongoDB
 npm --prefix mobile test      # 19 QR encoder and client-record tests
 npm run typecheck:mobile
 npm run build:cms

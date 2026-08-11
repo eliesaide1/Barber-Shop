@@ -35,6 +35,7 @@ import { ArtistCheckInScreen } from '../screens/artist/CheckInScreen';
 import { ArtistOrdersScreen } from '../screens/artist/OrdersScreen';
 import { ArtistMoreScreen, ArtistBroadcastScreen } from '../screens/artist/MoreScreen';
 import { ArtistPortfolioScreen } from '../screens/artist/PortfolioScreen';
+import { ArtistClientHistoryScreen } from '../screens/artist/ClientHistoryScreen';
 
 import { navigationRef } from './ref';
 
@@ -289,6 +290,11 @@ export function RootNavigator() {
             name="Broadcast"
             component={ArtistBroadcastScreen}
             options={{ title: 'Message clients' }}
+          />
+          <ArtistStack.Screen
+            name="ClientHistory"
+            component={ArtistClientHistoryScreen}
+            options={{ title: 'Client' }}
           />
           <ArtistStack.Screen
             name="Portfolio"

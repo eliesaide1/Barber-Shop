@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import {
   Avatar,
   Badge,
@@ -42,6 +43,7 @@ const standing = (entry: ClientBookEntry) => {
 
 export function ArtistClientsScreen() {
   const c = useColors();
+  const nav = useNavigation<any>();
   const [query, setQuery] = useState('');
   const { data: clients, loading, reload } = useApi<ClientBookEntry[]>('/loyalty/clients');
 
@@ -103,7 +105,22 @@ export function ArtistClientsScreen() {
         shown.map((e) => {
           const tag = standing(e);
           return (
-            <Card key={e.user._id ?? e.user.id ?? e.user.email} style={{ marginTop: space.md }}>
+            <Card
+              key={e.user._id ?? e.user.id ?? e.user.email}
+              style={{ marginTop: space.md }}
+              /* The book is where you look somebody up, so it is where their
+                 past cuts have to be — not a screen you would have to know
+                 existed. */
+              onPress={() =>
+                nav.navigate('ClientHistory', {
+                  userId: e.user.id ?? e.user._id,
+                  name: e.user.name,
+                  phone: e.user.phone,
+                  dateOfBirth: e.user.dateOfBirth,
+                  visitFrequencyWeeks: e.user.visitFrequencyWeeks,
+                })
+              }
+            >
               <Row>
                 <Avatar name={e.user.name} size={44} />
                 <View style={{ flex: 1 }}>

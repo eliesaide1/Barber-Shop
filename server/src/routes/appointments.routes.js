@@ -468,7 +468,7 @@ appointmentsRouter.get(
     else if (req.query.artist) filter.artist = req.query.artist;
 
     const requests = await Appointment.find(filter)
-      .populate('user', 'name phone preferences')
+      .populate('user', 'name phone preferences dateOfBirth visitFrequencyWeeks')
       .populate('artist', 'displayName chair')
       /* "This again" — the picture is worth more than the service name when
          deciding how long to give the cut. */
@@ -496,7 +496,7 @@ appointmentsRouter.get(
     else if (req.query.artist) filter.artist = req.query.artist;
 
     const agenda = await Appointment.find(filter)
-      .populate('user', 'name phone preferences')
+      .populate('user', 'name phone preferences dateOfBirth visitFrequencyWeeks')
       .populate('artist', 'displayName chair')
       /* At the chair, this is the thing being worked from. */
       .populate('reference', 'images notes serviceName takenAt')
