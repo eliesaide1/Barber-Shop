@@ -223,6 +223,10 @@ appointmentsRouter.get(
   asyncHandler(async (req, res) => {
     const appointments = await Appointment.find({ user: req.user._id })
       .populate('artist', 'displayName chair specialty rating')
+      /* A client who chose "this again" should be able to see that it stuck.
+         A choice you make and can never see afterwards is one you end up
+         making twice. */
+      .populate('reference', 'images notes serviceName takenAt')
       .sort({ startsAt: -1 })
       .limit(50);
     res.json(appointments);

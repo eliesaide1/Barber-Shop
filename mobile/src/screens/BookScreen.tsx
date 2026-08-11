@@ -438,6 +438,20 @@ export function BookScreen() {
             {artist?.displayName.split(' ')[0] ?? 'Your artist'} sets it
           </Body>
         </Between>
+        {/* Confirm what was picked. A choice made a screen ago and never
+            acknowledged is one people make twice, unsure it registered. */}
+        {!!reference && (
+          <Between style={{ marginTop: space.sm }}>
+            <Muted>Reference</Muted>
+            <Row style={{ gap: space.sm }}>
+              <Body style={{ fontWeight: '700' }}>This again</Body>
+              <Image
+                source={{ uri: absoluteUrl(haircuts.find((h) => h.id === reference)?.images[0]) }}
+                style={{ width: 26, height: 26, borderRadius: 6, backgroundColor: c.surface3 }}
+              />
+            </Row>
+          </Between>
+        )}
         <Divider />
         <Between>
           <Body style={{ fontWeight: '700' }}>Total</Body>

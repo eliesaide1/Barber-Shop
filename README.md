@@ -391,7 +391,7 @@ curl -L --retry 8 -C - -o "$HOME/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/g
 ## Tests
 
 ```bash
-npm test                      # 144 API integration tests against a real MongoDB
+npm test                      # 145 API integration tests against a real MongoDB
 npm --prefix mobile test      # 19 QR encoder and client-record tests
 npm run typecheck:mobile
 npm run build:cms

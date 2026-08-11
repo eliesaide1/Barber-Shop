@@ -133,6 +133,8 @@ export interface Appointment {
   rewardCode: string | null;
   declineReason?: string;
   respondedAt?: string | null;
+  /** "This again" — a past cut of their own they asked the artist to match. */
+  reference?: Pick<HaircutRecord, 'id' | 'images' | 'notes' | 'serviceName' | 'takenAt'> | null;
 }
 
 /**

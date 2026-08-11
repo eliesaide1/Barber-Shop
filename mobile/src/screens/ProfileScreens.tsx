@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, Switch, Text, View } from 'react-native';
+import { Image, Pressable, Switch, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Avatar,
@@ -27,6 +27,7 @@ import { useDialog } from '../store/DialogContext';
 import { useNotifications } from '../store/NotificationsContext';
 import { useToast } from '../store/ToastContext';
 import { api, ApiError } from '../api/client';
+import { absoluteUrl } from '../config';
 import { KIND_GLYPH } from '../components/NotificationBanner';
 import { openNotification } from '../navigation/ref';
 import {
@@ -587,6 +588,26 @@ export function AppointmentsScreen() {
                 })}
                 .
               </Muted>
+            )}
+            {/* What they asked for, still visible. Otherwise "this again" is a
+                tap that leaves no trace and they cannot tell it worked. */}
+            {!!a.reference && (
+              <Row style={{ marginTop: space.md }}>
+                <Image
+                  source={{ uri: absoluteUrl(a.reference.images[0]) }}
+                  style={{ width: 46, height: 46, borderRadius: radius.sm + 2, backgroundColor: c.surface3 }}
+                />
+                <View style={{ flex: 1 }}>
+                  <Body style={{ fontWeight: '700' }}>Same as last time</Body>
+                  <Muted style={{ marginTop: 2 }}>
+                    {a.reference.serviceName || 'Haircut'} ·{' '}
+                    {new Date(a.reference.takenAt).toLocaleDateString([], {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                  </Muted>
+                </View>
+              </Row>
             )}
             {!!a.rewardCode && (
               <Card style={{ marginTop: space.md, borderColor: c.accent, backgroundColor: c.accentSoft, padding: space.md }}>

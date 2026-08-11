@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import {
   Badge,
   Between,
@@ -40,6 +40,7 @@ export function HaircutsScreen() {
   const { confirm, showError } = useDialog();
   const { data: records, loading, reload } = useApi<HaircutRecord[]>('/haircuts/mine');
   const [busy, setBusy] = useState<string | null>(null);
+  const [zoomed, setZoomed] = useState<string | null>(null);
 
   if (loading && !records) return <Loading />;
 
@@ -91,8 +92,18 @@ export function HaircutsScreen() {
     }
   };
 
-  const Photo = ({ uri, size = 96 }: { uri?: string; size?: number }) => (
-    <View
+  /**
+   * Tap to fill the width.
+   *
+   * These are the client's own photographs, and a 96px square is a thumbnail,
+   * not a look at them. The artist's view enlarges; there is no reason the
+   * person in the picture should get less.
+   */
+  const Photo = ({ uri, id, size = 96 }: { uri?: string; id?: string; size?: number }) => (
+    <Pressable
+      onPress={id ? () => setZoomed(zoomed === id ? null : id) : undefined}
+      accessibilityRole={id ? 'button' : undefined}
+      accessibilityLabel="Enlarge photo"
       style={{
         width: size,
         height: size,
@@ -101,9 +112,36 @@ export function HaircutsScreen() {
         backgroundColor: c.surface3,
       }}
     >
-      {!!uri && <Image source={{ uri }} style={{ width: '100%', height: '100%' }} />}
-    </View>
+      {!!uri && <Image source={{ uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />}
+    </Pressable>
   );
+
+  /**
+   * The enlarged one, below the row rather than inside it.
+   *
+   * Growing the thumbnail in place would have it fight the text beside it for
+   * the same width. A separate block is simply what a photograph wants.
+   */
+  const Enlarged = ({ record }: { record: HaircutRecord }) => {
+    const showing = record.images.find((img) => img === zoomed) ?? (zoomed === record.id ? record.images[0] : null);
+    if (!showing) return null;
+    return (
+      <Pressable onPress={() => setZoomed(null)} accessibilityLabel="Close photo">
+        <Image
+          source={{ uri: absoluteUrl(showing) }}
+          style={{
+            width: '100%',
+            height: 320,
+            borderRadius: radius.md,
+            marginTop: space.md,
+            backgroundColor: c.surface3,
+          }}
+          resizeMode="cover"
+        />
+        <Muted style={{ textAlign: 'center', marginTop: 6, fontSize: 11.5 }}>Tap to close</Muted>
+      </Pressable>
+    );
+  };
 
   return (
     <Screen>
@@ -118,7 +156,7 @@ export function HaircutsScreen() {
           {pending.map((r) => (
             <Card key={r.id} style={{ marginTop: space.sm, borderColor: c.accent }}>
               <Row style={{ alignItems: 'flex-start' }}>
-                <Photo uri={absoluteUrl(r.images[0])} />
+                <Photo uri={absoluteUrl(r.images[0])} id={r.id} />
                 <View style={{ flex: 1 }}>
                   <Body style={{ fontWeight: '700' }}>{r.serviceName || 'Your cut'}</Body>
                   <Muted style={{ marginTop: 2 }}>
@@ -127,6 +165,7 @@ export function HaircutsScreen() {
                   {!!r.notes && <Muted style={{ marginTop: 6 }}>“{r.notes}”</Muted>}
                 </View>
               </Row>
+              <Enlarged record={r} />
               <Muted style={{ marginTop: space.md }}>
                 Save it to your profile? Only you and the artist cutting your hair can see it.
               </Muted>
@@ -165,7 +204,7 @@ export function HaircutsScreen() {
         saved.map((r) => (
           <Card key={r.id} style={{ marginTop: space.sm }}>
             <Row style={{ alignItems: 'flex-start' }}>
-              <Photo uri={absoluteUrl(r.images[0])} />
+              <Photo uri={absoluteUrl(r.images[0])} id={r.id} />
               <View style={{ flex: 1 }}>
                 <Between>
                   <Body style={{ fontWeight: '700' }}>{r.serviceName || 'Haircut'}</Body>
@@ -177,10 +216,11 @@ export function HaircutsScreen() {
                 {!!r.notes && <Muted style={{ marginTop: 6 }}>“{r.notes}”</Muted>}
               </View>
             </Row>
+            <Enlarged record={r} />
             {r.images.length > 1 && (
               <Row style={{ marginTop: space.md, gap: space.sm }}>
                 {r.images.slice(1).map((img) => (
-                  <Photo key={img} uri={absoluteUrl(img)} size={64} />
+                  <Photo key={img} uri={absoluteUrl(img)} id={img} size={64} />
                 ))}
               </Row>
             )}

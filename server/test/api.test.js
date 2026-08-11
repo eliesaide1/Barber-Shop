@@ -2023,6 +2023,32 @@ describe('previous haircut records', () => {
     });
   });
 
+  test('the client can see their choice stuck', async () => {
+    /* A selection that leaves no trace is one people make twice, unsure it
+       registered. */
+    const slot = (await availabilityFor(14)).slots.find((s) => s.available);
+    const booked = await api('/api/appointments', {
+      token: ctx.client.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+        reference: ctx.haircut.id,
+      },
+    });
+    assert.equal(booked.status, 201);
+
+    const mine = await api('/api/appointments', { token: ctx.client.accessToken });
+    const shown = mine.body.find((a) => a.id === booked.body.id);
+    assert.ok(shown.reference, 'the client’s own list must carry the reference back');
+    assert.match(shown.reference.images[0], /^\/uploads\//);
+
+    await api(`/api/appointments/${booked.body.id}/cancel`, {
+      token: ctx.client.accessToken, method: 'POST',
+    });
+  });
+
   test('a reference has to be your own', async () => {
     const slot = (await availabilityFor(13)).slots.find((s) => s.available);
     const res = await api('/api/appointments', {
