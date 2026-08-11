@@ -181,7 +181,11 @@ export function ScanScreen() {
 
       <Muted style={{ textAlign: 'center', marginTop: 10 }}>
         {!scanner.supported
-          ? 'Camera scanning isn’t supported on Android yet — type the code instead'
+          ? /* The check is a capability test, not a platform test — vision-camera
+               happens to fail it on Android today and not on iOS. Naming the
+               platform in the message would make it a lie the moment that
+               changes on either side. */
+            'Camera scanning isn’t available on this device — type the code instead'
           : !hasPermission
             ? 'Camera permission is needed to scan'
             : busy

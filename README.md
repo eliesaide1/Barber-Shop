@@ -702,5 +702,26 @@ toggle.
   fix when it matters.
 - **No payment provider.** Orders are cash or card *on collection*; nothing is charged in-app.
 - **Product reviews are placeholder copy** shared across every product.
-- **iOS is unbuilt.** The code is cross-platform and the Podfile is in place, but it has only been
-  built and run on Android.
+- **iOS has never been compiled.** The code is cross-platform, the Podfile is in place, and the
+  native configuration has been gone through by hand — but no Xcode has ever opened this project,
+  so nothing here is proven the way the Android build is. What *was* found and fixed by reading:
+
+  - `NSPhotoLibraryUsageDescription` was missing, and iOS does not deny a photo-library request
+    without it — it **terminates the process**. Choosing an existing photo would have looked like
+    the app vanishing.
+  - `UIBackgroundModes: remote-notification` was missing, so a push could not have woken the app.
+  - `AppDelegate` had no `FirebaseApp.configure()`, without which `getApp()` throws and the adapter
+    quietly falls back to socket-only — push would have looked wired and never arrived. It is
+    guarded on `canImport(FirebaseCore)` *and* on the plist being present, on the same terms as the
+    conditional Google Services plugin on Android, so a checkout with neither still builds.
+  - `Switch` was styled for Android only; `ios_backgroundColor` now matches, or the off state is a
+    pale island in dark mode.
+  - The scan fallback blamed Android by name for what is a capability check, which would have been
+    a lie on an iOS device that failed it for any other reason.
+
+  App Transport Security was already right: arbitrary loads off, local networking on, so development
+  http reaches a LAN address while the production URL must still be https. The iOS simulator needs no
+  config change — it shares the host's network, so `localhost` already is your machine.
+
+  What still needs a Mac: `pod install`, a build, and — for push — `GoogleService-Info.plist`, an
+  APNs key uploaded to Firebase, and the Push Notifications capability on the App ID.

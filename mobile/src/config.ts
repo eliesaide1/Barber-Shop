@@ -17,6 +17,11 @@ const PRODUCTION_API = 'https://faderoom-api.onrender.com';
  * If you launch the app another way, change this to:
  *   - `http://10.0.2.2:4000`   on the Android emulator (its alias for the host)
  *   - `http://<your-lan-ip>:4000`  on a physical device without adb reverse
+ *
+ * The iOS simulator needs no change: it shares the host's network, so localhost
+ * already is your machine. A physical iPhone does — use the LAN IP. Either way
+ * `NSAllowsLocalNetworking` in Info.plist is what lets plain http reach it,
+ * while the production URL above still has to be https.
  */
 const DEVELOPMENT_API = 'http://localhost:4000';
 

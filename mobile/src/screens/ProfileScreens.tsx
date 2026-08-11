@@ -255,8 +255,12 @@ export function ProfileScreen() {
           <Switch
             value={broadcasts}
             onValueChange={saveBroadcasts}
+            /* `thumbColor` is Android-only and `trackColor.false` is painted
+               over by iOS's own track unless `ios_backgroundColor` matches —
+               without it the off state is a light grey island in dark mode. */
             trackColor={{ true: c.accent, false: c.line }}
             thumbColor={c.surface}
+            ios_backgroundColor={c.line}
           />
         </Between>
         <Between style={{ marginTop: space.lg }}>
@@ -269,8 +273,12 @@ export function ProfileScreen() {
           <Switch
             value={whatsapp}
             onValueChange={saveWhatsApp}
+            /* `thumbColor` is Android-only and `trackColor.false` is painted
+               over by iOS's own track unless `ios_backgroundColor` matches —
+               without it the off state is a light grey island in dark mode. */
             trackColor={{ true: c.accent, false: c.line }}
             thumbColor={c.surface}
+            ios_backgroundColor={c.line}
           />
         </Between>
 
