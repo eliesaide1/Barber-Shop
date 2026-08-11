@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { Loyalty } from '../models/Loyalty.js';
+import { Loyalty, notExpired, rewardIsLive } from '../models/Loyalty.js';
 import { Artist } from '../models/Artist.js';
 import { CheckIn } from '../models/CheckIn.js';
 import { User } from '../models/User.js';
@@ -17,6 +17,8 @@ import {
   readCode,
 } from '../lib/codes.js';
 import { emitTo, rooms } from '../lib/realtime.js';
+import { notify } from '../lib/notify.js';
+import { rewardLabel, rewardValue, dateLabel } from '../lib/rewards.js';
 import { env } from '../config/env.js';
 
 export const loyaltyRouter = Router();
@@ -117,6 +119,18 @@ loyaltyRouter.post(
     }
     emitTo(rooms.user(req.user._id), 'loyalty:updated', cardJson(card));
 
+    /* The stamp itself says nothing — the client watched it land. Earning the
+       free cut is worth a notification, because the claim code is a thing they
+       will want to find again later. */
+    if (reward) {
+      await notify(req.user._id, {
+        title: 'Your next cut is free 🎁',
+        body: `${env.loyaltyGoal} visits done. Claim code ${reward.code} — show it at the chair.`,
+        kind: 'loyalty',
+        data: { screen: 'Loyalty' },
+      });
+    }
+
     res.json({
       stamps: reward ? 0 : card.stamps.length,
       goal: env.loyaltyGoal,
@@ -181,12 +195,20 @@ loyaltyRouter.get(
     if (!card) throw new ApiError(404, 'No free cut matches that code');
 
     const reward = card.rewards.find((r) => r.code === code);
-    if (reward.status === 'redeemed') throw new ApiError(409, 'That free cut was already used');
+    if (reward.status === 'redeemed') {
+      throw new ApiError(409, `That ${rewardLabel(reward)} was already used`);
+    }
+    /* A gift the shop put an end date on. Checked here as well as at the burn so
+       an artist is told before they promise the client anything. */
+    if (!rewardIsLive(reward)) {
+      throw new ApiError(409, `That ${rewardLabel(reward)} expired on ${dateLabel(reward.expiresAt)}`);
+    }
 
     res.json({
       reward,
       client: { id: card.user._id, name: card.user.name },
-      value: env.freeCutValue,
+      value: rewardValue(reward),
+      label: rewardLabel(reward),
     });
   }),
 );
@@ -206,8 +228,16 @@ loyaltyRouter.post(
 
     /* Matching on status inside the query makes the burn idempotent: a double
        tap finds nothing the second time instead of redeeming twice. */
+    /* The expiry lives inside the guard rather than in a check before it. A
+       separate read-then-write would let a reward lapse between the two, and
+       would put the shop's one enforcement point outside the atomic step that
+       actually decides whether it is spent. */
     const card = await Loyalty.findOneAndUpdate(
-      { rewards: { $elemMatch: { code, status: { $ne: 'redeemed' } } } },
+      {
+        rewards: {
+          $elemMatch: { code, status: { $ne: 'redeemed' }, $or: notExpired() },
+        },
+      },
       {
         $set: {
           'rewards.$.status': 'redeemed',
@@ -219,10 +249,15 @@ loyaltyRouter.post(
     ).populate('user', 'name');
 
     if (!card) {
-      const exists = await Loyalty.exists({ 'rewards.code': code });
-      throw exists
-        ? new ApiError(409, 'That free cut was already used')
-        : new ApiError(404, 'No free cut matches that code');
+      /* Say which of the three it was — already used, out of date, or never
+         existed. "That did not work" sends an artist back to the client with
+         nothing to tell them. */
+      const owner = await Loyalty.findOne({ 'rewards.code': code });
+      if (!owner) throw new ApiError(404, 'No reward matches that code');
+      const reward = owner.rewards.find((r) => r.code === code);
+      throw reward.status === 'redeemed'
+        ? new ApiError(409, `That ${rewardLabel(reward)} was already used`)
+        : new ApiError(409, `That ${rewardLabel(reward)} expired on ${dateLabel(reward.expiresAt)}`);
     }
 
     /* Release the booking it was held against. */
@@ -249,18 +284,41 @@ loyaltyRouter.get(
   requireAuth,
   requireRole('artist', 'admin'),
   asyncHandler(async (req, res) => {
-    const cards = await Loyalty.find().populate('user', 'name email phone').sort({ updatedAt: -1 }).limit(100);
+    const cards = await Loyalty.find()
+      .populate('user', 'name email phone dateOfBirth visitFrequencyWeeks')
+      .sort({ updatedAt: -1 })
+      .limit(100);
+
+    const now = Date.now();
     res.json(
       cards
         .filter((c) => c.user)
-        .map((c) => ({
-          user: c.user,
-          stamps: c.stamps.length,
-          goal: env.loyaltyGoal,
-          totalCheckIns: c.totalCheckIns,
-          lastCheckInAt: c.lastCheckInAt,
-          owedRewards: c.rewards.filter((r) => r.status !== 'redeemed').length,
-        })),
+        .map((c) => {
+          /* The point of asking how often somebody cuts: knowing when they are
+             overdue. A client who normally comes every three weeks and has not
+             been seen in seven has not changed their habit — they have gone
+             somewhere else, and that is worth noticing while it is still
+             recoverable. Left null when either half is unknown rather than
+             guessed at. */
+          const weeks = c.user.visitFrequencyWeeks;
+          const dueAt =
+            weeks && c.lastCheckInAt
+              ? new Date(c.lastCheckInAt.getTime() + weeks * 7 * 86_400_000)
+              : null;
+
+          return {
+            user: c.user,
+            stamps: c.stamps.length,
+            goal: env.loyaltyGoal,
+            totalCheckIns: c.totalCheckIns,
+            lastCheckInAt: c.lastCheckInAt,
+            dueAt,
+            overdue: Boolean(dueAt && dueAt.getTime() < now),
+            /* Live only. A lapsed gift is not owed to anybody, and counting it
+               sends an artist to look for a code the chair will refuse. */
+            owedRewards: c.rewards.filter((r) => rewardIsLive(r)).length,
+          };
+        }),
     );
   }),
 );

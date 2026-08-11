@@ -9,10 +9,10 @@ import React, {
 import { AppState } from 'react-native';
 import { api } from '../api/client';
 import { getSocket } from '../api/socket';
-import { registerDevice, subscribeToPushMessages } from '../api/push';
+import { registerDevice, subscribeToPushMessages, watchTokenRefresh } from '../api/push';
 import { useAuth } from './AuthContext';
 import { NotificationBanner } from '../components/NotificationBanner';
-import { navigate } from '../navigation/ref';
+import { openNotification } from '../navigation/ref';
 import type { AppNotification } from '../types';
 
 interface NotificationsContextValue {
@@ -94,12 +94,17 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, [user, deliver]);
 
   /* The Firebase seam. While no adapter is installed this registers nothing
-     and subscribes to nothing; once one is, foreground pushes land in exactly
-     the same deliver() the socket uses, and duplicates are dropped by id. */
+     and subscribes to nothing; once one is, pushes land in exactly the same
+     deliver() the socket uses, and duplicates are dropped by id. */
   useEffect(() => {
     if (!user) return undefined;
     registerDevice();
-    return subscribeToPushMessages(deliver);
+    const stopMessages = subscribeToPushMessages(deliver);
+    const stopRefresh = watchTokenRefresh();
+    return () => {
+      stopMessages();
+      stopRefresh?.();
+    };
   }, [user, deliver]);
 
   const markAllRead = useCallback(async () => {
@@ -129,7 +134,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       {banner && (
         <NotificationBanner
           notification={banner}
-          onPress={() => navigate('Notifications')}
+          onPress={() => openNotification(banner.data, user?.role === 'artist')}
           onDismiss={() => setBanner(null)}
         />
       )}

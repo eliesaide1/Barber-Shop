@@ -6,7 +6,9 @@ import morgan from 'morgan';
 
 import { env } from './config/env.js';
 import { UPLOAD_DIR } from './lib/upload.js';
-import { errorHandler, notFound } from './middleware/error.js';
+import { errorHandler, notFound, asyncHandler } from './middleware/error.js';
+import { getSettings, fillTokens } from './models/ShopSettings.js';
+import { toWhatsAppNumber } from './lib/whatsapp.js';
 
 import { authRouter } from './routes/auth.routes.js';
 import { artistsRouter } from './routes/artists.routes.js';
@@ -17,6 +19,7 @@ import { appointmentsRouter } from './routes/appointments.routes.js';
 import { loyaltyRouter } from './routes/loyalty.routes.js';
 import { notificationsRouter } from './routes/notifications.routes.js';
 import { stylesRouter } from './routes/styles.routes.js';
+import { settingsRouter } from './routes/settings.routes.js';
 
 export function createApp() {
   const app = express();
@@ -58,19 +61,43 @@ export function createApp() {
   );
 
   /* Everything the client needs to render prices and rules without hardcoding. */
-  app.get('/api/config', (_req, res) =>
-    res.json({
-      loyaltyGoal: env.loyaltyGoal,
-      freeCutValue: env.freeCutValue,
-      deliveryFee: env.deliveryFee,
-      freeDeliveryOver: env.freeDeliveryOver,
-      checkinWindowMs: env.checkinWindowMs,
-      shop: {
+  app.get(
+    '/api/config',
+    asyncHandler(async (_req, res) => {
+      const settings = await getSettings();
+      const shop = {
         name: 'FadeRoom',
         area: 'Mar Mikhael, Beirut',
         phone: '+961 1 567 890',
         hours: 'Tue–Sun · 10:00–20:00',
-      },
+      };
+
+      res.json({
+        loyaltyGoal: env.loyaltyGoal,
+        freeCutValue: env.freeCutValue,
+        deliveryFee: env.deliveryFee,
+        freeDeliveryOver: env.freeDeliveryOver,
+        checkinWindowMs: env.checkinWindowMs,
+        maxOpenRequests: env.maxOpenRequests,
+        shop,
+        /* The "message us" button. Sent dialled and ready, with the greeting
+           already filled in, so the app has no formatting rules of its own to
+           get subtly wrong. Null number means the button does not appear. */
+        contact: {
+          whatsapp: settings.contact.enabled
+            ? toWhatsAppNumber(settings.contact.whatsapp)
+            : null,
+          greeting: fillTokens(settings.contact.greeting, { shop: shop.name }),
+          /* `{product}` is passed through as itself: only the app knows which
+             product was tapped, so it fills that one in. `fillTokens` blanks a
+             token it has no value for — which is right for a birthday with no
+             reward and wrong here — hence handing it back its own placeholder. */
+          priceEnquiry: fillTokens(settings.marketplace.priceEnquiry, {
+            shop: shop.name,
+            product: '{product}',
+          }),
+        },
+      });
     }),
   );
 
@@ -83,6 +110,7 @@ export function createApp() {
   app.use('/api/loyalty', loyaltyRouter);
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/styles', stylesRouter);
+  app.use('/api/settings', settingsRouter);
 
   app.use(notFound);
   app.use(errorHandler);

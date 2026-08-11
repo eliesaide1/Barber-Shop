@@ -33,6 +33,7 @@ export default function Layout({ children }) {
   const location = useLocation();
   const [openOrders, setOpenOrders] = useState(0);
   const [pendingLooks, setPendingLooks] = useState(0);
+  const [requests, setRequests] = useState(0);
   const [navOpen, setNavOpen] = useState(false);
   const [theme, setTheme] = useState(
     () => localStorage.getItem('faderoom.cms.theme') || 'dark',
@@ -56,6 +57,11 @@ export default function Layout({ children }) {
     } catch {
       /* same */
     }
+    try {
+      setRequests((await get('/appointments/requests')).length);
+    } catch {
+      /* same */
+    }
   };
 
   useEffect(() => {
@@ -63,6 +69,13 @@ export default function Layout({ children }) {
     /* Arriving somewhere is the end of using the nav. */
     setNavOpen(false);
   }, [location.pathname]);
+
+  /* A request landing while you are on another page has to show up there —
+     the whole point of the badge is that you don't have to go and look. */
+  useSocketEvent('appointment:created', refreshBadge);
+  useSocketEvent('appointment:status', refreshBadge);
+  useSocketEvent('order:created', refreshBadge);
+  useSocketEvent('order:status', refreshBadge);
 
   /* A drawer left open while the window grows past the breakpoint would sit
      over a layout that already has its sidebar back. */
@@ -110,7 +123,7 @@ export default function Layout({ children }) {
 
         <div className="navgroup">CHAIR</div>
         <Nav to="/" icon="dashboard" label="Dashboard" onNavigate={closeNav} />
-        <Nav to="/schedule" icon="calendar" label="Schedule" onNavigate={closeNav} />
+        <Nav to="/schedule" icon="calendar" label="Schedule" count={requests} onNavigate={closeNav} />
         <Nav to="/check-ins" icon="qr" label="Check-in & QR" onNavigate={closeNav} />
 
         <div className="navgroup">SHOP</div>
@@ -119,6 +132,7 @@ export default function Layout({ children }) {
         <Nav to="/lookbook" icon="image" label="Lookbook" count={pendingLooks} onNavigate={closeNav} />
         <Nav to="/notifications" icon="bell" label="Notifications" onNavigate={closeNav} />
         {isAdmin && <Nav to="/artists" icon="users" label="Artists" onNavigate={closeNav} />}
+        <Nav to="/settings" icon="dashboard" label="Settings" onNavigate={closeNav} />
 
         <div className="spacer" />
 

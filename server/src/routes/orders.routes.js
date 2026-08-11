@@ -8,6 +8,8 @@ import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { orderCode, readCode } from '../lib/codes.js';
 import { emitTo, rooms } from '../lib/realtime.js';
+import { notify } from '../lib/notify.js';
+import { getSettings } from '../models/ShopSettings.js';
 import { env } from '../config/env.js';
 import { withImageUrls } from '../lib/upload.js';
 
@@ -77,10 +79,25 @@ ordersRouter.post(
     const products = await Product.find({ _id: { $in: ids }, status: 'published' });
     const byId = new Map(products.map((p) => [String(p._id), p]));
 
+    const { marketplace } = await getSettings();
+
     const items = [];
     for (const line of body.items) {
       const product = byId.get(line.product);
       if (!product) throw new ApiError(409, 'One of those products is no longer listed');
+
+      /* A product listed without a price cannot be bought here — checkout would
+         have to name the figure the shop chose not to publish. It is an enquiry,
+         settled in conversation. Enforced at the server because the client can
+         be asked to send anything, and a cart assembled by hand would otherwise
+         buy it at a price the buyer was never shown. */
+      if (marketplace.hideAllPrices || product.priceHidden) {
+        throw new ApiError(
+          409,
+          `${product.name} is priced on request — ask about it on WhatsApp`,
+        );
+      }
+
       if (product.stock < line.qty) {
         throw new ApiError(409, `Only ${product.stock} left of ${product.name}`);
       }
@@ -241,6 +258,24 @@ ordersRouter.post(
     order.status = status;
     order.timeline.push({ status, at: new Date(), by: req.user._id });
     await order.save();
+
+    /* Only the steps the buyer is waiting on. "Collected" and "delivered" are
+       things they just watched happen, and telling someone what they already
+       know is how an app teaches people to ignore it. */
+    const said = {
+      ready: ['Your order is ready', `Show code ${order.code} at the shop to collect it.`],
+      out: ['Your order is on its way', `${order.items.length} item${order.items.length === 1 ? '' : 's'} · paying $${order.total} on delivery.`],
+      cancelled: ['Your order was cancelled', 'Nothing has been charged. Anything you paid for is back on the shelf.'],
+    }[status];
+    if (said) {
+      await notify(order.user, {
+        title: said[0],
+        body: said[1],
+        kind: 'order',
+        data: { screen: 'OrderDetail', id: String(order._id) },
+        actor: req.user,
+      });
+    }
 
     const payload = shape(order);
     emitTo(rooms.user(order.user), 'order:status', payload);

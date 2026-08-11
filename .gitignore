@@ -6,6 +6,9 @@ node_modules/
 
 # API
 server/uploads/
+# Firebase service account — this key can push to every user of the app.
+server/firebase-service-account.json
+server/*-firebase-adminsdk-*.json
 
 # CMS
 cms/dist/

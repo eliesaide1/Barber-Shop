@@ -12,6 +12,8 @@ import { Icon, type IconName } from '../components/Icon';
 import { space } from '../theme';
 
 import { LoginScreen, RegisterScreen } from '../screens/AuthScreens';
+import { CompleteProfileScreen } from '../screens/CompleteProfileScreen';
+import { ContactFab } from '../components/ContactFab';
 import { HomeScreen } from '../screens/HomeScreen';
 import { BookScreen } from '../screens/BookScreen';
 import { ScanScreen } from '../screens/ScanScreen';
@@ -228,7 +230,7 @@ function AdminNotice() {
 }
 
 export function RootNavigator() {
-  const { user, isArtist, booting } = useAuth();
+  const { user, isArtist, booting, profileComplete } = useAuth();
   const isAdmin = user?.role === 'admin';
   const c = useColors();
   const { name } = useTheme();
@@ -253,9 +255,21 @@ export function RootNavigator() {
     );
   }
 
+  /* Only the client app. An artist messaging themselves is nonsense, an admin
+     has no chair, and neither has anywhere to go before signing in. */
+  const showContact = Boolean(user) && !isAdmin && !isArtist && profileComplete;
+
   return (
+    <View style={{ flex: 1 }}>
     <NavigationContainer ref={navigationRef} theme={navTheme}>
-      {user && isAdmin ? (
+      {user && !profileComplete ? (
+        /* A client who came in through Google or Apple, whose card the provider
+           could only half fill. In front of the app rather than beside it: a
+           client book that is only sometimes filled in is one no artist trusts. */
+        <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
+          <RootStack.Screen name="Tabs" component={CompleteProfileScreen} />
+        </RootStack.Navigator>
+      ) : user && isAdmin ? (
         <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
           <RootStack.Screen name="Tabs" component={AdminNotice} />
         </RootStack.Navigator>
@@ -315,5 +329,9 @@ export function RootNavigator() {
         </AuthStack.Navigator>
       )}
     </NavigationContainer>
+    {/* Outside the navigator, so it stays put while screens come and go rather
+        than being remounted — and animates with nothing. */}
+    {showContact && <ContactFab />}
+    </View>
   );
 }

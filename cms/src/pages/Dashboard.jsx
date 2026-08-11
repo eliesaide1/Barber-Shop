@@ -14,22 +14,27 @@ const ago = (iso) => {
 
 export default function Dashboard() {
   const { user, artist, isAdmin } = useAuth();
-  const [data, setData] = useState({ orders: [], agenda: [], checkins: [], products: [] });
+  const [data, setData] = useState({
+    orders: [], agenda: [], checkins: [], products: [], requests: [],
+  });
 
   const load = async () => {
-    const [orders, agenda, checkins, products] = await Promise.all([
+    const [orders, agenda, checkins, products, requests] = await Promise.all([
       get('/orders/manage/list').catch(() => []),
       get(`/appointments/agenda?date=${new Date().toISOString().slice(0, 10)}`).catch(() => []),
       get('/loyalty/check-ins').catch(() => []),
       get('/products/manage/list').catch(() => []),
+      get('/appointments/requests').catch(() => []),
     ]);
-    setData({ orders, agenda, checkins, products });
+    setData({ orders, agenda, checkins, products, requests });
   };
 
   useEffect(() => { load(); }, []);
   useSocketEvent('order:created', load);
   useSocketEvent('order:status', load);
   useSocketEvent('checkin:new', load);
+  useSocketEvent('appointment:created', load);
+  useSocketEvent('appointment:status', load);
 
   const openOrders = data.orders.filter((o) =>
     ['ready', 'packing', 'out'].includes(o.status));
@@ -67,9 +72,24 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {(pending.length > 0 || lowStock.length > 0) && (
+      {(data.requests.length > 0 || pending.length > 0 || lowStock.length > 0) && (
         <div className="card" style={{ marginTop: 14, borderColor: 'var(--accent)' }}>
           <h2>Needs you</h2>
+          {/* First, because a client is sitting on the other end of it waiting
+              to hear whether they have a chair at all. */}
+          {data.requests.length > 0 && (
+            <div className="feed-item">
+              <div className="grow">
+                <div className="t">
+                  {data.requests.length} booking request{data.requests.length === 1 ? '' : 's'} waiting
+                </div>
+                <div className="s">
+                  Nothing is held until you accept one and say how long to give it.
+                </div>
+              </div>
+              <Link className="btn sm" to="/schedule">Answer</Link>
+            </div>
+          )}
           {pending.length > 0 && (
             <div className="feed-item">
               <div className="grow">

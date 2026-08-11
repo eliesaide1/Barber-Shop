@@ -20,6 +20,7 @@ import { ProductCard } from '../components/ProductCard';
 import { Icon } from '../components/Icon';
 import { CartButton } from './ShopScreens';
 import { useApi, useSocketEvent } from '../hooks/useApi';
+import { nextRewardToUse } from '../lib/rewards';
 import { useAuth } from '../store/AuthContext';
 import { useCart } from '../store/CartContext';
 import { useColors } from '../store/ThemeContext';
@@ -65,7 +66,7 @@ export function HomeScreen() {
     (a) => ['confirmed', 'pending'].includes(a.status) && new Date(a.startsAt).getTime() > Date.now(),
   );
   const openOrders = orders?.filter((o) => o.isOpen) ?? [];
-  const reward = card?.rewards.find((r) => r.status === 'available');
+  const reward = nextRewardToUse(card?.rewards);
   const stamps = card?.stamps ?? 0;
   const goal = card?.goal ?? 5;
 
@@ -163,7 +164,12 @@ export function HomeScreen() {
       {next ? (
         <Card hero style={{ marginTop: space.lg }}>
           <Between>
-            <Badge label="NEXT APPOINTMENT" tone="gold" />
+            {/* A request and a chair are not the same promise — don't call an
+                unanswered ask an appointment. */}
+            <Badge
+              label={next.status === 'pending' ? 'REQUESTED' : 'NEXT APPOINTMENT'}
+              tone={next.status === 'pending' ? 'warn' : 'gold'}
+            />
             <Muted>{when(next.startsAt)}</Muted>
           </Between>
           <Row style={{ marginTop: space.md }}>
@@ -171,13 +177,16 @@ export function HomeScreen() {
             <View style={{ flex: 1 }}>
               <Body style={{ fontWeight: '800', fontSize: 17 }}>{next.serviceName}</Body>
               <Muted style={{ marginTop: 4 }}>
-                {next.artist.displayName} · {next.artist.chair} · {next.durationMin} min ·{' '}
-                {next.free ? 'free 🎁' : `$${next.price}`}
+                {next.artist.displayName} · {next.artist.chair} ·{' '}
+                {next.status === 'pending'
+                  ? `waiting on ${next.artist.displayName.split(' ')[0]}`
+                  : `${next.durationMin} min`}{' '}
+                · {next.free ? 'free 🎁' : `$${next.price}`}
               </Muted>
             </View>
           </Row>
           <Button
-            title="Manage appointment"
+            title={next.status === 'pending' ? 'See my request' : 'Manage appointment'}
             compact
             onPress={() => nav.navigate('Appointments')}
             style={{ marginTop: space.lg }}

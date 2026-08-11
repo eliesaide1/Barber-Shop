@@ -7,6 +7,7 @@ import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { upload, withImageUrls } from '../lib/upload.js';
 import { emitTo, emitToRooms, rooms, connectedCount } from '../lib/realtime.js';
+import { pushToUsers } from '../lib/push.js';
 
 export const notificationsRouter = Router();
 
@@ -26,6 +27,34 @@ async function resolveTargets(notification) {
       const userIds = await Appointment.distinct('user', { artist: notification.targetArtist });
       return userIds.map((id) => rooms.user(id));
     }
+    default:
+      return [];
+  }
+}
+
+/**
+ * The same audience, as the people in it.
+ *
+ * Socket delivery addresses rooms, which is why `resolveTargets` exists and why
+ * it is enough on its own for anyone with the app open. A push has to be sent to
+ * devices, and devices hang off users — so the audience has to be resolved a
+ * second way. Kept beside its twin so the two cannot drift: an audience added to
+ * one and forgotten in the other would deliver to open apps only, which is the
+ * kind of bug that never reproduces for whoever is testing it.
+ */
+async function resolveRecipients(notification) {
+  const active = { active: true };
+  switch (notification.audience) {
+    case 'all':
+      return User.find(active).distinct('_id');
+    case 'clients':
+      return User.find({ ...active, role: 'client' }).distinct('_id');
+    case 'artists':
+      return User.find({ ...active, role: 'artist' }).distinct('_id');
+    case 'user':
+      return [notification.targetUser];
+    case 'artist-clients':
+      return Appointment.distinct('user', { artist: notification.targetArtist });
     default:
       return [];
   }
@@ -113,7 +142,11 @@ notificationsRouter.get(
   requireAuth,
   requireRole('artist', 'admin'),
   asyncHandler(async (req, res) => {
-    const filter = req.user.role === 'artist' ? { createdBy: req.user._id } : {};
+    /* The send log is a record of what staff wrote. The shop's own automatic
+       messages — booking answers, order updates — would bury that, and there is
+       nothing to review about them. */
+    const filter = { kind: 'message' };
+    if (req.user.role === 'artist') filter.createdBy = req.user._id;
     const sent = await Notification.find(filter).sort({ sentAt: -1 }).limit(50);
     res.json(sent.map(withImageUrls));
   }),
@@ -163,6 +196,7 @@ notificationsRouter.post(
     const notification = await Notification.create({
       title: body.title,
       body: body.body,
+      kind: 'message',
       audience: body.audience,
       targetUser: body.audience === 'user' ? body.targetUser : null,
       targetArtist: body.audience === 'artist-clients' ? req.artist?._id ?? req.body.targetArtist : null,
@@ -178,6 +212,11 @@ notificationsRouter.post(
     emitToRooms(targets, 'notification:new', payload);
     notification.deliveredCount = targets.reduce((sum, room) => sum + connectedCount(room), 0);
     await notification.save();
+
+    /* And to everyone whose app is shut. A broadcast honours the opt-out inside
+       pushToUsers, which a transactional message does not — that distinction is
+       the whole reason the setting can exist without being a mute button. */
+    await pushToUsers(await resolveRecipients(notification), notification);
 
     /* Mirrored to the CMS so every seat sees the send log update live. */
     emitTo(rooms.staff(), 'notification:sent', withImageUrls(notification));

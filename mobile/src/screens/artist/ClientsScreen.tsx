@@ -17,6 +17,7 @@ import {
 } from '../../components/ui';
 import { useApi, useSocketEvent } from '../../hooks/useApi';
 import { useColors } from '../../store/ThemeContext';
+import { ageFrom, frequencyLabel } from '../../lib/clientDetails';
 import { space } from '../../theme';
 import type { ClientBookEntry } from '../../types';
 
@@ -56,7 +57,10 @@ export function ArtistClientsScreen() {
   }, [clients, query]);
 
   const owed = (clients ?? []).filter((e) => e.owedRewards > 0).length;
-  const closeToFree = (clients ?? []).filter((e) => e.owedRewards === 0 && e.goal - e.stamps === 1).length;
+  /* The reason for asking how often somebody cuts. A regular who has drifted
+     past their own interval has not changed their habit — they have gone
+     somewhere else, and that is worth seeing while it is still recoverable. */
+  const overdue = (clients ?? []).filter((e) => e.overdue).length;
 
   if (loading && !clients) return <Loading label="Loading your book…" />;
 
@@ -69,7 +73,7 @@ export function ArtistClientsScreen() {
         {[
           { n: String(clients?.length ?? 0), l: 'On the book', accent: true },
           { n: String(owed), l: 'Owed a free cut' },
-          { n: String(closeToFree), l: 'One away' },
+          { n: String(overdue), l: 'Due a visit', accent: overdue > 0 },
         ].map((s) => (
           <Card key={s.l} style={{ flex: 1, padding: space.md }}>
             <Text style={{ fontSize: 22, fontWeight: '800', color: s.accent ? c.accentInk : c.text }}>
@@ -107,8 +111,16 @@ export function ArtistClientsScreen() {
                   <Muted style={{ marginTop: 2 }}>
                     {e.totalCheckIns} visit{e.totalCheckIns === 1 ? '' : 's'} · {lastSeen(e.lastCheckInAt)}
                   </Muted>
+                  <Muted style={{ marginTop: 2 }}>
+                    {frequencyLabel(e.user.visitFrequencyWeeks)}
+                    {ageFrom(e.user.dateOfBirth) !== null && ` · ${ageFrom(e.user.dateOfBirth)}`}
+                    {!!e.user.phone && ` · ${e.user.phone}`}
+                  </Muted>
                 </View>
-                <Badge label={tag.label} tone={tag.tone} />
+                <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                  <Badge label={tag.label} tone={tag.tone} />
+                  {e.overdue && <Badge label="DUE" tone="warn" />}
+                </View>
               </Row>
 
               <Between style={{ marginTop: space.md }}>

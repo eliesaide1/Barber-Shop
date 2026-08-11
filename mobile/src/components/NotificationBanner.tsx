@@ -3,7 +3,16 @@ import { Animated, PanResponder, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '../store/ThemeContext';
 import { radius, space } from '../theme';
-import type { AppNotification } from '../types';
+import type { AppNotification, NotificationKind } from '../types';
+
+/* A booking answer and a shop advert should not look the same at a glance —
+   one is something you were waiting for. */
+export const KIND_GLYPH: Record<NotificationKind, string> = {
+  message: '✂',
+  booking: '🗓',
+  order: '🛍',
+  loyalty: '🎁',
+};
 
 interface Props {
   notification: AppNotification;
@@ -106,13 +115,15 @@ export function NotificationBanner({ notification, onPress, onDismiss }: Props) 
             justifyContent: 'center',
           }}
         >
-          <Text style={{ fontSize: 19, color: c.onAccent }}>✂</Text>
+          <Text style={{ fontSize: 19, color: c.onAccent }}>
+            {KIND_GLYPH[notification.kind] ?? KIND_GLYPH.message}
+          </Text>
         </View>
 
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ color: c.muted, fontSize: 11, fontWeight: '700', letterSpacing: 0.3 }}>
-              FADEROOM
+              {(notification.createdByName || 'FadeRoom').toUpperCase()}
             </Text>
             <Text style={{ color: c.muted, fontSize: 11 }}>now</Text>
           </View>

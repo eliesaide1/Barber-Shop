@@ -19,6 +19,8 @@ import {
   Title,
 } from '../components/ui';
 import { useApi } from '../hooks/useApi';
+import { nextRewardToUse, rewardTitle } from '../lib/rewards';
+import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
@@ -64,6 +66,7 @@ export function BookScreen() {
   const [useReward, setUseReward] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  const { config } = useAuth();
   const { data: artists, loading: loadingArtists } = useApi<Artist[]>('/artists');
   const { data: services } = useApi<Service[]>('/services');
   const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
@@ -79,9 +82,17 @@ export function BookScreen() {
     slots: Slot[];
   }>(availabilityPath, [artist?.id, service?.id, day.iso]);
 
-  const freeCut = card?.rewards.find((r) => r.status === 'available');
+  /* Live only, and the soonest to expire first — matching what the server will
+     actually reserve, so the code shown here is the code that gets attached. */
+  const freeCut = nextRewardToUse(card?.rewards);
 
-  const book = async () => {
+  /**
+   * This asks for a time; it does not take one.
+   *
+   * The chair is reserved when the artist accepts and says how long to give the
+   * cut — which is also what stops one person taking every slot in the week.
+   */
+  const requestSlot = async () => {
     if (!artist || !service || !slot) return;
     setBusy(true);
     try {
@@ -92,14 +103,14 @@ export function BookScreen() {
         notes,
         useReward: useReward && !!freeCut,
       });
-      toast('Chair booked 💈');
+      toast(`Sent to ${artist.displayName.split(' ')[0]} 💈`);
       setSlot(null);
       setNotes('');
       setUseReward(false);
       nav.navigate('Appointments');
     } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Could not book that slot', {
-        title: 'Couldn’t book that time',
+      showError(err instanceof ApiError ? err.message : 'Could not send that request', {
+        title: 'Couldn’t send your request',
         icon: '🗓️',
       });
     } finally {
@@ -244,7 +255,12 @@ export function BookScreen() {
         </Row>
       </ScrollView>
 
-      <Heading style={{ marginTop: space.xl }}>4 · Pick a time</Heading>
+      <Heading style={{ marginTop: space.xl }}>4 · Ask for a time</Heading>
+      <Muted style={{ marginTop: 4 }}>
+        {artist?.displayName.split(' ')[0] ?? 'Your artist'} confirms how long your cut needs, and
+        may shift it a little to make it fit. Nothing is held until then — a time others have asked
+        for is still worth asking for.
+      </Muted>
       {loadingSlots && !availability ? (
         <Loading label="Checking the chair…" />
       ) : availability?.dayOff ? (
@@ -284,6 +300,13 @@ export function BookScreen() {
                 >
                   {to12h(s.time)}
                 </Text>
+                {/* Say who else is in the queue rather than hiding it. The slot
+                    is still yours to ask for — the artist picks. */}
+                {s.available && s.requested > 0 && (
+                  <Muted style={{ fontSize: 10, marginTop: 2 }}>
+                    {s.requested} asked
+                  </Muted>
+                )}
               </Pressable>
             );
           })}
@@ -351,6 +374,12 @@ export function BookScreen() {
             {slot ? `${day.label} ${day.day} · ${to12h(slot.time)}` : '—'}
           </Body>
         </Between>
+        <Between style={{ marginTop: space.sm }}>
+          <Muted>Length</Muted>
+          <Body style={{ fontWeight: '700' }}>
+            {artist?.displayName.split(' ')[0] ?? 'Your artist'} sets it
+          </Body>
+        </Between>
         <Divider />
         <Between>
           <Body style={{ fontWeight: '700' }}>Total</Body>
@@ -366,12 +395,15 @@ export function BookScreen() {
       </Card>
 
       <Button
-        title={slot ? 'Confirm booking' : 'Select a time slot'}
+        title={slot ? 'Ask for this time' : 'Pick a time first'}
         disabled={!slot}
         loading={busy}
-        onPress={book}
+        onPress={requestSlot}
         style={{ marginTop: space.lg }}
       />
+      <Muted style={{ textAlign: 'center', marginTop: space.sm }}>
+        You’ll hear back in the app. Up to {config?.maxOpenRequests ?? 3} requests can be waiting at once.
+      </Muted>
     </Screen>
   );
 }

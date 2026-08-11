@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Switch, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Avatar,
@@ -27,23 +27,68 @@ import { useDialog } from '../store/DialogContext';
 import { useNotifications } from '../store/NotificationsContext';
 import { useToast } from '../store/ToastContext';
 import { api, ApiError } from '../api/client';
-import { space } from '../theme';
-import type { Appointment, AppNotification, LoyaltyCard, Order } from '../types';
+import { KIND_GLYPH } from '../components/NotificationBanner';
+import { openNotification } from '../navigation/ref';
+import {
+  VISIT_FREQUENCIES,
+  dateOfBirthError,
+  frequencyLabel,
+  fromIsoDate,
+  maskDate,
+  toIsoDate,
+} from '../lib/clientDetails';
+import { radius, space } from '../theme';
+import type { Appointment, AppNotification, LoyaltyCard, Order, User } from '../types';
+
+const STATUS_LABELS: Record<string, string> = {
+  completed: 'Done',
+  cancelled: 'Withdrawn',
+  declined: 'Not taken',
+  noshow: 'No-show',
+};
 
 /* ---------------- Profile ---------------- */
 
 export function ProfileScreen() {
   const c = useColors();
   const nav = useNavigation<any>();
-  const { user, config, signOut } = useAuth();
+  const { user, config, signOut, updateUser } = useAuth();
   const { confirm } = useDialog();
   const { preference, setPreference, name: themeName } = useTheme();
   const cart = useCart();
   const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
   const { data: orders } = useApi<Order[]>('/orders');
 
+  /* Optimistic: the switch answers instantly and the server catches up. Nothing
+     is lost if the write fails — worst case one more shop message arrives, and
+     `user` re-reads the truth on the next focus. */
+  const [broadcasts, setBroadcasts] = useState(user?.notifications?.broadcasts !== false);
+  const [whatsapp, setWhatsapp] = useState(user?.notifications?.whatsapp === true);
+
+  const saveNotifications = async (
+    patch: { broadcasts?: boolean; whatsapp?: boolean },
+    revert: () => void,
+  ) => {
+    try {
+      const session = await api.patch<{ user: User }>('/auth/me', { notifications: patch });
+      if (session.user) updateUser(session.user);
+    } catch {
+      revert();
+    }
+  };
+
+  const saveBroadcasts = (on: boolean) => {
+    setBroadcasts(on);
+    return saveNotifications({ broadcasts: on }, () => setBroadcasts(!on));
+  };
+  const saveWhatsApp = (on: boolean) => {
+    setWhatsapp(on);
+    return saveNotifications({ whatsapp: on }, () => setWhatsapp(!on));
+  };
+
   const stamps = card?.stamps ?? 0;
   const goal = card?.goal ?? config?.loyaltyGoal ?? 5;
+  const incomplete = !user?.phone || !user?.dateOfBirth || !user?.visitFrequencyWeeks;
 
   const confirmSignOut = async () => {
     const ok = await confirm({
@@ -111,6 +156,52 @@ export function ProfileScreen() {
         </Pressable>
       </Card>
 
+      <Heading style={{ marginTop: space.xl }}>My details</Heading>
+      {/* Accounts made before these were asked for have them empty. Say so once,
+          plainly, rather than nagging — and only when something is actually
+          missing. */}
+      {incomplete && (
+        <Card style={{ marginTop: space.sm, borderColor: c.accent, backgroundColor: c.accentSoft }}>
+          <Body style={{ fontWeight: '700' }}>Finish your profile</Body>
+          <Muted style={{ marginTop: 4 }}>
+            Your artist keeps a card on every client. Yours is missing{' '}
+            {[
+              !user?.phone && 'a mobile number',
+              !user?.dateOfBirth && 'your date of birth',
+              !user?.visitFrequencyWeeks && 'how often you get cut',
+            ]
+              .filter(Boolean)
+              .join(', ')}
+            .
+          </Muted>
+          <Button
+            title="Add them"
+            compact
+            onPress={() => nav.navigate('Preferences')}
+            style={{ marginTop: space.md }}
+          />
+        </Card>
+      )}
+      <Card style={{ marginTop: space.sm }}>
+        {[
+          ['Mobile', user?.phone],
+          ['Date of birth', fromIsoDate(user?.dateOfBirth)],
+          ['Usually cuts', user?.visitFrequencyWeeks ? frequencyLabel(user.visitFrequencyWeeks) : ''],
+        ].map(([label, value], i) => (
+          <Between
+            key={label as string}
+            style={{
+              paddingVertical: space.md,
+              borderTopWidth: i === 0 ? 0 : 1,
+              borderTopColor: c.line,
+            }}
+          >
+            <Muted>{label}</Muted>
+            <Body>{(value as string) || '—'}</Body>
+          </Between>
+        ))}
+      </Card>
+
       <Heading style={{ marginTop: space.xl }}>My cut preferences</Heading>
       <Card style={{ marginTop: space.sm }}>
         {[
@@ -133,11 +224,51 @@ export function ProfileScreen() {
         ))}
       </Card>
       <Button
-        title="Edit preferences"
+        title="Edit my details"
         variant="ghost"
         onPress={() => nav.navigate('Preferences')}
         style={{ marginTop: space.md }}
       />
+
+      <Heading style={{ marginTop: space.xl }}>Notifications</Heading>
+      <Card style={{ marginTop: space.sm }}>
+        <Between>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <Body style={{ fontWeight: '700' }}>Shop news</Body>
+            <Muted style={{ marginTop: 3 }}>
+              Offers and announcements from FadeRoom and your artist.
+            </Muted>
+          </View>
+          <Switch
+            value={broadcasts}
+            onValueChange={saveBroadcasts}
+            trackColor={{ true: c.accent, false: c.line }}
+            thumbColor={c.surface}
+          />
+        </Between>
+        <Between style={{ marginTop: space.lg }}>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <Body style={{ fontWeight: '700' }}>WhatsApp</Body>
+            <Muted style={{ marginTop: 3 }}>
+              Birthday wishes and the odd gift, on WhatsApp. Off unless you ask for it.
+            </Muted>
+          </View>
+          <Switch
+            value={whatsapp}
+            onValueChange={saveWhatsApp}
+            trackColor={{ true: c.accent, false: c.line }}
+            thumbColor={c.surface}
+          />
+        </Between>
+
+        {/* Saying what cannot be silenced is the point of the setting: without
+            it people turn everything off to stop the adverts, and then miss the
+            answer they were waiting for. */}
+        <Muted style={{ marginTop: space.md }}>
+          Booking answers, order updates and free cuts always come through in the app. Turn the lot
+          off in your phone’s settings if you’d rather.
+        </Muted>
+      </Card>
 
       <Heading style={{ marginTop: space.xl }}>Appearance</Heading>
       <View style={{ marginTop: space.sm }}>
@@ -173,6 +304,7 @@ export function ProfileScreen() {
 /* ---------------- Preferences editor ---------------- */
 
 export function PreferencesScreen() {
+  const c = useColors();
   const nav = useNavigation<any>();
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
@@ -183,16 +315,45 @@ export function PreferencesScreen() {
     part: user?.preferences?.part ?? '',
     notes: user?.preferences?.notes ?? '',
   });
+  const [details, setDetails] = useState({
+    name: user?.name ?? '',
+    phone: user?.phone ?? '',
+    dob: fromIsoDate(user?.dateOfBirth),
+  });
+  const [frequency, setFrequency] = useState<number | null>(user?.visitFrequencyWeeks ?? null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
   const save = async () => {
+    /* Details are only sent when they are complete and valid. An account made
+       before these were asked for has empty ones, and saving a haircut note
+       should not be blocked by a birthday nobody has got round to — but nor
+       should it quietly write a half-typed date. */
+    const next: Record<string, string> = {};
+    if (details.name.trim().length < 2) next.name = 'Please enter your name';
+    if (details.phone.replace(/\D/g, '').length < 7) next.phone = 'Enter a valid phone number';
+    if (details.dob.trim()) {
+      const dobError = dateOfBirthError(details.dob);
+      if (dobError) next.dateOfBirth = dobError;
+    }
+    setErrors(next);
+    if (Object.keys(next).length) return;
+
     setBusy(true);
     try {
-      const session = await api.patch<{ user: typeof user }>('/auth/me', { preferences: form });
+      const iso = toIsoDate(details.dob);
+      const session = await api.patch<{ user: User }>('/auth/me', {
+        preferences: form,
+        name: details.name.trim(),
+        phone: details.phone.trim(),
+        ...(iso ? { dateOfBirth: iso } : {}),
+        ...(frequency ? { visitFrequencyWeeks: frequency } : {}),
+      });
       if (session.user) updateUser(session.user);
-      toast('Preferences saved ✓');
+      toast('Saved ✓');
       nav.goBack();
     } catch (err) {
+      if (err instanceof ApiError && err.fields) setErrors(err.fields);
       showError(err instanceof ApiError ? err.message : 'Could not save', {
         title: 'Couldn’t save',
         icon: '✂️',
@@ -204,10 +365,69 @@ export function PreferencesScreen() {
 
   return (
     <Screen>
-      <Title>Cut preferences</Title>
+      <Title>My details</Title>
       <Muted style={{ marginTop: 2 }}>Your artist sees this before every visit.</Muted>
 
-      <Card style={{ marginTop: space.lg }}>
+      <Heading style={{ marginTop: space.lg }}>About you</Heading>
+      <Card style={{ marginTop: space.sm }}>
+        <Field
+          label="Full name"
+          value={details.name}
+          onChangeText={(v: string) => setDetails((d) => ({ ...d, name: v }))}
+          error={errors.name}
+          style={{ marginTop: 0 }}
+        />
+        <Field
+          label="Mobile number"
+          value={details.phone}
+          onChangeText={(v: string) => setDetails((d) => ({ ...d, phone: v }))}
+          keyboardType="phone-pad"
+          placeholder="+961 …"
+          error={errors.phone}
+        />
+        <Field
+          label="Date of birth"
+          value={details.dob}
+          onChangeText={(v: string) => setDetails((d) => ({ ...d, dob: maskDate(v) }))}
+          keyboardType="number-pad"
+          placeholder="DD/MM/YYYY"
+          maxLength={10}
+          error={errors.dateOfBirth}
+        />
+
+        <Muted style={{ marginTop: space.md, fontWeight: '600' }}>How often do you get cut?</Muted>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: 8 }}>
+          {VISIT_FREQUENCIES.map((w) => {
+            const on = w === frequency;
+            return (
+              <Pressable
+                key={w}
+                onPress={() => setFrequency(w)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                style={{
+                  paddingVertical: 9,
+                  paddingHorizontal: 13,
+                  borderRadius: radius.pill,
+                  borderWidth: 1,
+                  borderColor: on ? c.accent : c.line,
+                  backgroundColor: on ? c.accent : c.surface2,
+                }}
+              >
+                <Text style={{ fontWeight: '700', fontSize: 12.5, color: on ? c.onAccent : c.text }}>
+                  {frequencyLabel(w)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>
+          It is how your artist knows when you are due — not a commitment.
+        </Muted>
+      </Card>
+
+      <Heading style={{ marginTop: space.xl }}>Cut preferences</Heading>
+      <Card style={{ marginTop: space.sm }}>
         <Field
           label="Clipper guard"
           value={form.clipperGuard}
@@ -254,27 +474,34 @@ export function AppointmentsScreen() {
   useSocketEvent('appointment:status', () => reload(true));
 
   const cancel = async (a: Appointment) => {
+    /* A request and a confirmed chair are different things to give up, and the
+       wording should not pretend otherwise. */
+    const isRequest = a.status === 'pending';
     const ok = await confirm({
-      title: 'Cancel this booking?',
+      title: isRequest ? 'Withdraw this request?' : 'Cancel this booking?',
       /* Say what happens to a held free cut — it's the thing worth worrying
          about, and the answer is reassuring. */
       message: a.rewardCode
-        ? 'Your free cut goes straight back into your card. You can rebook any time.'
-        : 'You can rebook any time.',
+        ? 'Your free cut goes straight back into your card. You can ask again any time.'
+        : 'You can ask again any time.',
       icon: '🗓️',
       tone: 'danger',
-      confirmLabel: 'Cancel booking',
-      cancelLabel: 'Keep my chair',
+      confirmLabel: isRequest ? 'Withdraw it' : 'Cancel booking',
+      cancelLabel: isRequest ? 'Keep waiting' : 'Keep my chair',
     });
     if (!ok) return;
 
     try {
       await api.post(`/appointments/${a.id}/cancel`);
-      toast(a.rewardCode ? 'Cancelled · free cut back in your card' : 'Booking cancelled');
+      toast(
+        a.rewardCode
+          ? 'Withdrawn · free cut back in your card'
+          : isRequest ? 'Request withdrawn' : 'Booking cancelled',
+      );
       reload(true);
     } catch (err) {
       showError(err instanceof ApiError ? err.message : 'Could not cancel', {
-        title: 'Couldn’t cancel',
+        title: isRequest ? 'Couldn’t withdraw it' : 'Couldn’t cancel',
         icon: '🗓️',
       });
     }
@@ -302,10 +529,19 @@ export function AppointmentsScreen() {
           />
         </View>
       ) : (
-        upcoming.map((a) => (
+        upcoming.map((a) => {
+          const pending = a.status === 'pending';
+          const who = a.artist.displayName.split(' ')[0];
+          const moved =
+            !!a.requestedStartsAt &&
+            new Date(a.requestedStartsAt).getTime() !== new Date(a.startsAt).getTime();
+          return (
           <Card key={a.id} style={{ marginTop: space.md }}>
             <Between>
-              <Badge label={a.status === 'confirmed' ? 'Confirmed' : 'Awaiting artist'} tone={a.status === 'confirmed' ? 'ok' : 'warn'} />
+              <Badge
+                label={pending ? `Waiting on ${who}` : 'Confirmed'}
+                tone={pending ? 'warn' : 'ok'}
+              />
               <Muted>
                 {new Date(a.startsAt).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })} ·{' '}
                 {new Date(a.startsAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
@@ -321,6 +557,25 @@ export function AppointmentsScreen() {
               </View>
               {a.free && <Badge label="FREE CUT" tone="gold" />}
             </Row>
+            {/* Say plainly that the chair is not yet theirs, and why that is the
+                rule — it is what keeps the times honest for everyone. */}
+            <Muted style={{ marginTop: space.md }}>
+              {pending
+                ? `${who} confirms the time and how long your cut needs. The slot isn’t held until then.`
+                : `${a.durationMin} minutes in the chair.`}
+            </Muted>
+            {/* A time that isn't the one they asked for needs saying outright,
+                or it reads as their own mistake. */}
+            {!pending && moved && (
+              <Muted style={{ marginTop: 4, color: c.accentInk }}>
+                {who} moved this from{' '}
+                {new Date(a.requestedStartsAt!).toLocaleTimeString([], {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })}
+                .
+              </Muted>
+            )}
             {!!a.rewardCode && (
               <Card style={{ marginTop: space.md, borderColor: c.accent, backgroundColor: c.accentSoft, padding: space.md }}>
                 <Between>
@@ -332,9 +587,16 @@ export function AppointmentsScreen() {
                 </Muted>
               </Card>
             )}
-            <Button title="Cancel booking" variant="danger" compact onPress={() => cancel(a)} style={{ marginTop: space.md }} />
+            <Button
+              title={pending ? 'Withdraw request' : 'Cancel booking'}
+              variant="danger"
+              compact
+              onPress={() => cancel(a)}
+              style={{ marginTop: space.md }}
+            />
           </Card>
-        ))
+          );
+        })
       )}
 
       {past.length > 0 && (
@@ -352,9 +614,16 @@ export function AppointmentsScreen() {
                   <Muted style={{ marginTop: 2 }}>
                     {a.artist.displayName} · {new Date(a.startsAt).toLocaleDateString()}
                   </Muted>
+                  {/* A turned-down request is the one history row that owes an
+                      explanation, so give the artist's own words when there are any. */}
+                  {a.status === 'declined' && (
+                    <Muted style={{ marginTop: 2 }}>
+                      {a.declineReason || 'Your artist couldn’t take that time.'}
+                    </Muted>
+                  )}
                 </View>
                 <Badge
-                  label={a.status === 'completed' ? 'Done' : a.status === 'cancelled' ? 'Cancelled' : a.status}
+                  label={STATUS_LABELS[a.status] ?? a.status}
                   tone={a.status === 'completed' ? 'dim' : 'red'}
                 />
               </Row>
@@ -370,6 +639,7 @@ export function AppointmentsScreen() {
 
 export function NotificationsScreen() {
   const c = useColors();
+  const { isArtist } = useAuth();
   /* The provider already holds these and keeps them live — the screen just
      renders them, so the badge and the list can never disagree. */
   const { items, loading, unread, markAllRead } = useNotifications();
@@ -397,6 +667,9 @@ export function NotificationsScreen() {
         items.map((n) => (
           <Card
             key={n.id}
+            /* The inbox is where a banner that timed out gets caught, so the
+               row has to lead to the same place the banner would have. */
+            onPress={() => openNotification(n.data, isArtist)}
             style={{
               marginTop: space.md,
               borderColor: n.read ? c.line : c.accent,
@@ -404,7 +677,10 @@ export function NotificationsScreen() {
             }}
           >
             <Between>
-              <Body style={{ fontWeight: '800', flex: 1 }}>{n.title}</Body>
+              <Row style={{ flex: 1, gap: space.sm }}>
+                <Text style={{ fontSize: 16 }}>{KIND_GLYPH[n.kind] ?? KIND_GLYPH.message}</Text>
+                <Body style={{ fontWeight: '800', flex: 1 }}>{n.title}</Body>
+              </Row>
               {!n.read && <Badge label="NEW" tone="gold" />}
             </Between>
             <Muted style={{ marginTop: 6, lineHeight: 19 }}>{n.body}</Muted>

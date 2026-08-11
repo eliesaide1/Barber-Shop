@@ -15,6 +15,19 @@ const productSchema = new mongoose.Schema(
     },
     price: { type: Number, required: true, min: 0 },
     compareAtPrice: { type: Number, default: null, min: 0 },
+    /**
+     * Listed without a price — ask on WhatsApp instead.
+     *
+     * The price is still stored, because the shop needs to know it; it is simply
+     * never sent to a client. That distinction is the whole feature: a price
+     * merely hidden in the interface is one anybody can read off the response,
+     * and "hidden" would be a decoration rather than a fact.
+     *
+     * A product priced this way cannot be bought in the app either — checkout
+     * would have to name a figure, which is exactly what this is avoiding. It is
+     * an enquiry, and the shop closes it in conversation.
+     */
+    priceHidden: { type: Boolean, default: false },
     size: { type: String, default: '' },
     description: { type: String, default: '' },
     howToUse: { type: String, default: '' },

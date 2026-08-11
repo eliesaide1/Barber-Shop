@@ -6,10 +6,33 @@ import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist, maybeAuth } from '../middleware/auth.js';
 import { upload, withImageUrls } from '../lib/upload.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
+import { getSettings } from '../models/ShopSettings.js';
 
 export const productsRouter = Router();
 
 const CATEGORIES = ['Hair', 'Beard', 'Shave', 'Tools', 'Aftercare'];
+
+/**
+ * A product as a client is allowed to see it.
+ *
+ * When the price is hidden it is *removed*, not blanked — the number never
+ * leaves the server. Anything less makes "hidden" a property of the interface
+ * rather than of the data, and the first person to open the network tab finds
+ * out what the shop did not want to publish.
+ *
+ * Staff see everything: the CMS has to show the price in order to edit it.
+ */
+export function forViewer(product, { isStaff = false, hideAll = false } = {}) {
+  const json = withImageUrls(product);
+  const hidden = hideAll || json.priceHidden;
+  json.priceHidden = Boolean(hidden);
+
+  if (hidden && !isStaff) {
+    delete json.price;
+    delete json.compareAtPrice;
+  }
+  return json;
+}
 
 const productBody = z.object({
   name: z.string().min(2, 'Give the product a name'),
@@ -25,6 +48,11 @@ const productBody = z.object({
   tag: z.string().optional(),
   owner: z.string().nullable().optional(),
   featured: z.coerce.boolean().optional(),
+  /* Multipart sends booleans as "true"/"false" strings. */
+  priceHidden: z
+    .union([z.boolean(), z.enum(['true', 'false'])])
+    .transform((v) => v === true || v === 'true')
+    .optional(),
 });
 
 /* ---------------- public catalogue ---------------- */
@@ -48,7 +76,9 @@ productsRouter.get(
       .sort({ featured: -1, createdAt: -1 })
       .limit(Math.min(Number(limit) || 60, 200));
 
-    res.json(products.map(withImageUrls));
+    const { marketplace } = await getSettings();
+    const isStaff = req.user && ['artist', 'admin'].includes(req.user.role);
+    res.json(products.map((p) => forViewer(p, { isStaff, hideAll: marketplace.hideAllPrices })));
   }),
 );
 
@@ -66,7 +96,8 @@ productsRouter.get(
     if (product.status !== 'published' && !isStaff) {
       throw new ApiError(404, 'That product is no longer listed');
     }
-    res.json(withImageUrls(product));
+    const { marketplace } = await getSettings();
+    res.json(forViewer(product, { isStaff, hideAll: marketplace.hideAllPrices }));
   }),
 );
 
@@ -86,7 +117,8 @@ productsRouter.get(
       .populate('owner', 'displayName')
       .sort({ updatedAt: -1 });
 
-    res.json(products.map(withImageUrls));
+    const { marketplace } = await getSettings();
+    res.json(products.map((p) => forViewer(p, { isStaff: true, hideAll: marketplace.hideAllPrices })));
   }),
 );
 

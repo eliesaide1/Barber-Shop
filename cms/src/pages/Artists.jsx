@@ -9,7 +9,7 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const EMPTY = {
   displayName: '', email: '', password: '', phone: '', specialty: '', chair: '',
-  bio: '', priceFrom: '20', daysOff: [], workingHours: { start: '10:00', end: '20:00' },
+  bio: '', priceFrom: '20', gapMin: 5, whatsapp: '', daysOff: [], workingHours: { start: '10:00', end: '20:00' },
 };
 
 export default function Artists() {
@@ -114,6 +114,8 @@ function ArtistEditor({ artist, onClose, onSaved }) {
     ...EMPTY,
     ...artist,
     priceFrom: String(artist.priceFrom ?? 20),
+    gapMin: artist.gapMin ?? 5,
+    whatsapp: artist.whatsapp ?? '',
     workingHours: artist.workingHours || EMPTY.workingHours,
     daysOff: artist.daysOff || [],
     email: artist.user?.email || '',
@@ -141,6 +143,8 @@ function ArtistEditor({ artist, onClose, onSaved }) {
         bio: form.bio,
         chair: form.chair,
         priceFrom: Number(form.priceFrom) || 0,
+        gapMin: Number(form.gapMin) || 0,
+        whatsapp: form.whatsapp,
         daysOff: form.daysOff,
         workingHours: form.workingHours,
       };
@@ -197,6 +201,34 @@ function ArtistEditor({ artist, onClose, onSaved }) {
           <div className="field grow">
             <label>From ($)</label>
             <input className="input" inputMode="numeric" value={form.priceFrom} onChange={set('priceFrom')} />
+          </div>
+          <div className="field grow">
+            <label>Gap between clients</label>
+            <select className="input" value={form.gapMin} onChange={set('gapMin')}>
+              {[0, 5, 10, 15, 20, 30].map((m) => (
+                <option key={m} value={m}>{m === 0 ? 'None' : `${m} min`}</option>
+              ))}
+            </select>
+            {/* Artists change this from their own phone; it is here so an admin
+                setting up a new chair does not have to leave it at the default. */}
+            <div className="hint">Turnaround before the next booking can start.</div>
+          </div>
+        </div>
+
+        <div className="field">
+          <label>WhatsApp number</label>
+          <input
+            className={`input ${fields.whatsapp ? 'err' : ''}`}
+            placeholder="Leave empty to use the shop’s number"
+            value={form.whatsapp}
+            onChange={set('whatsapp')}
+          />
+          {fields.whatsapp && <div className="err-msg">{fields.whatsapp}</div>}
+          {/* Published to every client in the app, so it takes typing rather
+              than being inferred from their login phone. */}
+          <div className="hint">
+            Shown on the client app’s message button. Clients with a booking on this chair reach
+            this number; everyone else reaches the shop.
           </div>
         </div>
 

@@ -18,6 +18,7 @@ import {
   Title,
 } from '../components/ui';
 import { useApi, useSocketEvent } from '../hooks/useApi';
+import { isRewardLive, rewardTitle } from '../lib/rewards';
 import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { space } from '../theme';
@@ -48,9 +49,27 @@ export function LoyaltyScreen() {
   if (loading && !card) return <Loading />;
   if (!card) return null;
 
-  const live = card.rewards.filter((r) => r.status !== 'redeemed');
+  /* A reward that has lapsed is not one you can use, and showing it as
+     available hands somebody a claim code the chair will refuse — the worst
+     possible place to find out. Split rather than hidden: a gift that ran out
+     should be visible as a thing that happened. */
+  const now = Date.now();
+  const live = card.rewards.filter((r) => isRewardLive(r, now));
   const used = card.rewards.filter((r) => r.status === 'redeemed');
+  const lapsed = card.rewards.filter(
+    (r) => r.status !== 'redeemed' && r.expiresAt && new Date(r.expiresAt).getTime() <= now,
+  );
   const left = card.goal - card.stamps;
+
+  /* Soonest to expire first: the one with a deadline is the one to act on. */
+  const ordered = [...live].sort(
+    (a, b) =>
+      (a.expiresAt ? new Date(a.expiresAt).getTime() : Infinity) -
+      (b.expiresAt ? new Date(b.expiresAt).getTime() : Infinity),
+  );
+
+  const daysLeft = (iso: string) =>
+    Math.max(0, Math.ceil((new Date(iso).getTime() - now) / 86_400_000));
 
   return (
     <Screen>
@@ -80,35 +99,84 @@ export function LoyaltyScreen() {
       {live.length > 0 && (
         <>
           <Heading style={{ marginTop: space.xl }}>Ready to use</Heading>
-          {live.map((r) => (
-            <Card key={r.code} style={{ marginTop: space.sm, borderColor: c.accent, backgroundColor: c.accentSoft }}>
+          {ordered.map((r) => {
+            /* A gift is not always a free cut, and saying "free haircut" over a
+               beard trim or a discount would be the card telling a lie the
+               client only discovers at the chair. */
+            const isGift = r.kind === 'birthday';
+            const title = rewardTitle(r);
+            const worth = r.value ?? card.freeCutValue;
+            const days = r.expiresAt ? daysLeft(r.expiresAt) : null;
+
+            return (
+              <Card key={r.code} style={{ marginTop: space.sm, borderColor: c.accent, backgroundColor: c.accentSoft }}>
+                <Between>
+                  <View style={{ flex: 1, paddingRight: space.md }}>
+                    <Body style={{ fontWeight: '800' }}>🎁 {title}</Body>
+                    <Muted style={{ marginTop: 4 }}>
+                      {isGift ? 'A gift from the shop' : `Earned ${ago(r.earnedAt)}`}
+                      {worth ? ` · worth $${worth}` : ''}
+                    </Muted>
+                  </View>
+                  <Badge label={r.status === 'reserved' ? 'ON A BOOKING' : 'AVAILABLE'} tone="gold" />
+                </Between>
+
+                {/* The deadline gets its own line rather than a footnote. A gift
+                    that quietly runs out is worse than one never given. */}
+                {days !== null && (
+                  <Body
+                    style={{
+                      marginTop: space.sm,
+                      fontWeight: '700',
+                      color: days <= 7 ? c.danger : c.accentInk,
+                    }}
+                  >
+                    {days === 0
+                      ? 'Use it today — it expires tonight'
+                      : `Use it within ${days} day${days === 1 ? '' : 's'}`}
+                  </Body>
+                )}
+
+                <Divider />
+                <Between>
+                  <Muted>Claim code</Muted>
+                  <Text style={{ color: c.text, fontWeight: '800', fontSize: 22, letterSpacing: 4 }}>{r.code}</Text>
+                </Between>
+                <Button
+                  title={showing?.code === r.code ? 'Hide code' : 'Show to my artist'}
+                  onPress={() => setShowing(showing?.code === r.code ? null : r)}
+                  style={{ marginTop: space.lg }}
+                />
+                {showing?.code === r.code && (
+                  <View style={{ alignItems: 'center', marginTop: space.lg }}>
+                    <QRCode value={`FR1|R|${r.code}`} size={190} />
+                    <Muted style={{ marginTop: space.md, textAlign: 'center' }}>
+                      {days !== null
+                        ? 'Your artist redeems it at the chair — you can’t mark it used yourself.'
+                        : 'It stays valid until your artist redeems it — you can’t mark it used yourself.'}
+                    </Muted>
+                  </View>
+                )}
+              </Card>
+            );
+          })}
+        </>
+      )}
+
+      {lapsed.length > 0 && (
+        <>
+          <Heading style={{ marginTop: space.xl }}>Ran out</Heading>
+          {lapsed.map((r) => (
+            <Card key={r.code} style={{ marginTop: space.sm, opacity: 0.6 }}>
               <Between>
-                <View>
-                  <Body style={{ fontWeight: '800' }}>🎁 Free haircut</Body>
-                  <Muted style={{ marginTop: 4 }}>
-                    Earned {ago(r.earnedAt)} · worth ${card.freeCutValue}
+                <View style={{ flex: 1, paddingRight: space.md }}>
+                  <Body style={{ fontWeight: '700' }}>{rewardTitle(r)}</Body>
+                  <Muted style={{ marginTop: 3 }}>
+                    Expired {ago(r.expiresAt as string)}
                   </Muted>
                 </View>
-                <Badge label={r.status === 'reserved' ? 'ON A BOOKING' : 'AVAILABLE'} tone="gold" />
+                <Badge label="EXPIRED" tone="dim" />
               </Between>
-              <Divider />
-              <Between>
-                <Muted>Claim code</Muted>
-                <Text style={{ color: c.text, fontWeight: '800', fontSize: 22, letterSpacing: 4 }}>{r.code}</Text>
-              </Between>
-              <Button
-                title={showing?.code === r.code ? 'Hide code' : 'Show to my artist'}
-                onPress={() => setShowing(showing?.code === r.code ? null : r)}
-                style={{ marginTop: space.lg }}
-              />
-              {showing?.code === r.code && (
-                <View style={{ alignItems: 'center', marginTop: space.lg }}>
-                  <QRCode value={`FR1|R|${r.code}`} size={190} />
-                  <Muted style={{ marginTop: space.md, textAlign: 'center' }}>
-                    It stays valid until your artist redeems it — you can’t mark it used yourself.
-                  </Muted>
-                </View>
-              )}
             </Card>
           ))}
         </>
@@ -133,11 +201,24 @@ export function LoyaltyScreen() {
       <Heading style={{ marginTop: space.xl }}>Card history</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Between><Muted>Lifetime check-ins</Muted><Body style={{ fontWeight: '700' }}>{card.totalCheckIns}</Body></Between>
+        {/* Earned and given are different things, and lumping them together
+            makes the card overstate what the stamps actually bought. */}
         <Between style={{ marginTop: space.md }}>
-          <Muted>Free cuts earned</Muted><Body style={{ fontWeight: '700' }}>{card.rewards.length}</Body>
+          <Muted>Free cuts earned</Muted>
+          <Body style={{ fontWeight: '700' }}>
+            {card.rewards.filter((r) => r.kind !== 'birthday').length}
+          </Body>
         </Between>
+        {card.rewards.some((r) => r.kind === 'birthday') && (
+          <Between style={{ marginTop: space.md }}>
+            <Muted>Gifts from the shop</Muted>
+            <Body style={{ fontWeight: '700' }}>
+              {card.rewards.filter((r) => r.kind === 'birthday').length}
+            </Body>
+          </Between>
+        )}
         <Between style={{ marginTop: space.md }}>
-          <Muted>Free cuts used</Muted><Body style={{ fontWeight: '700' }}>{used.length}</Body>
+          <Muted>Redeemed</Muted><Body style={{ fontWeight: '700' }}>{used.length}</Body>
         </Between>
       </Card>
 

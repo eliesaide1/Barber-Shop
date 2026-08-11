@@ -74,7 +74,9 @@ export function ProductCard({
                 </Text>
               </View>
             )}
-            {onAdd && (
+            {/* No price, no cart button — the whole point is that this one is
+                settled in conversation. */}
+            {onAdd && !product.priceHidden && (
               <Pressable
                 onPress={onAdd}
                 hitSlop={8}
@@ -111,11 +113,21 @@ export function ProductCard({
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-            <Text style={{ color: c.text, fontWeight: '800', fontSize: 15 }}>${product.price}</Text>
-            {!!product.compareAtPrice && (
-              <Text style={{ color: c.muted, fontSize: 12, textDecorationLine: 'line-through' }}>
-                ${product.compareAtPrice}
+            {product.priceHidden ? (
+              /* Says what to do rather than leaving a gap where a number was.
+                 A blank price reads as a bug; "ask" reads as an invitation. */
+              <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 12.5 }}>
+                Ask for price
               </Text>
+            ) : (
+              <>
+                <Text style={{ color: c.text, fontWeight: '800', fontSize: 15 }}>${product.price}</Text>
+                {!!product.compareAtPrice && (
+                  <Text style={{ color: c.muted, fontSize: 12, textDecorationLine: 'line-through' }}>
+                    ${product.compareAtPrice}
+                  </Text>
+                )}
+              </>
             )}
           </View>
           <Text style={{ color: c.accentInk, fontSize: 11, fontWeight: '700' }}>★ {product.rating}</Text>

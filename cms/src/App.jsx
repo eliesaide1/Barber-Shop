@@ -10,6 +10,7 @@ import Notifications from './pages/Notifications.jsx';
 import CheckIns from './pages/CheckIns.jsx';
 import Schedule from './pages/Schedule.jsx';
 import Styles from './pages/Styles.jsx';
+import Settings from './pages/Settings.jsx';
 
 export default function App() {
   const { user, loading, isAdmin } = useAuth();
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/notifications" element={<Notifications />} />
         {/* Artist management is an admin-only surface. */}
         <Route path="/artists" element={isAdmin ? <Artists /> : <Navigate to="/" replace />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

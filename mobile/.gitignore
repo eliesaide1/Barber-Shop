@@ -78,3 +78,12 @@ yarn-error.log
 android/keystore.properties
 android/app/*.keystore
 !android/app/debug.keystore
+
+# Locally staged Maven artifacts — 160 MB+ binaries, never in git.
+android/local-maven/
+
+# Firebase credentials. Not secret in the way a keystore is — the Android one
+# ships inside every APK — but they tie a clone to one Firebase project, and the
+# build is written to work without them.
+android/app/google-services.json
+ios/GoogleService-Info.plist

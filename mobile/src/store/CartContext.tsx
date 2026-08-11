@@ -42,6 +42,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   /* Stock is checked again by the server at checkout — this is only so the
      UI can't offer a quantity the shelf plainly doesn't have. */
   const add = useCallback((product: Product, qty = 1) => {
+    /* A product listed on request has no price to total, and the server refuses
+       to sell it anyway. Catching it here means the answer is immediate rather
+       than at checkout, after they have filled a basket. */
+    if (product.priceHidden) {
+      return { ok: false, message: `${product.name} is priced on request — ask about it first` };
+    }
     if (product.stock <= 0) return { ok: false, message: 'That one is sold out' };
 
     let message = `${product.name} added`;
@@ -76,7 +82,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((t, l) => t + l.qty, 0);
-    const subtotal = lines.reduce((t, l) => t + l.product.price * l.qty, 0);
+    /* `?? 0` rather than a bare multiply: a cart saved before the shop hid a
+       price would otherwise total to NaN and render as "$NaN" across the app. */
+    const subtotal = lines.reduce((t, l) => t + (l.product.price ?? 0) * l.qty, 0);
     return {
       lines,
       count,

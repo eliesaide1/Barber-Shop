@@ -6,6 +6,7 @@ import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { emitTo, rooms } from '../lib/realtime.js';
+import { toWhatsAppNumber } from '../lib/whatsapp.js';
 
 export const artistsRouter = Router();
 
@@ -14,7 +15,19 @@ const artistBody = z.object({
   specialty: z.string().optional(),
   bio: z.string().optional(),
   chair: z.string().optional(),
+  /* Empty is meaningful — it hands contact back to the shop's own number. */
+  whatsapp: z
+    .string()
+    .max(30)
+    .refine(
+      (v) => v.trim() === '' || toWhatsAppNumber(v) !== null,
+      'That does not look like a number WhatsApp can reach',
+    )
+    .optional(),
   priceFrom: z.coerce.number().min(0).optional(),
+  /* Turnaround between clients. Zero is allowed — some artists genuinely do
+     run back-to-back — but an hour is the sane ceiling. */
+  gapMin: z.coerce.number().int().min(0, 'Cannot be negative').max(60, 'An hour is the most').optional(),
   daysOff: z.array(z.coerce.number().int().min(0).max(6)).optional(),
   workingHours: z
     .object({

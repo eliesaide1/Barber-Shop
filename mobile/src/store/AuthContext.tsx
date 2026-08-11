@@ -1,12 +1,30 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api, auth, onForcedSignOut } from '../api/client';
 import { connectSocket, disconnectSocket } from '../api/socket';
+import {
+  SignInCancelled,
+  configureGoogle,
+  providerAvailable,
+  signInWithProvider,
+  type Provider,
+} from '../api/social';
 import type { Artist, ShopConfig, User } from '../types';
 
 interface Session {
   user: User;
   /** Present only when the signed-in user is an artist. */
   artist: Artist | null;
+  /**
+   * Whether the shop has everything it asks a client for. False after a first
+   * Google or Apple sign-in — neither provider knows a birthday or a mobile
+   * number, and the app has to collect them before anything can be booked.
+   */
+  profileComplete: boolean;
+}
+
+interface ProviderStatus {
+  google: { enabled: boolean; webClientId: string };
+  apple: { enabled: boolean };
 }
 
 interface AuthContextValue {
@@ -17,7 +35,18 @@ interface AuthContextValue {
   config: ShopConfig | null;
   booting: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  register: (input: { name: string; email: string; password: string; phone: string }) => Promise<void>;
+  register: (input: {
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+    dateOfBirth: string;
+    visitFrequencyWeeks: number;
+  }) => Promise<void>;
+  signInWith: (provider: Provider) => Promise<void>;
+  /** Which provider buttons to draw — both this build and this shop have to offer one. */
+  providers: { google: boolean; apple: boolean };
+  profileComplete: boolean;
   signOut: () => Promise<void>;
   updateUser: (patch: Partial<User>) => void;
   refreshUser: () => Promise<void>;
@@ -30,6 +59,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [artist, setArtist] = useState<Artist | null>(null);
   const [config, setConfig] = useState<ShopConfig | null>(null);
   const [booting, setBooting] = useState(true);
+  const [profileComplete, setProfileComplete] = useState(true);
+  const [providers, setProviders] = useState({ google: false, apple: false });
+
+  /* A session lands the same way whichever door it came through. */
+  const adopt = useCallback((session: Session) => {
+    setUser(session.user);
+    setArtist(session.artist ?? null);
+    setProfileComplete(session.profileComplete ?? true);
+    connectSocket();
+  }, []);
 
   const signOut = useCallback(async () => {
     await auth.clear();
@@ -55,13 +94,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
          app never hardcodes a number the shop might change. */
       api.get<ShopConfig>('/config').then(setConfig).catch(() => {});
 
+      /* Which providers this shop offers, and the Google client id to configure
+         with — asked for rather than compiled in, so one build serves shops that
+         have set it up and shops that have not. */
+      api
+        .get<ProviderStatus>('/auth/providers')
+        .then((status) => {
+          configureGoogle(status.google.enabled ? status.google.webClientId : null);
+          setProviders({
+            google: status.google.enabled && providerAvailable('google'),
+            apple: status.apple.enabled && providerAvailable('apple'),
+          });
+        })
+        .catch(() => {
+          /* Without this the password form still works, which is the point. */
+        });
+
       const { accessToken } = await auth.load();
       if (accessToken) {
         try {
-          const session = await api.get<Session>('/auth/me');
-          setUser(session.user);
-          setArtist(session.artist ?? null);
-          connectSocket();
+          adopt(await api.get<Session>('/auth/me'));
         } catch {
           await auth.clear();
         }
@@ -76,29 +128,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       { email, password },
     );
     await auth.set(data);
-    setUser(data.user);
-    setArtist(data.artist ?? null);
-    connectSocket();
-  }, []);
+    adopt(data);
+  }, [adopt]);
 
   const register = useCallback(
-    async (input: { name: string; email: string; password: string; phone: string }) => {
+    async (input: {
+      name: string;
+      email: string;
+      password: string;
+      phone: string;
+      dateOfBirth: string;
+      visitFrequencyWeeks: number;
+    }) => {
       const data = await api.post<Session & { accessToken: string; refreshToken: string }>(
         '/auth/register',
         input,
       );
       await auth.set(data);
-      setUser(data.user);
-      setArtist(data.artist ?? null);
-      connectSocket();
+      adopt(data);
     },
-    [],
+    [adopt],
+  );
+
+  /**
+   * Sign in with Google or Apple.
+   *
+   * The provider hands back an identity token and nothing more; the server is
+   * what decides whose account that is. Backing out of the sheet is not an
+   * error — the person knows they did it — so it resolves quietly rather than
+   * putting a dialog in front of somebody who just changed their mind.
+   */
+  const signInWith = useCallback(
+    async (provider: Provider) => {
+      let result;
+      try {
+        result = await signInWithProvider(provider);
+      } catch (err) {
+        if (err instanceof SignInCancelled) return;
+        throw err;
+      }
+      const data = await api.post<Session & { accessToken: string; refreshToken: string }>(
+        '/auth/social',
+        { provider, idToken: result.idToken, ...(result.name ? { name: result.name } : {}) },
+      );
+      await auth.set(data);
+      adopt(data);
+    },
+    [adopt],
   );
 
   const refreshUser = useCallback(async () => {
     const session = await api.get<Session>('/auth/me');
     setUser(session.user);
     setArtist(session.artist ?? null);
+    setProfileComplete(session.profileComplete ?? true);
   }, []);
 
   const value = useMemo(
@@ -110,12 +193,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       booting,
       signIn,
       register,
+      signInWith,
+      providers,
+      profileComplete,
       signOut,
       updateUser: (patch: Partial<User>) =>
         setUser((u) => (u ? { ...u, ...patch } : u)),
       refreshUser,
     }),
-    [user, artist, config, booting, signIn, register, signOut, refreshUser],
+    [user, artist, config, booting, providers, profileComplete, signIn, register, signInWith, signOut, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

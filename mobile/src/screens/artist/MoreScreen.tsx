@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Avatar,
@@ -25,17 +25,45 @@ import { useTheme, useColors } from '../../store/ThemeContext';
 import { useDialog } from '../../store/DialogContext';
 import { useToast } from '../../store/ToastContext';
 import { api, ApiError } from '../../api/client';
-import { space } from '../../theme';
+import { radius, space } from '../../theme';
 import type { Product } from '../../types';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+/* Turnaround options, in minutes. Zero is on the list because some artists
+   genuinely do run back-to-back and the setting should not argue with them. */
+const GAPS = [0, 5, 10, 15, 20, 30];
+
 export function ArtistMoreScreen() {
   const c = useColors();
   const nav = useNavigation<any>();
-  const { user, artist, config, signOut } = useAuth();
+  const { user, artist, config, signOut, refreshUser } = useAuth();
   const { preference, setPreference, name: themeName } = useTheme();
-  const { confirm } = useDialog();
+  const { confirm, showError } = useDialog();
+  const { toast } = useToast();
+  const [savingGap, setSavingGap] = useState(false);
+
+  /**
+   * Turnaround is the one scheduling setting that belongs on the phone rather
+   * than at the desk: it is the thing you change *because* of how this morning
+   * actually went, standing at the chair, not something you plan a week out.
+   */
+  const setGap = async (minutes: number) => {
+    if (!artist || minutes === artist.gapMin) return;
+    setSavingGap(true);
+    try {
+      await api.patch(`/artists/${artist.id}`, { gapMin: minutes });
+      await refreshUser();
+      toast(minutes ? `${minutes} min between clients ✓` : 'Back-to-back bookings ✓');
+    } catch (err) {
+      showError(err instanceof ApiError ? err.message : 'Could not save that', {
+        title: 'Couldn’t change your turnaround',
+        icon: '🗓️',
+      });
+    } finally {
+      setSavingGap(false);
+    }
+  };
 
   const { data: shelf } = useApi<Product[]>('/products/manage/list');
   const published = (shelf ?? []).filter((p) => p.status === 'published');
@@ -93,6 +121,52 @@ export function ArtistMoreScreen() {
           </Row>
           <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>
             Hours, rates and days off are set in the back office.
+          </Muted>
+        </Card>
+      )}
+
+      {!!artist && (
+        <Card style={{ marginTop: space.md }}>
+          <Body style={{ fontWeight: '700' }}>Time between clients</Body>
+          <Muted style={{ marginTop: 4 }}>
+            Your turnaround — sweeping up, cleaning the guards, taking payment. A 15-minute cut at
+            10:00 with {artist.gapMin || 0} min frees the chair at{' '}
+            {`10:${String(15 + (artist.gapMin || 0)).padStart(2, '0')}`}, so the next booking starts
+            there.
+          </Muted>
+
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.md }}>
+            {[...new Set([...GAPS, artist.gapMin])]
+              .sort((a, b) => a - b)
+              .map((m) => {
+                const on = m === artist.gapMin;
+                return (
+                  <Pressable
+                    key={m}
+                    onPress={() => setGap(m)}
+                    disabled={savingGap}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on, disabled: savingGap }}
+                    style={{
+                      paddingVertical: 9,
+                      paddingHorizontal: 14,
+                      borderRadius: radius.pill,
+                      borderWidth: 1,
+                      opacity: savingGap ? 0.5 : 1,
+                      borderColor: on ? c.accent : c.line,
+                      backgroundColor: on ? c.accent : c.surface2,
+                    }}
+                  >
+                    <Text style={{ fontWeight: '700', fontSize: 12.5, color: on ? c.onAccent : c.text }}>
+                      {m === 0 ? 'None' : `${m} min`}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+          </View>
+
+          <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>
+            Applies to times offered from now on. Bookings already in the diary stay where they are.
           </Muted>
         </Card>
       )}

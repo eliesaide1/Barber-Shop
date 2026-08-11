@@ -5,35 +5,23 @@ import type { AppNotification } from '../types';
 /**
  * Push transport seam.
  *
- * Today every message arrives over Socket.IO, which only works while the app is
- * open. Firebase Cloud Messaging is what will wake a closed app, and this file
- * is the single place that has to change when it goes in — nothing else in the
- * app knows which transport a message came from.
+ * Messages reach an open app over Socket.IO. Firebase Cloud Messaging wakes a
+ * closed one, and this file is the only place that knows there are two
+ * transports at all — everything downstream is handed an `AppNotification` and
+ * never learns which way it arrived.
  *
- * The server side is already built: `POST /api/auth/devices` stores a token per
- * user, and `resolveTargets()` in the notifications route already works out who
- * a message is for. What is missing is only the credentials and the sending
- * half.
+ * The Firebase implementation lives in `pushFirebase.ts` and is installed in
+ * `index.js` when the native packages and credentials are present. Until then
+ * the no-op adapter below stays in place and the app is unchanged: fully
+ * functional, socket-delivered, nothing broken by the absence.
  *
- * ── Wiring FCM in ────────────────────────────────────────────────────────────
+ * ── The invariant that makes two transports safe ─────────────────────────────
  *
- * 1. `npm i @react-native-firebase/app @react-native-firebase/messaging`, drop
- *    `google-services.json` into `android/app/`, and add the Google Services
- *    Gradle plugin.
- *
- * 2. Fill in the three functions below. They are deliberately the whole
- *    surface:
- *
- *      requestPushPermission()  → messaging().requestPermission()
- *      getDeviceToken()         → messaging().getToken()
- *      subscribeToPushMessages()→ messaging().onMessage(...) for foreground,
- *                                 setBackgroundMessageHandler(...) for the rest
- *
- * 3. On the server, send to `user.devices[].token` inside the same loop that
- *    already emits `notification:new`, so a client who is offline gets the push
- *    and a client who is watching gets the socket event. De-duplication is
- *    already handled: `deliver()` in NotificationsContext drops a message whose
- *    id it has seen.
+ * Both carry the id of the same `Notification` document, and `deliver()` in
+ * NotificationsContext drops a message whose id it has already seen. So a client
+ * with the app open receives both and shows one. Anything that sends a push
+ * built separately from the stored record breaks that silently, and only for
+ * users who happen to be online.
  */
 
 export interface PushAdapter {
@@ -41,6 +29,13 @@ export interface PushAdapter {
   getToken: () => Promise<string | null>;
   /** Returns an unsubscribe function. */
   onMessage: (handler: (notification: AppNotification) => void) => () => void;
+  /**
+   * FCM rotates tokens — on restore to a new device, after a long silence, when
+   * app data is cleared. A rotated token that is never re-registered means the
+   * server keeps pushing into a dead address and nothing appears to be wrong
+   * from either end. Optional so an adapter without the concept can omit it.
+   */
+  onTokenRefresh?: (handler: (token: string) => void) => () => void;
 }
 
 /**
@@ -68,13 +63,7 @@ export const pushAvailable = () => adapter !== noopAdapter;
  * it. Safe to call on every sign-in — the server keeps the five most recent
  * tokens per user and de-duplicates by token.
  */
-export async function registerDevice(): Promise<boolean> {
-  const granted = await adapter.requestPermission();
-  if (!granted) return false;
-
-  const token = await adapter.getToken();
-  if (!token) return false;
-
+const sendToken = async (token: string) => {
   try {
     await api.post('/auth/devices', {
       token,
@@ -83,9 +72,27 @@ export async function registerDevice(): Promise<boolean> {
     return true;
   } catch {
     /* A failed registration costs the user nothing right now — they still get
-       everything over the socket while the app is open. */
+       everything over the socket while the app is open, and the next launch
+       tries again. */
     return false;
   }
+};
+
+export async function registerDevice(): Promise<boolean> {
+  const granted = await adapter.requestPermission();
+  if (!granted) return false;
+
+  const token = await adapter.getToken();
+  if (!token) return false;
+
+  return sendToken(token);
+}
+
+/** Keeps the server's copy current when FCM rotates the token mid-session. */
+export function watchTokenRefresh() {
+  return adapter.onTokenRefresh?.((token) => {
+    sendToken(token);
+  });
 }
 
 export function subscribeToPushMessages(handler: (notification: AppNotification) => void) {

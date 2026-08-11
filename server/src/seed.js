@@ -29,6 +29,8 @@ const ARTISTS = [
     rating: 4.9,
     reviewsCount: 214,
     priceFrom: 25,
+    gapMin: 5,
+    whatsapp: '+961 70 111 000',
     daysOff: [0],
     bio: 'Twelve years on the clippers. Known for a fade you cannot find the line on.',
   },
@@ -40,6 +42,8 @@ const ARTISTS = [
     rating: 4.8,
     reviewsCount: 168,
     priceFrom: 22,
+    gapMin: 10,
+    whatsapp: '+961 71 222 000',
     daysOff: [0, 1],
     bio: 'Scissor-over-comb specialist. Ask him about growing a cut out properly.',
   },
@@ -51,6 +55,8 @@ const ARTISTS = [
     rating: 4.7,
     reviewsCount: 96,
     priceFrom: 20,
+    gapMin: 0,
+    whatsapp: '',
     daysOff: [2],
     bio: 'Freehand designs and curly work.',
   },
@@ -62,6 +68,8 @@ const ARTISTS = [
     rating: 5.0,
     reviewsCount: 73,
     priceFrom: 18,
+    gapMin: 15,
+    whatsapp: '+961 3 444 000',
     daysOff: [0],
     bio: 'Straight razor, hot towel, and a beard trim that grows out clean.',
   },
@@ -127,11 +135,13 @@ const STYLES = [
   { title: 'Hard Part Design', category: 'Design', durationMin: 55, price: 30, artist: 2 },
 ];
 
+/* `visitFrequencyWeeks` against a `lastCheckInAt` is what marks a client
+   overdue in the artist's book — Hadi is deliberately well past his. */
 const CLIENTS = [
-  { name: 'Elie Saide', email: 'elie@faderoom.app', phone: '+961 70 123 456', stamps: 3, totalCheckIns: 13 },
-  { name: 'Marc Aoun', email: 'marc@faderoom.app', phone: '+961 71 200 100', stamps: 1, totalCheckIns: 6 },
-  { name: 'Hadi Zgheib', email: 'hadi@faderoom.app', phone: '+961 76 331 220', stamps: 4, totalCheckIns: 22 },
-  { name: 'Nour Rahme', email: 'nour@faderoom.app', phone: '+961 3 887 445', stamps: 0, totalCheckIns: 0 },
+  { name: 'Elie Saide', email: 'elie@faderoom.app', phone: '+961 70 123 456', dateOfBirth: '1994-03-21', visitFrequencyWeeks: 3, stamps: 3, totalCheckIns: 13 },
+  { name: 'Marc Aoun', email: 'marc@faderoom.app', phone: '+961 71 200 100', dateOfBirth: '1988-11-02', visitFrequencyWeeks: 4, stamps: 1, totalCheckIns: 6 },
+  { name: 'Hadi Zgheib', email: 'hadi@faderoom.app', phone: '+961 76 331 220', dateOfBirth: '2001-06-14', visitFrequencyWeeks: 2, stamps: 4, totalCheckIns: 22 },
+  { name: 'Nour Rahme', email: 'nour@faderoom.app', phone: '+961 3 887 445', dateOfBirth: '1979-01-30', visitFrequencyWeeks: 6, stamps: 0, totalCheckIns: 0 },
 ];
 
 async function makeUser({ name, email, phone, role }) {
@@ -185,6 +195,11 @@ async function seed() {
         rating: a.rating,
         reviewsCount: a.reviewsCount,
         priceFrom: a.priceFrom,
+        /* Left to each artist, so a fresh shop shows the setting doing something
+           rather than every chair running on the same rhythm. */
+        gapMin: a.gapMin,
+        /* Jad leaves his empty, so the fallback to the shop number is visible. */
+        whatsapp: a.whatsapp,
         daysOff: a.daysOff,
       }),
     );
@@ -212,6 +227,8 @@ async function seed() {
   const clients = [];
   for (const c of CLIENTS) {
     const user = await makeUser({ name: c.name, email: c.email, phone: c.phone, role: 'client' });
+    user.dateOfBirth = c.dateOfBirth;
+    user.visitFrequencyWeeks = c.visitFrequencyWeeks;
     user.preferences = {
       clipperGuard: '#2 sides, scissor top',
       beard: 'Line up, keep length',
@@ -260,6 +277,27 @@ async function seed() {
     price: shave.price,
     status: 'confirmed',
   });
+
+  /* Two clients asking Karim for the same time, so a fresh clone opens on the
+     decision the whole booking flow is built around: neither holds the chair,
+     and accepting one closes the other out. */
+  const contested = upcoming(17, 0, artists[0].daysOff);
+  for (const [index, notes] of [
+    [1, 'Hair and beard, please — going out straight after'],
+    [3, 'Just a tidy-up on the sides'],
+  ]) {
+    await Appointment.create({
+      user: clients[index]._id,
+      artist: artists[0]._id,
+      service: haircut._id,
+      serviceName: haircut.name,
+      startsAt: contested,
+      durationMin: haircut.durationMin,
+      price: haircut.price,
+      status: 'pending',
+      notes,
+    });
+  }
 
   console.log('Welcome message…');
   await Notification.create({

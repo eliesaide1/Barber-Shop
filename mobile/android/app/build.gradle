@@ -2,6 +2,19 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+// Push notifications, on the same terms as the release keystore below: the
+// credentials file is gitignored, so it is absent on a fresh clone.
+//
+// The Google Services plugin fails the build outright when google-services.json
+// is missing -- not with a warning, with "File google-services.json is missing".
+// Applying it unconditionally would mean nobody could build the app until they
+// had set up a Firebase project of their own, to get a transport the app works
+// perfectly well without. So it is conditional: drop the file in and rebuild,
+// and push starts working with no edit here.
+if (file('google-services.json').exists()) {
+    apply plugin: "com.google.gms.google-services"
+}
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.

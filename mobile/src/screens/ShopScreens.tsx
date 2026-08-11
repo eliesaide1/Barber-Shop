@@ -29,6 +29,7 @@ import { useDialog } from '../store/DialogContext';
 import { useColors } from '../store/ThemeContext';
 import { api, ApiError } from '../api/client';
 import { absoluteUrl } from '../config';
+import { contactForProduct, openWhatsApp, priceEnquiry } from '../lib/whatsapp';
 import { radius, space } from '../theme';
 import type { Fulfilment, Order, Product } from '../types';
 
@@ -188,10 +189,24 @@ export function ProductScreen() {
   const [qty, setQty] = useState(1);
 
   const { data: product, loading } = useApi<Product>(`/products/${params.id}`);
-  const { user } = useAuth();
+  const { user, config } = useAuth();
 
   if (loading && !product) return <Loading />;
   if (!product) return <Screen><Empty icon="📦" title="That product is no longer listed" /></Screen>;
+
+  /* Whose shelf it is, falling back to the shop. Null when neither has published
+     a number, in which case there is nothing to offer and we say so. */
+  const enquiry = contactForProduct(product, config);
+  const askPrice = async () => {
+    if (!enquiry) return;
+    const opened = await openWhatsApp(enquiry.number, priceEnquiry(product, config));
+    if (!opened) {
+      showError('Couldn’t open WhatsApp. Is it installed?', {
+        title: 'Check price',
+        icon: '💬',
+      });
+    }
+  };
 
   const inCart = cart.qtyOf(product.id);
   const canAdd = product.stock - inCart > 0;
@@ -249,11 +264,19 @@ export function ProductScreen() {
       <Between style={{ marginTop: space.lg }}>
         <View>
           <Row style={{ gap: 8 }}>
-            <Text style={{ fontSize: 24, fontWeight: '800', color: c.text }}>${product.price}</Text>
-            {!!product.compareAtPrice && (
-              <Text style={{ color: c.muted, fontSize: 15, textDecorationLine: 'line-through' }}>
-                ${product.compareAtPrice}
+            {product.priceHidden ? (
+              <Text style={{ fontSize: 20, fontWeight: '800', color: c.accentInk }}>
+                Price on request
               </Text>
+            ) : (
+              <>
+                <Text style={{ fontSize: 24, fontWeight: '800', color: c.text }}>${product.price}</Text>
+                {!!product.compareAtPrice && (
+                  <Text style={{ color: c.muted, fontSize: 15, textDecorationLine: 'line-through' }}>
+                    ${product.compareAtPrice}
+                  </Text>
+                )}
+              </>
             )}
           </Row>
           <Muted style={{ marginTop: 2 }}>{product.category} · {product.size}</Muted>
@@ -320,7 +343,30 @@ export function ProductScreen() {
         </>
       )}
 
-      {product.stock > 0 && (
+      {/* An enquiry rather than a purchase. The shop chose not to publish the
+          figure, so there is no cart to add to and no total to show — the
+          conversation is the checkout. */}
+      {product.priceHidden && (
+        <View style={{ marginTop: space.xl }}>
+          {enquiry ? (
+            <>
+              <Button title={`Check price on WhatsApp`} onPress={askPrice} />
+              <Muted style={{ textAlign: 'center', marginTop: space.sm }}>
+                Opens a message to {enquiry.name} with this product in it.
+              </Muted>
+            </>
+          ) : (
+            <Card>
+              <Body style={{ fontWeight: '700' }}>Ask in the shop</Body>
+              <Muted style={{ marginTop: 4 }}>
+                This one is priced on request, and there is no number to message yet.
+              </Muted>
+            </Card>
+          )}
+        </View>
+      )}
+
+      {!product.priceHidden && product.stock > 0 && (
         <View style={{ marginTop: space.xl }}>
           <Row>
             <View>
@@ -329,7 +375,7 @@ export function ProductScreen() {
             </View>
             <View style={{ flex: 1, justifyContent: 'flex-end' }}>
               <Button
-                title={canAdd ? `Add to cart · $${product.price * qty}` : 'All of it is in your cart'}
+                title={canAdd ? `Add to cart · $${(product.price ?? 0) * qty}` : 'All of it is in your cart'}
                 disabled={!canAdd}
                 onPress={add}
               />
@@ -423,7 +469,7 @@ export function CartScreen() {
                 <Body style={{ fontWeight: '700' }} >{line.product.name}</Body>
                 <Muted style={{ marginTop: 2 }}>{line.product.size}</Muted>
                 <Text style={{ color: c.text, fontWeight: '800', marginTop: 6 }}>
-                  ${line.product.price * line.qty}
+                  ${(line.product.price ?? 0) * line.qty}
                 </Text>
               </View>
 
@@ -662,7 +708,7 @@ export function CheckoutScreen() {
         {cart.lines.map((l) => (
           <Between key={l.product.id} style={{ paddingVertical: 6 }}>
             <Muted>{l.qty} × {l.product.name}</Muted>
-            <Body>${l.product.price * l.qty}</Body>
+            <Body>${(l.product.price ?? 0) * l.qty}</Body>
           </Between>
         ))}
         <Divider />

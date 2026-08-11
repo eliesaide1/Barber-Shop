@@ -13,7 +13,7 @@ const STATUS_TONE = { published: 'ok', pending: 'warn', draft: 'dim', archived: 
 
 const EMPTY = {
   name: '', brand: 'FadeRoom Label', category: 'Hair', price: '', compareAtPrice: '',
-  size: '', description: '', howToUse: '', icon: '🧴', stock: '0', tag: '', owner: '',
+  size: '', description: '', howToUse: '', icon: '🧴', stock: '0', tag: '', owner: '', priceHidden: false,
 };
 
 export default function Products() {
@@ -113,7 +113,7 @@ export default function Products() {
               <div className="body">
                 <div className="nm">{p.name}</div>
                 <div className="mt">
-                  {p.category} · ${p.price} · {p.stock} in stock
+                  {p.category} · {p.priceHidden ? 'on request' : `$${p.price}`} · {p.stock} in stock
                 </div>
                 {isAdmin && p.status === 'pending' && (
                   <div className="row" style={{ marginTop: 10, gap: 7 }}>
@@ -208,6 +208,7 @@ function Editor({ product, artists, isAdmin, onClose, onSaved, onArchived }) {
       Object.entries(scalars).forEach(([k, v]) => body.append(k, v ?? ''));
       if (form.compareAtPrice !== '') body.append('compareAtPrice', form.compareAtPrice);
       if (isAdmin && form.owner) body.append('owner', form.owner);
+      body.append('priceHidden', form.priceHidden ? 'true' : 'false');
       files.forEach((f) => body.append('images', f));
 
       const saved = isNew
@@ -286,6 +287,24 @@ function Editor({ product, artists, isAdmin, onClose, onSaved, onArchived }) {
               <div className="field grow">
                 <label>Was ($)</label>
                 <input className="input" inputMode="decimal" value={form.compareAtPrice} onChange={set('compareAtPrice')} />
+              </div>
+            </div>
+
+            <div className="field">
+              <label className="row" style={{ gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={!!form.priceHidden}
+                  onChange={(e) => setForm((f) => ({ ...f, priceHidden: e.target.checked }))}
+                />
+                <span>Price on request</span>
+              </label>
+              {/* Not a display option. Saying so here saves an owner wondering
+                  later why nobody bought it. */}
+              <div className="hint">
+                The price is never sent to the app, and this product <b>cannot be added to a
+                cart</b> — clients get a “Check price on WhatsApp” button instead. You still need a
+                price here for your own records.
               </div>
             </div>
             <div className="row" style={{ gap: 10 }}>
