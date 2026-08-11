@@ -167,6 +167,37 @@ These keep the request model honest:
 - A held free cut survives either answer — the client withdrawing, or the artist declining.
 - Only a `confirmed` booking can be marked completed or a no-show. A request is not a booking.
 
+### Previous haircut records
+
+What a client actually left with, kept so the next cut can match the last one — and so they can
+say "this again" instead of describing it.
+
+**Not the lookbook.** A `Style` is the artist's portfolio: public, reviewed by the shop, chosen to
+advertise the chair. A `HaircutRecord` is private, on one client's profile, and only they can
+approve it. Different audience, different consent, different lifecycle.
+
+**Consent is the shape of the model, not a field on it.** An artist does not *add* a record — they
+*propose* one, and it does nothing until the client says yes. Until then it is not on the profile,
+not in the artist's reference, and not attachable to a booking.
+
+**And no means the photograph goes.** There is no `declined` state, deliberately: a row marked
+declined with the image still on disk would be the shop keeping exactly what was refused. Declining
+deletes the record and unlinks the files, and a test asserts both — the database row *and* the file.
+
+**The note matters as much as the picture.** A photograph shows the result; guard numbers and where
+the fade started are how somebody repeats it. Both go up together, and both come back on the
+reference.
+
+The point of keeping them is `Appointment.reference`: a client picks a past cut when requesting a
+time, and it appears on the artist's request card and in their day. A photo on a profile nobody
+looks at before a visit is a filing cabinet, not a service. A reference must be the client's own and
+approved — otherwise the booking route would be a way to put somebody else's photograph, or one
+still pending its owner's answer, in front of an artist.
+
+> Uploads are served from `/uploads` without authentication, as they always have been. Filenames are
+> random hex so a URL is unguessable, but a private haircut photo is a stronger reason than a product
+> shot to want real access control there one day.
+
 ### The digital loyalty card
 
 Every client has one from the moment they sign up — through the form, through Google or Apple, or
@@ -355,7 +386,7 @@ curl -L --retry 8 -C - -o "$HOME/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/g
 ## Tests
 
 ```bash
-npm test                      # 130 API integration tests against a real MongoDB
+npm test                      # 142 API integration tests against a real MongoDB
 npm --prefix mobile test      # 19 QR encoder and client-record tests
 npm run typecheck:mobile
 npm run build:cms

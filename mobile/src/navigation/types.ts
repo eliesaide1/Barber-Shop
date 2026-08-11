@@ -14,6 +14,7 @@ export type RootStackParamList = {
   Notifications: undefined;
   Preferences: undefined;
   Lookbook: undefined;
+  Haircuts: undefined;
 };
 
 export type TabParamList = {

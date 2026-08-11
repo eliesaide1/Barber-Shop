@@ -4,6 +4,7 @@ import { Appointment, HOLDS_SLOT } from '../models/Appointment.js';
 import { Artist } from '../models/Artist.js';
 import { Service } from '../models/Service.js';
 import { Loyalty, notExpired, rewardIsLive } from '../models/Loyalty.js';
+import { HaircutRecord } from '../models/HaircutRecord.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { emitTo, rooms } from '../lib/realtime.js';
@@ -246,6 +247,8 @@ appointmentsRouter.post(
         startsAt: z.string(),
         notes: z.string().optional(),
         useReward: z.boolean().optional(),
+        /* A past cut of their own, chosen as "this again". */
+        reference: z.string().optional(),
       })
       .parse(req.body);
 
@@ -338,11 +341,26 @@ appointmentsRouter.post(
       rewardCode = usable[0].code;
     }
 
+    /* Their own, and approved. A reference is shown to an artist, so pointing a
+       booking at somebody else's record — or at one still pending its owner's
+       answer — would be a way to publish a photograph past its consent. */
+    let reference = null;
+    if (body.reference) {
+      const record = await HaircutRecord.findOne({
+        _id: body.reference,
+        user: req.user._id,
+        status: 'approved',
+      });
+      if (!record) throw new ApiError(404, 'That haircut is not one you can use as a reference');
+      reference = record._id;
+    }
+
     const appointment = await Appointment.create({
       user: req.user._id,
       artist: artist._id,
       service: service._id,
       serviceName: service.name,
+      reference,
       startsAt,
       /* Kept as asked, so a booking the artist moves can say so. */
       requestedStartsAt: startsAt,
@@ -452,6 +470,9 @@ appointmentsRouter.get(
     const requests = await Appointment.find(filter)
       .populate('user', 'name phone preferences')
       .populate('artist', 'displayName chair')
+      /* "This again" — the picture is worth more than the service name when
+         deciding how long to give the cut. */
+      .populate('reference', 'images notes serviceName takenAt')
       .sort({ startsAt: 1 })
       .limit(60);
 
@@ -477,6 +498,8 @@ appointmentsRouter.get(
     const agenda = await Appointment.find(filter)
       .populate('user', 'name phone preferences')
       .populate('artist', 'displayName chair')
+      /* At the chair, this is the thing being worked from. */
+      .populate('reference', 'images notes serviceName takenAt')
       .sort({ startsAt: 1 });
 
     res.json(agenda);

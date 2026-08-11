@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Avatar,
@@ -17,6 +17,7 @@ import {
   Title,
 } from '../../components/ui';
 import { Icon } from '../../components/Icon';
+import { HaircutCapture } from '../../components/HaircutCapture';
 import { useApi, useSocketEvent } from '../../hooks/useApi';
 import { useAuth } from '../../store/AuthContext';
 import { useColors } from '../../store/ThemeContext';
@@ -24,6 +25,7 @@ import { useDialog } from '../../store/DialogContext';
 import { useToast } from '../../store/ToastContext';
 import { useNotifications } from '../../store/NotificationsContext';
 import { api, ApiError } from '../../api/client';
+import { absoluteUrl } from '../../config';
 import { radius, space } from '../../theme';
 import type { AgendaEntry, ConfirmResult } from '../../types';
 
@@ -202,6 +204,7 @@ export function ArtistScheduleScreen() {
   const { unread } = useNotifications();
   const [offset, setOffset] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [capturing, setCapturing] = useState<AgendaEntry | null>(null);
 
   /* A week of days to swipe through — a barber rarely needs more than that on
      a phone, and it keeps the whole picker on one row. */
@@ -310,6 +313,24 @@ export function ArtistScheduleScreen() {
     try {
       await api.post(`/appointments/${entry.id}/status`, { status });
       refresh();
+      if (status === 'completed') {
+        /* The moment the cut is finished is the only moment this photo can be
+           taken, so it is asked for here rather than left to a screen somebody
+           would have to remember to visit. */
+        const record = await confirm({
+          title: 'Photograph the cut?',
+          message:
+            `${entry.user?.name.split(' ')[0] ?? 'They'} has to approve it before it is saved — ` +
+            'it goes to them to say yes or no. Worth it: next time you can just repeat it.',
+          icon: '📷',
+          confirmLabel: 'Take a photo',
+          cancelLabel: 'Not this time',
+        });
+        if (record) {
+          setCapturing(entry);
+          return;
+        }
+      }
       if (status === 'completed') {
         /* Finishing a cut is exactly when the client should be checking in —
            so offer the QR rather than making them go looking for it. */
@@ -488,6 +509,35 @@ export function ArtistScheduleScreen() {
                 <Muted style={{ marginTop: space.sm }}>✂ {a.user.preferences.clipperGuard}</Muted>
               )}
               {!!a.notes && <Muted style={{ marginTop: 4 }}>“{a.notes}”</Muted>}
+
+              {/* "This again". The reason for keeping haircut records at all —
+                  put where the work happens rather than filed on a profile. */}
+              {!!a.reference && (
+                <Row style={{ marginTop: space.md, alignItems: 'flex-start' }}>
+                  <Image
+                    source={{ uri: absoluteUrl(a.reference.images[0]) }}
+                    style={{
+                      width: 68,
+                      height: 68,
+                      borderRadius: radius.md,
+                      backgroundColor: c.surface3,
+                    }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Body style={{ fontWeight: '700' }}>Wants this again</Body>
+                    <Muted style={{ marginTop: 2 }}>
+                      {new Date(a.reference.takenAt).toLocaleDateString([], {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </Muted>
+                    {!!a.reference.notes && (
+                      <Muted style={{ marginTop: 4 }}>{a.reference.notes}</Muted>
+                    )}
+                  </View>
+                </Row>
+              )}
               {!!a.rewardCode && (
                 <Muted style={{ marginTop: 4 }}>
                   Free cut held · claim <Text style={{ color: c.accentInk, fontWeight: '700' }}>{a.rewardCode}</Text>
@@ -522,6 +572,16 @@ export function ArtistScheduleScreen() {
             </Card>
           );
         })
+      )}
+      {capturing && (
+        <HaircutCapture
+          entry={capturing}
+          onClose={() => setCapturing(null)}
+          onSent={() => {
+            setCapturing(null);
+            refresh();
+          }}
+        />
       )}
     </Screen>
   );

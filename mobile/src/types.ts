@@ -135,6 +135,23 @@ export interface Appointment {
   respondedAt?: string | null;
 }
 
+/**
+ * A cut somebody actually had, kept on their own profile.
+ *
+ * `pending` until the client approves it — there is no declined state, because
+ * saying no removes the record and the photograph with it.
+ */
+export interface HaircutRecord {
+  id: string;
+  artist: { id: string; displayName: string; chair?: string } | null;
+  serviceName: string;
+  images: string[];
+  notes: string;
+  status: 'pending' | 'approved';
+  takenAt: string;
+  approvedAt: string | null;
+}
+
 export interface Reward {
   code: string;
   earnedAt: string;
@@ -215,6 +232,8 @@ export interface AgendaEntry {
   free: boolean;
   rewardCode: string | null;
   declineReason?: string;
+  /** "This again" — a past cut of theirs, for the artist to work from. */
+  reference?: Pick<HaircutRecord, 'id' | 'images' | 'notes' | 'serviceName' | 'takenAt'> | null;
 }
 
 /** What `POST /appointments/:id/confirm` answers with. */

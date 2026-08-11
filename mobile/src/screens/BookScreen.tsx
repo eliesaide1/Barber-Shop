@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   Avatar,
@@ -25,8 +25,9 @@ import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
 import { api, ApiError } from '../api/client';
+import { absoluteUrl } from '../config';
 import { radius, space } from '../theme';
-import type { Artist, LoyaltyCard, Service, Slot } from '../types';
+import type { Artist, HaircutRecord, LoyaltyCard, Service, Slot } from '../types';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -64,12 +65,17 @@ export function BookScreen() {
   const [slot, setSlot] = useState<Slot | null>(null);
   const [notes, setNotes] = useState('');
   const [useReward, setUseReward] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const { config } = useAuth();
   const { data: artists, loading: loadingArtists } = useApi<Artist[]>('/artists');
   const { data: services } = useApi<Service[]>('/services');
   const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
+  /* Approved only — the server filters, and a pending photo must never be
+     offered as something to show an artist. */
+  const { data: allCuts } = useApi<HaircutRecord[]>('/haircuts/mine');
+  const haircuts = (allCuts ?? []).filter((h) => h.status === 'approved');
 
   const artist = artists?.find((a) => a.id === artistId) ?? artists?.[0] ?? null;
   const service = services?.find((s) => s.id === serviceId) ?? services?.[0] ?? null;
@@ -102,11 +108,13 @@ export function BookScreen() {
         startsAt: slot.startsAt,
         notes,
         useReward: useReward && !!freeCut,
+        ...(reference ? { reference } : {}),
       });
       toast(`Sent to ${artist.displayName.split(' ')[0]} 💈`);
       setSlot(null);
       setNotes('');
       setUseReward(false);
+      setReference(null);
       nav.navigate('Appointments');
     } catch (err) {
       showError(err instanceof ApiError ? err.message : 'Could not send that request', {
@@ -352,6 +360,56 @@ export function BookScreen() {
             </Muted>
           </View>
         </Pressable>
+      )}
+
+      {/* "This again" beats describing it. Only approved cuts appear — a photo
+          still awaiting an answer is not one to put in front of an artist. */}
+      {!!haircuts?.length && (
+        <>
+          <Heading style={{ marginTop: space.xl }}>Same as one of these?</Heading>
+          <Muted style={{ marginTop: 4 }}>
+            Your artist sees the photo and how it was done, before you sit down.
+          </Muted>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.md }}>
+            <Row style={{ gap: space.sm, paddingRight: space.lg }}>
+              {haircuts.map((h) => {
+                const on = reference === h.id;
+                return (
+                  <Pressable
+                    key={h.id}
+                    onPress={() => setReference(on ? null : h.id)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: on }}
+                    style={{
+                      width: 104,
+                      borderRadius: radius.md,
+                      borderWidth: 2,
+                      borderColor: on ? c.accent : c.line,
+                      overflow: 'hidden',
+                      backgroundColor: c.surface2,
+                    }}
+                  >
+                    <Image
+                      source={{ uri: absoluteUrl(h.images[0]) }}
+                      style={{ width: '100%', height: 104 }}
+                    />
+                    <View style={{ padding: 7 }}>
+                      <Text
+                        numberOfLines={1}
+                        style={{ fontSize: 11, fontWeight: '700', color: on ? c.accentInk : c.text }}
+                      >
+                        {on ? '✓ This one' : h.serviceName || 'Haircut'}
+                      </Text>
+                      <Muted style={{ fontSize: 10, marginTop: 1 }}>
+                        {new Date(h.takenAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}
+                      </Muted>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </Row>
+          </ScrollView>
+        </>
       )}
 
       <Field

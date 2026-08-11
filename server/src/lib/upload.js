@@ -43,12 +43,38 @@ export const upload = multer({
  */
 export const publicUrl = (filename) => `/uploads/${filename}`;
 
+/**
+ * Removes an uploaded file from disk.
+ *
+ * For the case where somebody has said no to a photograph of themselves:
+ * dropping the database row and leaving the image on the server would be
+ * keeping exactly the thing they refused.
+ *
+ * `basename` before joining, because the value may have come back through a
+ * record as `/uploads/x.jpg` — or, if anything upstream is ever less careful
+ * than it should be, as `../../something`. The only directory this can reach
+ * is the uploads one.
+ */
+export function removeUpload(stored) {
+  if (!stored) return;
+  const name = path.basename(String(stored));
+  if (!name || name === '.' || name === '..') return;
+  try {
+    fs.unlinkSync(path.join(UPLOAD_DIR, name));
+  } catch {
+    /* Already gone, or never written. Nothing to put right. */
+  }
+}
+
 /** Rewrites stored image paths into absolute URLs on the way out. */
 export const withImageUrls = (doc) => {
   const obj = typeof doc.toJSON === 'function' ? doc.toJSON() : { ...doc };
+  /* Idempotent: some models already map their own paths in `toJSON`, and
+     prefixing twice would produce `/uploads/uploads/x.jpg`. */
+  const done = (img) => img.startsWith('http') || img.startsWith('/uploads/');
   if (Array.isArray(obj.images)) {
-    obj.images = obj.images.map((img) => (img.startsWith('http') ? img : publicUrl(img)));
+    obj.images = obj.images.map((img) => (done(img) ? img : publicUrl(img)));
   }
-  if (obj.image && !obj.image.startsWith('http')) obj.image = publicUrl(obj.image);
+  if (obj.image && !done(obj.image)) obj.image = publicUrl(obj.image);
   return obj;
 };

@@ -24,7 +24,7 @@ export function navigate(name: string, params?: object) {
 const CLIENT_TABS = ['Home', 'Book', 'Scan', 'Shop', 'Profile'];
 const CLIENT_SCREENS = [
   'Product', 'Cart', 'Checkout', 'Orders', 'OrderDetail',
-  'Loyalty', 'Appointments', 'Notifications', 'Preferences', 'Lookbook',
+  'Loyalty', 'Appointments', 'Notifications', 'Preferences', 'Lookbook', 'Haircuts',
 ];
 const ARTIST_TABS = ['Today', 'Clients', 'CheckIn', 'Orders', 'More'];
 const ARTIST_SCREENS = ['Broadcast', 'Portfolio', 'Notifications'];

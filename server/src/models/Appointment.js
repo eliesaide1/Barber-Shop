@@ -49,6 +49,14 @@ const appointmentSchema = new mongoose.Schema(
     remindersSent: { type: [Number], default: [] },
     declineReason: { type: String, default: '' },
     notes: { type: String, default: '' },
+    /**
+     * A past cut of theirs, chosen as "this again".
+     *
+     * The whole reason for keeping haircut records: a photograph on a profile
+     * nobody looks at before a visit is a filing cabinet, not a service. This
+     * is what puts it in front of the artist at the moment it is useful.
+     */
+    reference: { type: mongoose.Schema.Types.ObjectId, ref: 'HaircutRecord', default: null },
     /* A free cut held against this booking — the reward is only burned when
        the artist confirms it in person, never by the client. */
     free: { type: Boolean, default: false },

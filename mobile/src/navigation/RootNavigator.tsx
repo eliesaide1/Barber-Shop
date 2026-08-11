@@ -13,6 +13,7 @@ import { space } from '../theme';
 
 import { LoginScreen, RegisterScreen } from '../screens/AuthScreens';
 import { CompleteProfileScreen } from '../screens/CompleteProfileScreen';
+import { HaircutsScreen } from '../screens/HaircutsScreen';
 import { ContactFab } from '../components/ContactFab';
 import { HomeScreen } from '../screens/HomeScreen';
 import { BookScreen } from '../screens/BookScreen';
@@ -321,6 +322,7 @@ export function RootNavigator() {
           <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
           <RootStack.Screen name="Preferences" component={PreferencesScreen} options={{ title: 'Preferences' }} />
           <RootStack.Screen name="Lookbook" component={LookbookScreen} options={{ title: 'Styles' }} />
+          <RootStack.Screen name="Haircuts" component={HaircutsScreen} options={{ title: 'My haircuts' }} />
         </RootStack.Navigator>
       ) : (
         <AuthStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>

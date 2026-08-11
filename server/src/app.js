@@ -20,6 +20,7 @@ import { loyaltyRouter } from './routes/loyalty.routes.js';
 import { notificationsRouter } from './routes/notifications.routes.js';
 import { stylesRouter } from './routes/styles.routes.js';
 import { settingsRouter } from './routes/settings.routes.js';
+import { haircutsRouter } from './routes/haircuts.routes.js';
 
 export function createApp() {
   const app = express();
@@ -111,6 +112,7 @@ export function createApp() {
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/styles', stylesRouter);
   app.use('/api/settings', settingsRouter);
+  app.use('/api/haircuts', haircutsRouter);
 
   app.use(notFound);
   app.use(errorHandler);

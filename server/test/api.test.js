@@ -28,7 +28,9 @@ process.env.SHOP_SECRET = 'test-shop-secret';
 import test, { after, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import http from 'node:http';
+import path from 'node:path';
 import mongoose from 'mongoose';
 import jsonwebtoken from 'jsonwebtoken';
 import { io as ioClient } from 'socket.io-client';
@@ -57,6 +59,16 @@ const { sweepBirthdays, birthdayFallsToday, shopToday } = await import('../src/l
 const { getSettings } = await import('../src/models/ShopSettings.js');
 const { grantBirthdayReward } = await import('../src/lib/rewards.js');
 const { toWhatsAppNumber } = await import('../src/lib/whatsapp.js');
+const { HaircutRecord } = await import('../src/models/HaircutRecord.js');
+
+/** Free slots on a day far enough out that no other suite has touched it. */
+const availabilityFor = async (daysAhead) => {
+  const date = new Date(Date.now() + daysAhead * 86_400_000).toISOString().slice(0, 10);
+  const res = await api(
+    `/api/appointments/availability?artist=${ctx.artist._id}&date=${date}&service=${ctx.service._id}`,
+  );
+  return res.body;
+};
 
 let server;
 let io;
@@ -1877,6 +1889,188 @@ describe('the “message us” button', () => {
       method: 'PATCH',
       body: { whatsapp: '+961 3 000 000' },
     });
+    assert.equal(res.status, 403);
+  });
+});
+
+describe('previous haircut records', () => {
+  /* Multipart, because a photograph is the whole object here. */
+  const photograph = (fields = {}) => {
+    const boundary = '----faderoomtest';
+    const parts = Object.entries(fields).map(
+      ([k, v]) => `--${boundary}\r\nContent-Disposition: form-data; name="${k}"\r\n\r\n${v}\r\n`,
+    );
+    /* A one-pixel PNG: enough for multer's mimetype filter to accept it. */
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    return {
+      body: Buffer.concat([
+        Buffer.from(parts.join('')),
+        Buffer.from(
+          `--${boundary}\r\nContent-Disposition: form-data; name="images"; filename="cut.png"\r\n` +
+            'Content-Type: image/png\r\n\r\n',
+        ),
+        png,
+        Buffer.from(`\r\n--${boundary}--\r\n`),
+      ]),
+      type: `multipart/form-data; boundary=${boundary}`,
+    };
+  };
+
+  const propose = async (token, fields) => {
+    const { body, type } = photograph(fields);
+    const res = await fetch(`${base}/api/haircuts`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': type },
+      body,
+    });
+    return { status: res.status, body: await res.json().catch(() => null) };
+  };
+
+  test('an artist proposes a record; it is pending, not filed', async () => {
+    const res = await propose(ctx.artistSession.accessToken, {
+      user: ctx.client.user.id,
+      serviceName: 'Haircut',
+      notes: '#2 sides, scissor top, natural left part',
+    });
+    assert.equal(res.status, 201);
+    assert.equal(res.body.status, 'pending', 'nothing is on a profile until they say so');
+    assert.equal(res.body.images.length, 1);
+    assert.match(res.body.images[0], /^\/uploads\//, 'the path must be one the app can fetch');
+    ctx.haircut = res.body;
+  });
+
+  test('the client is actually asked', async () => {
+    const inbox = await api('/api/notifications', { token: ctx.client.accessToken });
+    const ask = inbox.body.find((n) => /save a photo of your cut/i.test(n.title));
+    assert.ok(ask, 'a photograph nobody is told about is not consent');
+    assert.equal(ask.data.screen, 'Haircuts');
+  });
+
+  test('they can see it before deciding', async () => {
+    const res = await api('/api/haircuts/mine', { token: ctx.client.accessToken });
+    assert.equal(res.status, 200);
+    const pending = res.body.find((r) => r.id === ctx.haircut.id);
+    assert.ok(pending, 'you cannot answer yes or no about a photo you were never shown');
+    assert.equal(pending.status, 'pending');
+  });
+
+  test('somebody else cannot approve it', async () => {
+    const res = await api(`/api/haircuts/${ctx.haircut.id}/approve`, {
+      token: ctx.other.accessToken, method: 'POST',
+    });
+    assert.equal(res.status, 403);
+  });
+
+  test('and it is not a reference until they do', async () => {
+    const slot = (await availabilityFor(12)).slots.find((s) => s.available);
+    const res = await api('/api/appointments', {
+      token: ctx.client.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+        reference: ctx.haircut.id,
+      },
+    });
+    assert.equal(res.status, 404, 'a pending photo must not be shown to an artist');
+  });
+
+  test('approving puts it on their profile', async () => {
+    const res = await api(`/api/haircuts/${ctx.haircut.id}/approve`, {
+      token: ctx.client.accessToken, method: 'POST',
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.status, 'approved');
+    assert.ok(res.body.approvedAt);
+  });
+
+  test('now the artist can work from it', async () => {
+    const res = await api(`/api/haircuts/client/${ctx.client.user.id}`, {
+      token: ctx.artistSession.accessToken,
+    });
+    assert.equal(res.status, 200);
+    const seen = res.body.find((r) => r.id === ctx.haircut.id);
+    assert.ok(seen);
+    assert.match(seen.notes, /#2 sides/, 'the words matter as much as the picture');
+  });
+
+  test('a client can book "this again", and the artist sees it', async () => {
+    const slot = (await availabilityFor(12)).slots.find((s) => s.available);
+    const booked = await api('/api/appointments', {
+      token: ctx.client.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+        reference: ctx.haircut.id,
+      },
+    });
+    assert.equal(booked.status, 201);
+
+    const inbox = await api('/api/appointments/requests', { token: ctx.artistSession.accessToken });
+    const request = inbox.body.find((r) => r.id === booked.body.id);
+    assert.ok(request.reference, 'the reference is the point — it has to reach the chair');
+    assert.match(request.reference.images[0], /^\/uploads\//);
+    assert.match(request.reference.notes, /#2 sides/);
+
+    await api(`/api/appointments/${booked.body.id}/cancel`, {
+      token: ctx.client.accessToken, method: 'POST',
+    });
+  });
+
+  test('a reference has to be your own', async () => {
+    const slot = (await availabilityFor(13)).slots.find((s) => s.available);
+    const res = await api('/api/appointments', {
+      token: ctx.other.accessToken,
+      method: 'POST',
+      body: {
+        artist: String(ctx.artist._id),
+        service: String(ctx.service._id),
+        startsAt: slot.startsAt,
+        reference: ctx.haircut.id,
+      },
+    });
+    assert.equal(res.status, 404, 'somebody else’s photograph is not yours to attach');
+  });
+
+  test('saying no deletes the photograph, it does not file it as refused', async () => {
+    const proposed = await propose(ctx.artistSession.accessToken, {
+      user: ctx.client.user.id,
+      serviceName: 'Beard trim',
+    });
+    assert.equal(proposed.status, 201);
+
+    const stored = proposed.body.images[0].replace('/uploads/', '');
+    const onDisk = path.join(process.cwd(), 'uploads', stored);
+    assert.equal(fs.existsSync(onDisk), true, 'the upload should be there to begin with');
+
+    const declined = await api(`/api/haircuts/${proposed.body.id}/decline`, {
+      token: ctx.client.accessToken, method: 'POST',
+    });
+    assert.equal(declined.status, 204);
+
+    /* Both halves. A row marked "declined" with the image still on disk would
+       be the shop keeping exactly what was refused. */
+    assert.equal(await HaircutRecord.countDocuments({ _id: proposed.body.id }), 0);
+    assert.equal(fs.existsSync(onDisk), false, 'the photograph is still on the server');
+  });
+
+  test('a client only ever sees their own', async () => {
+    const res = await api('/api/haircuts/mine', { token: ctx.other.accessToken });
+    assert.equal(res.status, 200);
+    assert.equal(
+      res.body.some((r) => r.id === ctx.haircut.id),
+      false,
+    );
+  });
+
+  test('a client cannot record a cut', async () => {
+    const res = await propose(ctx.client.accessToken, { user: ctx.client.user.id });
     assert.equal(res.status, 403);
   });
 });

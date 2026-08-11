@@ -38,7 +38,7 @@ import {
   toIsoDate,
 } from '../lib/clientDetails';
 import { radius, space } from '../theme';
-import type { Appointment, AppNotification, LoyaltyCard, Order, User } from '../types';
+import type { Appointment, AppNotification, HaircutRecord, LoyaltyCard, Order, User } from '../types';
 
 const STATUS_LABELS: Record<string, string> = {
   completed: 'Done',
@@ -58,6 +58,8 @@ export function ProfileScreen() {
   const cart = useCart();
   const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
   const { data: orders } = useApi<Order[]>('/orders');
+  const { data: haircuts } = useApi<HaircutRecord[]>('/haircuts/mine');
+  const awaitingPhotos = (haircuts ?? []).filter((h) => h.status === 'pending').length;
 
   /* Optimistic: the switch answers instantly and the server catches up. Nothing
      is lost if the write fails — worst case one more shop message arrives, and
@@ -152,6 +154,16 @@ export function ProfileScreen() {
           <Between style={{ paddingVertical: space.sm, borderTopWidth: 1, borderTopColor: c.line }}>
             <Muted>My appointments</Muted>
             <Body>›</Body>
+          </Between>
+        </Pressable>
+        <Pressable onPress={() => nav.navigate('Haircuts')}>
+          <Between style={{ paddingVertical: space.sm, borderTopWidth: 1, borderTopColor: c.line }}>
+            <Muted>My haircuts</Muted>
+            {/* A photo awaiting an answer is a question somebody asked — worth a
+                count here rather than only in a notification that scrolls away. */}
+            <Body style={{ color: awaitingPhotos ? c.accentInk : c.text, fontWeight: awaitingPhotos ? '700' : '400' }}>
+              {awaitingPhotos ? `${awaitingPhotos} to approve ›` : '›'}
+            </Body>
           </Between>
         </Pressable>
       </Card>
