@@ -14,8 +14,22 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+# react-native-firebase resolves firebase-ios-sdk through SPM, whose products are
+# automatic (static) libraries — with React Native's default static linkage each
+# Firebase pod embeds its own copy and they collide as duplicate symbols at link
+# time, and `pod install` refuses to generate the project. Sourcing Firebase from
+# CocoaPods instead keeps the static linkage the rest of the build expects.
+$RNFirebaseDisableSPM = true
+
 target 'FadeRoom' do
   config = use_native_modules!
+
+  # FirebaseCoreInternal is Swift and imports GoogleUtilities, which is plain
+  # Objective-C and ships no module map — so it cannot be integrated as a static
+  # library without one. Opting this pod into modular headers generates it.
+  # Done per-pod rather than with a global use_modular_headers!, which changes
+  # header resolution for every React Native pod as well.
+  pod 'GoogleUtilities', :modular_headers => true
 
   use_react_native!(
     :path => config[:reactNativePath],
