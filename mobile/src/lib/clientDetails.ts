@@ -34,6 +34,18 @@ export function toIsoDate(typed: string): string | null {
   return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
 }
 
+/**
+ * A picked `Date` → `21/03/1994`.
+ *
+ * Read in the device's own zone rather than through `toISOString()`, which is
+ * UTC: a birthday picked in Beirut would otherwise come back as the day before
+ * for anyone west of Greenwich, and the picker hands back local midnight.
+ */
+export function toTypedDate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+}
+
 /** `1994-03-21` → `21/03/1994`, for putting a stored value back in the field. */
 export function fromIsoDate(iso?: string | null): string {
   const m = (iso ?? '').match(/^(\d{4})-(\d{2})-(\d{2})$/);

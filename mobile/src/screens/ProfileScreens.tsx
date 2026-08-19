@@ -19,6 +19,7 @@ import {
   Segmented,
   Title,
 } from '../components/ui';
+import { DateOfBirthField } from '../components/DateOfBirthField';
 import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useAuth } from '../store/AuthContext';
 import { useCart } from '../store/CartContext';
@@ -35,7 +36,6 @@ import {
   dateOfBirthError,
   frequencyLabel,
   fromIsoDate,
-  maskDate,
   toIsoDate,
 } from '../lib/clientDetails';
 import { radius, space } from '../theme';
@@ -406,13 +406,9 @@ export function PreferencesScreen() {
           placeholder="+961 …"
           error={errors.phone}
         />
-        <Field
-          label="Date of birth"
+        <DateOfBirthField
           value={details.dob}
-          onChangeText={(v: string) => setDetails((d) => ({ ...d, dob: maskDate(v) }))}
-          keyboardType="number-pad"
-          placeholder="DD/MM/YYYY"
-          maxLength={10}
+          onChange={(v: string) => setDetails((d) => ({ ...d, dob: v }))}
           error={errors.dateOfBirth}
         />
 

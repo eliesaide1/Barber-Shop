@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Body, Button, Card, Field, Muted, Title } from '../components/ui';
+import { DateOfBirthField } from '../components/DateOfBirthField';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
 import { ApiError } from '../api/client';
@@ -11,7 +12,6 @@ import {
   VISIT_FREQUENCIES,
   dateOfBirthError,
   frequencyLabel,
-  maskDate,
   toIsoDate,
 } from '../lib/clientDetails';
 import { radius, space } from '../theme';
@@ -271,14 +271,9 @@ export function RegisterScreen() {
             placeholder="+961 …"
             error={errors.phone}
           />
-          <Field
-            label="Date of birth"
+          <DateOfBirthField
             value={form.dob}
-            /* Masked as they type, so the format is shown rather than asked for. */
-            onChangeText={(v: string) => set('dob')(maskDate(v))}
-            keyboardType="number-pad"
-            placeholder="DD/MM/YYYY"
-            maxLength={10}
+            onChange={(v: string) => set('dob')(v)}
             error={errors.dateOfBirth}
           />
 

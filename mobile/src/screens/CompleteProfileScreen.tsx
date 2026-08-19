@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Body, Button, Card, Field, Muted, Screen, Title } from '../components/ui';
+import { DateOfBirthField } from '../components/DateOfBirthField';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
 import { useDialog } from '../store/DialogContext';
@@ -9,7 +10,6 @@ import {
   VISIT_FREQUENCIES,
   dateOfBirthError,
   frequencyLabel,
-  maskDate,
   toIsoDate,
 } from '../lib/clientDetails';
 import { radius, space } from '../theme';
@@ -98,13 +98,9 @@ export function CompleteProfileScreen() {
           error={errors.phone}
           style={{ marginTop: 0 }}
         />
-        <Field
-          label="Date of birth"
+        <DateOfBirthField
           value={form.dob}
-          onChangeText={(v: string) => setForm((f) => ({ ...f, dob: maskDate(v) }))}
-          keyboardType="number-pad"
-          placeholder="DD/MM/YYYY"
-          maxLength={10}
+          onChange={(v: string) => setForm((f) => ({ ...f, dob: v }))}
           error={errors.dateOfBirth}
         />
 
