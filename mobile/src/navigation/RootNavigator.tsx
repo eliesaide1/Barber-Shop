@@ -336,10 +336,13 @@ export function RootNavigator() {
           <AuthStack.Screen name="Register" component={RegisterScreen} />
         </AuthStack.Navigator>
       )}
-    </NavigationContainer>
-    {/* Outside the navigator, so it stays put while screens come and go rather
-        than being remounted — and animates with nothing. */}
+    {/* Outside the navigators, so it stays put while screens come and go rather
+        than being remounted — and animates with nothing. Inside the container
+        all the same: it reads appointments through `useApi`, which refetches on
+        focus, and `useFocusEffect` has no navigation object to attach to out
+        here. Absolutely positioned either way, so the layout is unchanged. */}
     {showContact && <ContactFab />}
+    </NavigationContainer>
     </View>
   );
 }

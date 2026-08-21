@@ -146,7 +146,7 @@ export function ProfileScreen() {
         <Body style={{ fontWeight: '800', fontSize: 20, marginTop: 12 }}>{user?.name}</Body>
         <Muted style={{ marginTop: 2 }}>{user?.email}</Muted>
         {!!user?.phone && <Muted>{user.phone}</Muted>}
-        <Badge label="FADEROOM CLUB" tone="gold" style={{ marginTop: 10 }} />
+        <Badge label="VIA BARBER HOUSE CLUB" tone="gold" style={{ marginTop: 10 }} />
       </Card>
 
       <Heading style={{ marginTop: space.xl }}>Loyalty</Heading>

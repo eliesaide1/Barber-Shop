@@ -77,7 +77,7 @@ export function LoyaltyScreen() {
       <Muted style={{ marginTop: 2 }}>Every {card.goal} check-ins = 1 free haircut</Muted>
 
       <Card hero style={{ marginTop: space.lg, alignItems: 'center' }}>
-        <Badge label="FADEROOM CLUB" tone="gold" />
+        <Badge label="VIA BARBER HOUSE CLUB" tone="gold" />
         <Row style={{ alignItems: 'baseline', marginTop: 10, gap: 2 }}>
           <Text style={{ fontSize: 44, fontWeight: '800', color: c.text }}>{card.stamps}</Text>
           <Text style={{ fontSize: 20, color: c.muted, fontWeight: '700' }}>/{card.goal}</Text>

@@ -34,9 +34,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>FadeRoom uses the camera to scan the check-in QR at the chair, and to photograph a finished cut.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>VIA Barber House uses the camera to scan the check-in QR at the chair, and to photograph a finished cut.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose a photo of a finished cut, or of a look for the shop's lookbook.</string>
 	<key>RCTNewArchEnabled</key>
