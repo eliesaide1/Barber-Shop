@@ -325,7 +325,7 @@ export function ProductScreen() {
           <Row>
             <Text style={{ fontSize: 22 }}>✂</Text>
             <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '700' }}>FadeRoom house label</Body>
+              <Body style={{ fontWeight: '700' }}>VIA Barber House label</Body>
               <Muted style={{ marginTop: 2 }}>Stocked by the shop · used at every chair</Muted>
             </View>
           </Row>

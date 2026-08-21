@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleProp,
@@ -234,6 +235,20 @@ export function Avatar({ name, size = 42 }: { name: string; size?: number }) {
     >
       <Text style={{ color: c.onAccent, fontWeight: '800', fontSize: size * 0.34 }}>{initials}</Text>
     </View>
+  );
+}
+
+/* The shop's mark, for the places that stand in for the shop itself — the sign-in
+   header, and the preview of a notification the shop sends. Ships at three
+   densities so it stays crisp on every screen; the artwork is square on black,
+   so a rounded corner never cuts into the monogram. */
+export function Logo({ size = 48, cornerRadius }: { size?: number; cornerRadius?: number }) {
+  return (
+    <Image
+      source={require('../assets/logo.png')}
+      style={{ width: size, height: size, borderRadius: cornerRadius ?? size * 0.29 }}
+      resizeMode="cover"
+    />
   );
 }
 

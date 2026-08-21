@@ -249,7 +249,7 @@ export function ProfileScreen() {
           <View style={{ flex: 1, paddingRight: space.md }}>
             <Body style={{ fontWeight: '700' }}>Shop news</Body>
             <Muted style={{ marginTop: 3 }}>
-              Offers and announcements from FadeRoom and your artist.
+              Offers and announcements from VIA Barber House and your artist.
             </Muted>
           </View>
           <Switch
@@ -694,7 +694,7 @@ export function NotificationsScreen() {
   return (
     <Screen>
       <Title>Notifications</Title>
-      <Muted style={{ marginTop: 2 }}>From FadeRoom and your artists</Muted>
+      <Muted style={{ marginTop: 2 }}>From VIA Barber House and your artists</Muted>
 
       {!items?.length ? (
         <View style={{ marginTop: space.lg }}>

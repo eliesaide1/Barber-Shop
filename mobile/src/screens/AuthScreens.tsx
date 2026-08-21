@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Body, Button, Card, Field, Muted, Title } from '../components/ui';
+import { Body, Button, Card, Field, Logo, Muted, Title } from '../components/ui';
 import { DateOfBirthField } from '../components/DateOfBirthField';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
@@ -91,20 +91,9 @@ function Brand() {
   const c = useColors();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: space.xl }}>
-      <View
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 14,
-          backgroundColor: c.accent,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Text style={{ fontSize: 22, color: c.onAccent }}>✂</Text>
-      </View>
+      <Logo size={48} cornerRadius={14} />
       <View>
-        <Text style={{ fontSize: 20, fontWeight: '800', color: c.text }}>FadeRoom</Text>
+        <Text style={{ fontSize: 20, fontWeight: '800', color: c.text }}>VIA Barber House</Text>
         <Muted>Sharp cuts. No waiting.</Muted>
       </View>
     </View>

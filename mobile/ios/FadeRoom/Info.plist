@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>FadeRoom</string>
+	<string>VIA Barber House</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -35,21 +35,17 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>FadeRoom uses the camera to scan the check-in QR at the chair, and to photograph a finished cut.</string>
-	<!-- Required before anything may open the photo library. iOS does not deny
-	     the request without it — it terminates the process, so an artist picking
-	     an existing photo would have seen the app vanish. -->
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Choose a photo of a finished cut, or of a look for the shop's lookbook.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
-	<!-- Lets a push wake the app on iOS. Harmless when Firebase is not
-	     configured: nothing sends, so nothing arrives. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo of a finished cut, or of a look for the shop's lookbook.</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>fetch</string>
 	</array>
-	<key>RCTNewArchEnabled</key>
-	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -109,7 +109,7 @@ export function ProductCard({
         </Text>
         <Text style={{ color: c.muted, fontSize: 10.5, marginTop: 3 }} numberOfLines={1}>
           {product.size}
-          {product.owner ? ` · ${product.owner.displayName.split(' ')[0]}` : ' · FadeRoom'}
+          {product.owner ? ` · ${product.owner.displayName.split(' ')[0]}` : ' · VIA Barber House'}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 7 }}>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>

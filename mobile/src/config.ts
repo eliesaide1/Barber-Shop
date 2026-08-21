@@ -52,7 +52,7 @@ export const absoluteUrl = (path?: string | null): string | undefined => {
 };
 
 export const SHOP = {
-  name: 'FadeRoom',
+  name: 'VIA Barber House',
   area: 'Mar Mikhael, Beirut',
   hours: 'Tue–Sun · 10:00–20:00',
   phone: '+961 1 567 890',

@@ -106,7 +106,7 @@ function toAppNotification(message: FirebaseMessage): AppNotification | null {
     kind: (kind as NotificationKind) ?? 'message',
     sentAt: new Date(message.sentTime ?? Date.now()).toISOString(),
     read: false,
-    createdByName: 'FadeRoom',
+    createdByName: 'VIA Barber House',
     data: { ...(screen ? { screen } : {}), ...(targetId ? { id: targetId } : {}) },
   };
 }

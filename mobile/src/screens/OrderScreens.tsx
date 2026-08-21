@@ -26,7 +26,7 @@ import type { Order } from '../types';
 const FLOW: Record<string, [string, string, string][]> = {
   pickup: [
     ['ready', 'Ready at the shop', 'Show your pickup code at the chair'],
-    ['collected', 'Collected', 'Handed over at FadeRoom'],
+    ['collected', 'Collected', 'Handed over at VIA Barber House'],
   ],
   delivery: [
     ['packing', 'Packing', 'We’re boxing your order'],

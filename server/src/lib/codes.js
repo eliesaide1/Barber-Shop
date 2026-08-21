@@ -63,7 +63,7 @@ export function verifyCheckin(raw, artistIds) {
       return { ok: false, reason: 'That code expired — ask for a fresh one' };
     }
     if (!safeEqual(signature, checkinSignature(artistId, window))) {
-      return { ok: false, reason: 'That code isn’t from FadeRoom' };
+      return { ok: false, reason: 'That code isn’t from VIA Barber House' };
     }
     return { ok: true, artistId };
   }

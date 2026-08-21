@@ -13,6 +13,7 @@ import {
   Field,
   Heading,
   Loading,
+  Logo,
   Muted,
   Row,
   Screen,
@@ -317,10 +318,10 @@ export function ArtistBroadcastScreen() {
       <Heading style={{ marginTop: space.xl }}>Preview</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Row style={{ alignItems: 'flex-start' }}>
-          <Avatar name="Fade Room" size={38} />
+          <Logo size={38} cornerRadius={19} />
           <View style={{ flex: 1 }}>
             <Between>
-              <Body style={{ fontWeight: '700', fontSize: 13 }}>FadeRoom</Body>
+              <Body style={{ fontWeight: '700', fontSize: 13 }}>VIA Barber House</Body>
               <Muted style={{ fontSize: 11 }}>now</Muted>
             </Between>
             <Body style={{ fontWeight: '700', marginTop: 3 }}>

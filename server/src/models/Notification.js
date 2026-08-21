@@ -34,7 +34,7 @@ const notificationSchema = new mongoose.Schema(
     image: { type: String, default: '' },
     /* Null when the shop raised it rather than a person typing it. */
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    createdByName: { type: String, default: 'FadeRoom' },
+    createdByName: { type: String, default: 'VIA Barber House' },
     sentAt: { type: Date, default: Date.now, index: true },
     readBy: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], default: [] },
     deliveredCount: { type: Number, default: 0 },

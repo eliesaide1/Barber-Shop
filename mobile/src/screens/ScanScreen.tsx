@@ -243,7 +243,7 @@ export function ScanScreen() {
               <Text style={{ fontSize: 50 }}>🎁</Text>
               <Title style={{ marginTop: 8, textAlign: 'center' }}>Free haircut unlocked!</Title>
               <Muted style={{ marginTop: 6, textAlign: 'center' }}>
-                {goal} check-ins done — your next cut is on FadeRoom.
+                {goal} check-ins done — your next cut is on VIA Barber House.
               </Muted>
               <Text
                 style={{

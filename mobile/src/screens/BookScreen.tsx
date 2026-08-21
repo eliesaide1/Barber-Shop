@@ -131,7 +131,7 @@ export function BookScreen() {
   return (
     <Screen>
       <Title>Book</Title>
-      <Muted style={{ marginTop: 2 }}>FadeRoom · Mar Mikhael, Beirut</Muted>
+      <Muted style={{ marginTop: 2 }}>VIA Barber House · Mar Mikhael, Beirut</Muted>
 
       <Heading style={{ marginTop: space.xl }}>1 · Choose your artist</Heading>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.md }}>

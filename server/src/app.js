@@ -69,7 +69,7 @@ export function createApp() {
     asyncHandler(async (_req, res) => {
       const settings = await getSettings();
       const shop = {
-        name: 'FadeRoom',
+        name: 'VIA Barber House',
         area: 'Mar Mikhael, Beirut',
         phone: '+961 1 567 890',
         hours: 'Tue–Sun · 10:00–20:00',

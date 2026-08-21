@@ -112,7 +112,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     });
   } catch (err) {
     /* fetch rejects only on transport failure — the phone can't see the API. */
-    throw new ApiError(0, 'Can’t reach FadeRoom. Check your connection.');
+    throw new ApiError(0, 'Can’t reach VIA Barber House. Check your connection.');
   }
 
   if (res.status === 401 && retry && refreshToken) {

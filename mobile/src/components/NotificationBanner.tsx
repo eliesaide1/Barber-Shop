@@ -138,7 +138,7 @@ export function NotificationBanner({ notification, onPress, onDismiss }: Props) 
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ color: c.muted, fontSize: 11, fontWeight: '700', letterSpacing: 0.3 }}>
-              {(notification.createdByName || 'FadeRoom').toUpperCase()}
+              {(notification.createdByName || 'VIA Barber House').toUpperCase()}
             </Text>
             <Text style={{ color: c.muted, fontSize: 11 }}>now</Text>
           </View>

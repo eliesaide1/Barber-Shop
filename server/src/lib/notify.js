@@ -60,7 +60,7 @@ export async function notify(
     createdBy: actor?._id ?? null,
     /* Named for whoever caused it, so "Karim confirmed your cut" reads as being
        from Karim rather than from a system. */
-    createdByName: actor?.name ?? 'FadeRoom',
+    createdByName: actor?.name ?? 'VIA Barber House',
     deliveredCount: connectedCount(room),
   });
 

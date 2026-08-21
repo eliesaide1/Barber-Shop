@@ -157,7 +157,7 @@ settingsRouter.post(
     const config = settings.birthday;
     if (!config.templateName) throw new ApiError(422, 'Name the approved template first');
 
-    const tokens = { name: req.user.name.split(' ')[0], shop: 'FadeRoom' };
+    const tokens = { name: req.user.name.split(' ')[0], shop: 'VIA Barber House' };
     const result = await sendTemplate(phone, {
       name: config.templateName,
       language: config.templateLanguage,

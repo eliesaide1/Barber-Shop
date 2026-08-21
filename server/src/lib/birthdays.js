@@ -20,7 +20,7 @@ import { env } from '../config/env.js';
  * with a footnote, not a failure.
  */
 
-const SHOP_NAME = 'FadeRoom';
+const SHOP_NAME = 'VIA Barber House';
 
 /** Today, in the shop's clock, as `{ year, month, day }`. */
 export function shopToday(now = new Date(), timeZone = env.shopTimezone) {
