@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Which APNs environment the build talks to. `development` is right for
+	     everything signed with a development profile; Xcode rewrites it to
+	     `production` when it exports for TestFlight or the App Store, so this
+	     value does not need changing to ship. -->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>
