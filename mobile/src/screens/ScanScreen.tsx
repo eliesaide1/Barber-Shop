@@ -69,6 +69,12 @@ export function ScanScreen() {
   /* Camera reads fire continuously — swallow repeats while one is in flight
      and for a moment after, or a single QR becomes a burst of requests. */
   const lock = useRef(0);
+  /* Read inside the scan callback, which the native side holds onto — a ref so
+     it sees the current value rather than the one captured when it was set. */
+  const focusedRef = useRef(focused);
+  useEffect(() => {
+    focusedRef.current = focused;
+  }, [focused]);
 
   const submit = useCallback(
     async (code: string) => {
@@ -96,6 +102,10 @@ export function ScanScreen() {
 
   const onObjectsScanned = useCallback(
     (objects: ScannedObject[]) => {
+      /* A frame can land in the gap between navigating away and the session
+         actually stopping. Checking in from a screen nobody is looking at is
+         not a thing anyone asked for. */
+      if (!focusedRef.current) return;
       if (Date.now() < lock.current) return;
       const code = objects.find(isScannedCode);
       if (!code?.value) return;
@@ -124,13 +134,24 @@ export function ScanScreen() {
 
   useEffect(() => {
     scanner.output?.setOnObjectsScannedCallback(onObjectsScanned);
+    /* Detached again on the way out. The output holds this closure natively,
+       and the closure holds this screen's state; without the clear it can still
+       be called after the screen is gone, which is a scan arriving into a
+       component that no longer exists. vision-camera's own useObjectOutput has
+       the same gap, and CameraObjectOutput has no dispose() to lean on. */
+    return () => scanner.output?.setOnObjectsScannedCallback(undefined);
   }, [scanner, onObjectsScanned]);
 
   useEffect(() => {
     if (scanner.supported && !hasPermission) requestPermission();
   }, [scanner.supported, hasPermission, requestPermission]);
 
-  const cameraReady = scanner.supported && hasPermission && device != null && focused && !result;
+  /* Mounted whenever there is something to mount, and switched off with
+     `isActive` rather than unmounted. Leaving the tab used to destroy the
+     capture session and rebuild it on the way back; doing that repeatedly is
+     what turns a leaked callback into a crash. isActive={false} releases the
+     hardware just the same. */
+  const cameraReady = scanner.supported && hasPermission && device != null && !result;
 
   return (
     <Screen>
