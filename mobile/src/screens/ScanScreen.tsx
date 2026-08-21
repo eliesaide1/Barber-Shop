@@ -5,6 +5,7 @@ import {
   Camera,
   VisionCamera,
   isScannedCode,
+  useCameraDevice,
   useCameraPermission,
   type ScannedObject,
   type CameraObjectOutput,
@@ -49,6 +50,14 @@ export function ScanScreen() {
   const { config } = useAuth();
 
   const { hasPermission, requestPermission } = useCameraPermission();
+  /* Resolved here rather than by passing device="back" to <Camera>. Given the
+     string, VisionCamera looks the device up itself and *throws* when it finds
+     none — inside render, so it takes the screen down rather than raising
+     something catchable. That happens on any simulator, which has no cameras at
+     all, and on a real phone in the moment after permission is granted, while
+     the device list is still empty. useCameraDevice returns undefined instead,
+     which leaves the typed-code fallback below to do its job. */
+  const device = useCameraDevice('back');
   const [manual, setManual] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
@@ -121,7 +130,7 @@ export function ScanScreen() {
     if (scanner.supported && !hasPermission) requestPermission();
   }, [scanner.supported, hasPermission, requestPermission]);
 
-  const cameraReady = scanner.supported && hasPermission && focused && !result;
+  const cameraReady = scanner.supported && hasPermission && device != null && focused && !result;
 
   return (
     <Screen>
@@ -147,12 +156,12 @@ export function ScanScreen() {
         {cameraReady && scanner.output ? (
           <Camera
             style={{ position: 'absolute', width: '100%', height: '100%' }}
-            device="back"
+            device={device}
             isActive={focused && !result}
             outputs={[scanner.output]}
           />
         ) : (
-          <Text style={{ fontSize: 44, opacity: 0.35 }}>{scanner.supported ? '📷' : '⌨️'}</Text>
+          <Text style={{ fontSize: 44, opacity: 0.35 }}>{scanner.supported && device ? '📷' : '⌨️'}</Text>
         )}
 
         {/* viewfinder corners */}
@@ -188,6 +197,12 @@ export function ScanScreen() {
             'Camera scanning isn’t available on this device — type the code instead'
           : !hasPermission
             ? 'Camera permission is needed to scan'
+            : !device
+              ? /* Permission granted and still no camera: a simulator, or the
+                   device list has not arrived yet. Either way the typed code
+                   below is the way through, so say so rather than sitting on
+                   "point at the code" in front of a black square. */
+                'No camera on this device — type the code instead'
             : busy
               ? 'Checking you in…'
               : 'Point at the code on your artist’s phone'}
