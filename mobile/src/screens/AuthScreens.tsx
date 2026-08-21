@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Body, Button, Card, Field, Logo, Muted, Title } from '../components/ui';
 import { DateOfBirthField } from '../components/DateOfBirthField';
+import { Icon } from '../components/Icon';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
 import { ApiError } from '../api/client';
@@ -177,6 +178,45 @@ export function LoginScreen() {
   );
 }
 
+/**
+ * A way back that does not depend on reaching the bottom of the form.
+ *
+ * Sign-up is long enough to scroll, and the "Already have one? Sign in" link
+ * sits under the last field — so somebody who opened this by mistake had to
+ * scroll past every question to get out of it. The arrow stays put above the
+ * scroll instead.
+ */
+function AuthHeader({ onBack }: { onBack: () => void }) {
+  const c = useColors();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: space.lg,
+        paddingVertical: space.sm,
+      }}
+    >
+      <Pressable
+        onPress={onBack}
+        hitSlop={12}
+        accessibilityRole="button"
+        accessibilityLabel="Back to sign in"
+        style={({ pressed }) => ({
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: pressed ? c.surface : 'transparent',
+        })}
+      >
+        <Icon name="back" size={22} color={c.text} />
+      </Pressable>
+    </View>
+  );
+}
+
 export function RegisterScreen() {
   const c = useColors();
   const nav = useNavigation<any>();
@@ -187,6 +227,11 @@ export function RegisterScreen() {
   const [busy, setBusy] = useState(false);
 
   const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  /* Register is always pushed from Login, so going back is the right move — it
+     keeps whatever was typed there. `navigate` is the fallback for the case
+     where there is no history to pop, which would otherwise do nothing. */
+  const toLogin = () => (nav.canGoBack() ? nav.goBack() : nav.navigate('Login'));
 
   const submit = async () => {
     const next: Record<string, string> = {};
@@ -223,6 +268,7 @@ export function RegisterScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      <AuthHeader onBack={toLogin} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -312,7 +358,7 @@ export function RegisterScreen() {
           <Button title="Create account" onPress={submit} loading={busy} style={{ marginTop: space.xl }} />
         </Card>
 
-        <Pressable onPress={() => nav.goBack()} style={{ marginTop: space.xl, alignItems: 'center' }}>
+        <Pressable onPress={toLogin} style={{ marginTop: space.xl, alignItems: 'center' }}>
           <Body>
             Already have one? <Text style={{ color: c.accentInk, fontWeight: '700' }}>Sign in</Text>
           </Body>

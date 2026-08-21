@@ -642,7 +642,7 @@ describe('prices on request', () => {
   test('the app is told what to say when somebody asks', async () => {
     const res = await api('/api/config');
     assert.match(res.body.contact.priceEnquiry, /\{product\}/, 'the app fills in which product');
-    assert.match(res.body.contact.priceEnquiry, /FadeRoom/);
+    assert.match(res.body.contact.priceEnquiry, /VIA Barber House/);
   });
 });
 
@@ -773,7 +773,7 @@ describe('loyalty', () => {
       body: { code: `FR1|C|${ctx.artist._id}|${Math.floor(Date.now() / 60000)}|ABCDEF` },
     });
     assert.equal(res.status, 400);
-    assert.match(res.body.error, /isn’t from FadeRoom/);
+    assert.match(res.body.error, /isn’t from VIA Barber House/);
   });
 
   test('rejects an expired code', async () => {
@@ -1678,7 +1678,7 @@ describe('birthday greetings', () => {
     const [greeting] = await inboxOf(ctx.client, /happy birthday/i);
     assert.ok(greeting, 'the client should have been greeted');
     assert.match(greeting.title, /Happy birthday, Elie!/);
-    assert.match(greeting.body, /FadeRoom/);
+    assert.match(greeting.body, /VIA Barber House/);
     assert.ok(!greeting.body.includes('{shop}'), 'tokens must be filled, not printed');
   });
 
@@ -1968,7 +1968,7 @@ describe('the “message us” button', () => {
 
     const config = await api('/api/config');
     assert.equal(config.body.contact.whatsapp, '9611567890');
-    assert.equal(config.body.contact.greeting, 'Hi FadeRoom, quick question.');
+    assert.equal(config.body.contact.greeting, 'Hi VIA Barber House, quick question.');
   });
 
   test('switching it off hides it without losing the number', async () => {

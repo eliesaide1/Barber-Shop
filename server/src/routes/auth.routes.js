@@ -3,6 +3,12 @@ import { z } from 'zod';
 import { User, VISIT_FREQUENCIES } from '../models/User.js';
 import { Artist } from '../models/Artist.js';
 import { Loyalty } from '../models/Loyalty.js';
+import { Appointment } from '../models/Appointment.js';
+import { CheckIn } from '../models/CheckIn.js';
+import { HaircutRecord } from '../models/HaircutRecord.js';
+import { Order } from '../models/Order.js';
+import { Notification } from '../models/Notification.js';
+import { Style } from '../models/Style.js';
 import { issueTokens, verifyRefreshToken, signAccessToken } from '../lib/tokens.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth } from '../middleware/auth.js';
@@ -311,6 +317,49 @@ authRouter.patch(
     await req.user.save();
 
     res.json(await sessionPayload(req.user));
+  }),
+);
+
+/**
+ * Close an account, at the account holder's own request.
+ *
+ * Everything keyed to the person goes with them. Leaving the rows behind would
+ * not be a lighter touch — an appointment or an order still pointing at a user
+ * that no longer exists renders as a blank name in the back office, and the
+ * loyalty card would survive a deletion it was supposed to be part of.
+ *
+ * Staff cannot close their own account here. An artist owns a chair, bookings
+ * other people are relying on, and products on the shelf; deciding what happens
+ * to those is the shop's call, not a button in the client app.
+ */
+authRouter.delete(
+  '/me',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    if (req.user.role !== 'client') {
+      throw new ApiError(403, 'Ask the shop to close a staff account.');
+    }
+
+    const id = req.user._id;
+
+    await Promise.all([
+      Appointment.deleteMany({ user: id }),
+      CheckIn.deleteMany({ user: id }),
+      HaircutRecord.deleteMany({ user: id }),
+      Order.deleteMany({ user: id }),
+      Loyalty.deleteMany({ user: id }),
+      /* Addressed to them, so it has no meaning without them. Broadcasts are
+         untouched — they were sent to everyone. */
+      Notification.deleteMany({ targetUser: id }),
+      /* ...but a broadcast still remembers who read it, and a saved style still
+         remembers who saved it. Those are references to drop, not documents. */
+      Notification.updateMany({ readBy: id }, { $pull: { readBy: id } }),
+      Style.updateMany({ savedBy: id }, { $pull: { savedBy: id } }),
+    ]);
+
+    await req.user.deleteOne();
+
+    res.status(204).end();
   }),
 );
 

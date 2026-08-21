@@ -54,7 +54,7 @@ export function ProfileScreen() {
   const c = useColors();
   const nav = useNavigation<any>();
   const { user, config, signOut, updateUser } = useAuth();
-  const { confirm } = useDialog();
+  const { confirm, showError } = useDialog();
   const { preference, setPreference, name: themeName } = useTheme();
   const cart = useCart();
   const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
@@ -67,6 +67,7 @@ export function ProfileScreen() {
      `user` re-reads the truth on the next focus. */
   const [broadcasts, setBroadcasts] = useState(user?.notifications?.broadcasts !== false);
   const [whatsapp, setWhatsapp] = useState(user?.notifications?.whatsapp === true);
+  const [deleting, setDeleting] = useState(false);
 
   const saveNotifications = async (
     patch: { broadcasts?: boolean; whatsapp?: boolean },
@@ -103,6 +104,37 @@ export function ProfileScreen() {
       cancelLabel: 'Stay signed in',
     });
     if (ok) signOut();
+  };
+
+  /* Asked before it happens, and asked plainly: this is the one action in the
+     app with nothing behind it to undo. The server takes the bookings, the
+     loyalty card and the order history with the account, so the sentence says
+     so rather than leaving it to be discovered. */
+  const confirmDeleteAccount = async () => {
+    const ok = await confirm({
+      title: 'Are you sure?',
+      message:
+        'Deleting your account also deletes your bookings, your loyalty card and your order history. This cannot be undone.',
+      icon: '🗑',
+      tone: 'danger',
+      confirmLabel: 'Yes, delete it',
+      cancelLabel: 'Cancel',
+    });
+    if (!ok) return;
+
+    setDeleting(true);
+    try {
+      await api.del('/auth/me');
+      /* The account is gone, so the tokens in the keychain point at nothing.
+         Signing out clears them and returns to the sign-in screen. */
+      await signOut();
+    } catch (err) {
+      setDeleting(false);
+      await showError(
+        err instanceof ApiError ? err.message : 'Please try again.',
+        { title: 'Account not deleted', icon: '🗑' },
+      );
+    }
   };
 
   return (
@@ -318,6 +350,13 @@ export function ProfileScreen() {
       </Card>
 
       <Button title="Log out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
+      <Button
+        title="Delete account"
+        variant="ghost"
+        onPress={confirmDeleteAccount}
+        loading={deleting}
+        style={{ marginTop: space.sm }}
+      />
     </Screen>
   );
 }

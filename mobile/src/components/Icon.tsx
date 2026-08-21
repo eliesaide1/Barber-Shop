@@ -12,7 +12,8 @@ export type IconName =
   | 'more'
   | 'bell'
   | 'image'
-  | 'scissors';
+  | 'scissors'
+  | 'back';
 
 interface Props {
   name: IconName;
@@ -47,6 +48,13 @@ export function Icon({ name, size = 24, color, active = false }: Props) {
 
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
+      {name === 'back' && (
+        <>
+          <Path d="M19 12H5" {...stroke} />
+          <Path d="m11 18-6-6 6-6" {...stroke} />
+        </>
+      )}
+
       {name === 'home' && (
         <>
           <Path d="M3 10.5 12 3l9 7.5" {...stroke} />
