@@ -1,5 +1,5 @@
 /**
- * FadeRoom — client app.
+ * VIA Barber House — client app.
  *
  * Provider order matters: Theme sits outermost so everything below can read
  * the palette, and Toast sits above Auth so a forced sign-out can still
@@ -16,6 +16,7 @@ import { AuthProvider } from './src/store/AuthContext';
 import { CartProvider } from './src/store/CartContext';
 import { NotificationsProvider } from './src/store/NotificationsContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { AnimatedSplash } from './src/components/AnimatedSplash';
 
 function Shell() {
   const c = useColors();
@@ -36,6 +37,10 @@ function Shell() {
           </AuthProvider>
         </DialogProvider>
       </ToastProvider>
+      {/* Last child, so it paints over the app rather than under it. Outside
+          the providers too — it needs nothing from them, and it has to be on
+          screen before any of them have resolved. */}
+      <AnimatedSplash />
     </>
   );
 }
