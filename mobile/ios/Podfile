@@ -44,5 +44,14 @@ target 'FadeRoom' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Each pod carries its own podspec floor, and several are still on iOS 9.0 —
+    # below the 12.0 Xcode now supports, so every one of them warns on each build.
+    # Raise them to the app's own minimum, which they all already satisfy.
+    installer.pods_project.targets.each do |pod_target|
+      pod_target.build_configurations.each do |pod_config|
+        pod_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+      end
+    end
   end
 end
