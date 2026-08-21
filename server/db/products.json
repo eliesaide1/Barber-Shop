@@ -4,7 +4,7 @@
       "$oid": "6a71e940130c1c2fa692218d"
     },
     "name": "Matte Clay Pomade",
-    "brand": "FadeRoom Label",
+    "brand": "VIA Barber House Label",
     "category": "Hair",
     "price": 18,
     "compareAtPrice": 22,
@@ -174,7 +174,7 @@
       "$oid": "6a71e940130c1c2fa6922192"
     },
     "name": "Hot Towel Shave Kit",
-    "brand": "FadeRoom Label",
+    "brand": "VIA Barber House Label",
     "category": "Shave",
     "price": 34,
     "compareAtPrice": 40,
@@ -208,7 +208,7 @@
       "$oid": "6a71e940130c1c2fa6922193"
     },
     "name": "Pre-Shave Oil",
-    "brand": "FadeRoom Label",
+    "brand": "VIA Barber House Label",
     "category": "Shave",
     "price": 12,
     "compareAtPrice": null,
@@ -240,7 +240,7 @@
       "$oid": "6a71e940130c1c2fa6922194"
     },
     "name": "Alcohol-Free Aftershave Balm",
-    "brand": "FadeRoom Label",
+    "brand": "VIA Barber House Label",
     "category": "Aftercare",
     "price": 13,
     "compareAtPrice": null,

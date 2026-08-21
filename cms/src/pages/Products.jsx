@@ -12,7 +12,7 @@ const CATEGORIES = ['Hair', 'Beard', 'Shave', 'Tools', 'Aftercare'];
 const STATUS_TONE = { published: 'ok', pending: 'warn', draft: 'dim', archived: 'red' };
 
 const EMPTY = {
-  name: '', brand: 'FadeRoom Label', category: 'Hair', price: '', compareAtPrice: '',
+  name: '', brand: 'VIA Barber House Label', category: 'Hair', price: '', compareAtPrice: '',
   size: '', description: '', howToUse: '', icon: '🧴', stock: '0', tag: '', owner: '', priceHidden: false,
 };
 

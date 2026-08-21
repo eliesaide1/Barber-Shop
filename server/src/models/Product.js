@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    brand: { type: String, default: 'FadeRoom Label', trim: true },
+    brand: { type: String, default: 'VIA Barber House Label', trim: true },
     category: {
       type: String,
       required: true,

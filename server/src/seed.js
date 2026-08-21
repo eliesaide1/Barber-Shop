@@ -87,7 +87,7 @@ const SERVICES = [
 
 /* Owner is an index into ARTISTS, or null for the house label. */
 const PRODUCTS = [
-  { name: 'Matte Clay Pomade', brand: 'FadeRoom Label', category: 'Hair', price: 18, compareAtPrice: 22, size: '100 ml', owner: 0, icon: '🧴', rating: 4.8, reviewsCount: 64, stock: 14, tag: 'BESTSELLER', featured: true,
+  { name: 'Matte Clay Pomade', brand: 'VIA Barber House Label', category: 'Hair', price: 18, compareAtPrice: 22, size: '100 ml', owner: 0, icon: '🧴', rating: 4.8, reviewsCount: 64, stock: 14, tag: 'BESTSELLER', featured: true,
     description: 'Strong hold, zero shine. Reactivates with water so you can reshape it any time during the day.',
     howToUse: 'Warm a fingertip between dry palms, work through towel-dried hair, shape with your fingers.' },
   { name: 'Sea Salt Texture Spray', brand: 'Nasr Shelf', category: 'Hair', price: 16, size: '150 ml', owner: 0, icon: '🌊', rating: 4.6, reviewsCount: 41, stock: 22,
@@ -102,13 +102,13 @@ const PRODUCTS = [
   { name: 'Carbon Steel Straight Razor', brand: 'Feghali Tools', category: 'Shave', price: 48, size: 'Full size', owner: 3, icon: '🪒', rating: 5.0, reviewsCount: 27, stock: 3, tag: 'PRO',
     description: 'The razor Tony uses on the hot towel shave. Carbon steel takes a keener edge than stainless and holds it longer.',
     howToUse: 'Strop before every shave, dry it fully after, oil the blade monthly.' },
-  { name: 'Hot Towel Shave Kit', brand: 'FadeRoom Label', category: 'Shave', price: 34, compareAtPrice: 40, size: '5 pieces', owner: 3, icon: '🧖', rating: 4.9, reviewsCount: 52, stock: 6, tag: 'BUNDLE', featured: true,
+  { name: 'Hot Towel Shave Kit', brand: 'VIA Barber House Label', category: 'Shave', price: 34, compareAtPrice: 40, size: '5 pieces', owner: 3, icon: '🧖', rating: 4.9, reviewsCount: 52, stock: 6, tag: 'BUNDLE', featured: true,
     description: 'Pre-shave oil, cream, badger brush, alum block and balm — the chair-side ritual, boxed for home.',
     howToUse: 'Hot towel two minutes, oil, then cream with the brush in small circles.' },
-  { name: 'Pre-Shave Oil', brand: 'FadeRoom Label', category: 'Shave', price: 12, size: '50 ml', owner: null, icon: '💧', rating: 4.5, reviewsCount: 19, stock: 0,
+  { name: 'Pre-Shave Oil', brand: 'VIA Barber House Label', category: 'Shave', price: 12, size: '50 ml', owner: null, icon: '💧', rating: 4.5, reviewsCount: 19, stock: 0,
     description: 'A thin protective layer so the blade glides instead of dragging. The difference between a close shave and a rash.',
     howToUse: 'A few drops on damp skin before your cream.' },
-  { name: 'Alcohol-Free Aftershave Balm', brand: 'FadeRoom Label', category: 'Aftercare', price: 13, size: '100 ml', owner: null, icon: '🌿', rating: 4.8, reviewsCount: 73, stock: 18,
+  { name: 'Alcohol-Free Aftershave Balm', brand: 'VIA Barber House Label', category: 'Aftercare', price: 13, size: '100 ml', owner: null, icon: '🌿', rating: 4.8, reviewsCount: 73, stock: 18,
     description: 'Calms without the sting. Aloe and witch hazel, no alcohol, no fragrance.',
     howToUse: 'Pat on straight after the razor while the skin is still damp.' },
   { name: 'Scalp Tonic', brand: 'Jad’s Shelf', category: 'Aftercare', price: 19, size: '120 ml', owner: 2, icon: '🧪', rating: 4.4, reviewsCount: 22, stock: 7,
