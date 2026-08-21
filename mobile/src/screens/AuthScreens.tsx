@@ -105,8 +105,8 @@ export function LoginScreen() {
   const c = useColors();
   const nav = useNavigation<any>();
   const { signIn } = useAuth();
-  const [email, setEmail] = useState('elie@faderoom.app');
-  const [password, setPassword] = useState('password1');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
   const [busy, setBusy] = useState(false);
 
@@ -169,10 +169,6 @@ export function LoginScreen() {
             New here? <Text style={{ color: c.accentInk, fontWeight: '700' }}>Create an account</Text>
           </Body>
         </Pressable>
-
-        <Muted style={{ textAlign: 'center', marginTop: space.xl }}>
-          Seeded demo login — elie@faderoom.app · password1
-        </Muted>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
