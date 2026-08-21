@@ -21,3 +21,17 @@ mobile/android/.cxx/
 mobile/ios/Pods/
 mobile/ios/build/
 mobile/*.jsbundle
+
+# Credentials. None of these belong in a repository, and this one is public.
+#
+# The APNs key signs push for every app on the team, and the Firebase service
+# account can send as the shop. Both are uploaded to a console once by hand —
+# neither is read by the app or needed to build it.
+*.p8
+AuthKey_*.p8
+**/GoogleService-Info.plist
+**/google-services.json
+*-firebase-adminsdk-*.json
+serviceAccount*.json
+*.pem
+*.mobileprovision

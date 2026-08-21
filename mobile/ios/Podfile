@@ -21,7 +21,7 @@ end
 # CocoaPods instead keeps the static linkage the rest of the build expects.
 $RNFirebaseDisableSPM = true
 
-target 'FadeRoom' do
+target 'VIABarberHouse' do
   config = use_native_modules!
 
   # FirebaseCoreInternal is Swift and imports GoogleUtilities, which is plain
