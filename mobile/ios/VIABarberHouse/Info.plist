@@ -33,16 +33,24 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<!-- The app encrypts nothing itself; it talks HTTPS, which Apple exempts.
+	     Declaring it here answers the export-compliance question at build
+	     time instead of being asked again on every single upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>VIA Barber House uses the camera to scan the check-in QR at the chair, and to photograph a finished cut.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose a photo of a finished cut, or of a look for the shop's lookbook.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<!-- Only what the app actually does. A push can wake it to hand over a
+	     message, which setBackgroundMessageHandler answers. Background fetch
+	     was declared here and never implemented, and a background mode with
+	     nothing behind it is a documented rejection. -->
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
-		<string>fetch</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
