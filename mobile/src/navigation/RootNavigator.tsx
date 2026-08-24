@@ -13,6 +13,7 @@ import { space } from '../theme';
 
 import { LoginScreen, RegisterScreen } from '../screens/AuthScreens';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
+import { DeviceScreen } from '../screens/DeviceScreen';
 import { CompleteProfileScreen } from '../screens/CompleteProfileScreen';
 import { HaircutsScreen } from '../screens/HaircutsScreen';
 import { ContactFab } from '../components/ContactFab';
@@ -307,6 +308,7 @@ export function RootNavigator() {
             component={ArtistPortfolioScreen}
             options={{ title: 'Portfolio' }}
           />
+          <ArtistStack.Screen name="Device" component={DeviceScreen} options={{ title: 'This device' }} />
           <ArtistStack.Screen
             name="Notifications"
             component={NotificationsScreen}
@@ -335,6 +337,7 @@ export function RootNavigator() {
           <RootStack.Screen name="Preferences" component={PreferencesScreen} options={{ title: 'Preferences' }} />
           <RootStack.Screen name="Lookbook" component={LookbookScreen} options={{ title: 'Styles' }} />
           <RootStack.Screen name="Haircuts" component={HaircutsScreen} options={{ title: 'My haircuts' }} />
+          <RootStack.Screen name="Device" component={DeviceScreen} options={{ title: 'This device' }} />
         </RootStack.Navigator>
       ) : firstLaunch.state === 'first' ? (
         /* Swapped out rather than navigated away from: finishing the

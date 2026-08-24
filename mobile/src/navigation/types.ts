@@ -15,6 +15,7 @@ export type RootStackParamList = {
   Preferences: undefined;
   Lookbook: undefined;
   Haircuts: undefined;
+  Device: undefined;
 };
 
 export type TabParamList = {
@@ -36,6 +37,7 @@ export type ArtistStackParamList = {
   ArtistTabs: undefined;
   Broadcast: undefined;
   Portfolio: undefined;
+  Device: undefined;
   /* Params rather than a fetch: the client book already has these, and the
      screen should not re-request what the caller is holding. */
   ClientHistory: {

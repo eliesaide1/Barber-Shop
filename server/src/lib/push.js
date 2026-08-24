@@ -197,7 +197,10 @@ export async function pushToUsers(userIds, notification) {
         skipped += 1;
         continue;
       }
-      for (const device of user.devices) tokens.push(device.token);
+      /* A device row no longer implies a push address — declining
+         notifications still records the install. Sending an empty token makes
+         FCM reject the whole batch, so they are dropped here. */
+      for (const device of user.devices) if (device.token) tokens.push(device.token);
     }
     if (!tokens.length) return { sent: 0, skipped };
 

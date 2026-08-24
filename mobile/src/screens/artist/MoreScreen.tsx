@@ -245,6 +245,13 @@ export function ArtistMoreScreen() {
         </Between>
       </Card>
 
+      <Button
+        title="This device"
+        variant="ghost"
+        onPress={() => nav.navigate('Device')}
+        style={{ marginTop: space.lg }}
+      />
+
       <Button title="Sign out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
     </Screen>
   );

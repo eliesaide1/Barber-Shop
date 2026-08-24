@@ -349,6 +349,19 @@ export function ProfileScreen() {
         </Between>
       </Card>
 
+      <Heading style={{ marginTop: space.xl }}>About</Heading>
+      <Card style={{ marginTop: space.sm }} onPress={() => nav.navigate('Device')}>
+        <Between>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <Body style={{ fontWeight: '700' }}>This device</Body>
+            <Muted style={{ marginTop: 3 }}>
+              Which phone, which app version, and who is signed in.
+            </Muted>
+          </View>
+          <Body>›</Body>
+        </Between>
+      </Card>
+
       <Button title="Log out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
       <Button
         title="Delete account"

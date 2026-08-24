@@ -10,6 +10,7 @@ import { AppState } from 'react-native';
 import { api } from '../api/client';
 import { getSocket } from '../api/socket';
 import { registerDevice, subscribeToPushMessages, watchTokenRefresh } from '../api/push';
+import { reportDevice, resetDeviceReport, watchForeground } from '../api/deviceRegistry';
 import { useAuth } from './AuthContext';
 import { NotificationBanner } from '../components/NotificationBanner';
 import { openNotification } from '../navigation/ref';
@@ -98,12 +99,21 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
      deliver() the socket uses, and duplicates are dropped by id. */
   useEffect(() => {
     if (!user) return undefined;
+    /* Reported first and unconditionally. `registerDevice` stops at a declined
+       permission prompt, and a phone that refuses notifications is still a
+       phone the shop should be able to see the version of. */
+    reportDevice();
     registerDevice();
     const stopMessages = subscribeToPushMessages(deliver);
     const stopRefresh = watchTokenRefresh();
+    const stopForeground = watchForeground();
     return () => {
       stopMessages();
       stopRefresh?.();
+      stopForeground();
+      /* The next sign-in on this phone may be somebody else, and their record
+         has to be written rather than skipped as unchanged. */
+      resetDeviceReport();
     };
   }, [user, deliver]);
 

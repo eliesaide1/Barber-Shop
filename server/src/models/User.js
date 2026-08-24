@@ -12,10 +12,31 @@ const preferencesSchema = new mongoose.Schema(
   { _id: false },
 );
 
+/**
+ * One install of the app.
+ *
+ * Started as a push address and is now also the answer to "what are they
+ * actually running" — the first question support asks, and the one nobody can
+ * answer from a screenshot. The two belong on the same record because they
+ * describe the same thing: this phone, this install.
+ *
+ * `token` is optional because a device that declined notifications is still a
+ * device worth knowing about; before, refusing push meant vanishing from the
+ * record entirely. `deviceId` is what a row is matched on now — it survives the
+ * token rotating, which is the whole reason duplicates used to pile up.
+ */
 const deviceSchema = new mongoose.Schema(
   {
-    token: { type: String, required: true },
+    deviceId: { type: String, default: '' },
+    /* Absent when notifications were declined or the token has not arrived yet. */
+    token: { type: String, default: '' },
     platform: { type: String, enum: ['android', 'ios'], required: true },
+    /* The marketing version — 1.0, 1.1 — and the build behind it. Strings, not
+       numbers: "1.10" is a later version than "1.9" and a float disagrees. */
+    appVersion: { type: String, default: '' },
+    buildNumber: { type: String, default: '' },
+    osVersion: { type: String, default: '' },
+    model: { type: String, default: '' },
     lastSeenAt: { type: Date, default: Date.now },
   },
   { _id: false },
