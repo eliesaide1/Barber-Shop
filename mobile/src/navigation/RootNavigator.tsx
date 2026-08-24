@@ -12,6 +12,7 @@ import { Icon, type IconName } from '../components/Icon';
 import { space } from '../theme';
 
 import { LoginScreen, RegisterScreen } from '../screens/AuthScreens';
+import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { CompleteProfileScreen } from '../screens/CompleteProfileScreen';
 import { HaircutsScreen } from '../screens/HaircutsScreen';
 import { ContactFab } from '../components/ContactFab';
@@ -37,6 +38,7 @@ import { ArtistMoreScreen, ArtistBroadcastScreen } from '../screens/artist/MoreS
 import { ArtistPortfolioScreen } from '../screens/artist/PortfolioScreen';
 import { ArtistClientHistoryScreen } from '../screens/artist/ClientHistoryScreen';
 
+import { useFirstLaunch } from '../lib/firstLaunch';
 import { navigationRef } from './ref';
 
 import type {
@@ -233,6 +235,7 @@ function AdminNotice() {
 
 export function RootNavigator() {
   const { user, isArtist, booting, profileComplete } = useAuth();
+  const firstLaunch = useFirstLaunch();
   const isAdmin = user?.role === 'admin';
   const c = useColors();
   const { name } = useTheme();
@@ -249,7 +252,10 @@ export function RootNavigator() {
     },
   };
 
-  if (booting) {
+  /* The flag is read from storage, so it arrives a frame or two after the
+     first render. Waiting for it alongside the session keeps the sign-in
+     screen from flashing up in front of the walkthrough. */
+  if (booting || firstLaunch.state === 'loading') {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, justifyContent: 'center' }}>
         <Loading label="Opening the shop…" />
@@ -329,6 +335,17 @@ export function RootNavigator() {
           <RootStack.Screen name="Preferences" component={PreferencesScreen} options={{ title: 'Preferences' }} />
           <RootStack.Screen name="Lookbook" component={LookbookScreen} options={{ title: 'Styles' }} />
           <RootStack.Screen name="Haircuts" component={HaircutsScreen} options={{ title: 'My haircuts' }} />
+        </RootStack.Navigator>
+      ) : firstLaunch.state === 'first' ? (
+        /* Swapped out rather than navigated away from: finishing the
+           walkthrough is a change in what the app is showing, not a screen in
+           the sign-in stack. Leaving it in the stack would put it behind a
+           back gesture from Login, and on Android behind the hardware back
+           button — a walkthrough you can reverse into after dismissing it. */
+        <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
+          <RootStack.Screen name="Tabs">
+            {() => <OnboardingScreen onDone={firstLaunch.complete} />}
+          </RootStack.Screen>
         </RootStack.Navigator>
       ) : (
         <AuthStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>

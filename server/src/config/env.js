@@ -1,3 +1,4 @@
+import path from 'node:path';
 import 'dotenv/config';
 
 const num = (v, fallback) => (v === undefined || v === '' ? fallback : Number(v));
@@ -77,6 +78,13 @@ export const env = {
     ),
   ],
   appleClientIds: list(process.env.APPLE_CLIENT_IDS, []),
+
+  /* Where uploaded images are written.
+     A container's own filesystem is thrown away on every deploy, so on a host
+     this has to point at mounted storage that outlives the container — on
+     Render, the disk's mount path. Left unset it stays beside the source,
+     which is what a developer wants and what the tests assume. */
+  uploadDir: process.env.UPLOAD_DIR || path.resolve('uploads'),
 
   corsOrigins: list(process.env.CORS_ORIGINS, ['http://localhost:5173', 'http://localhost:4173']),
   publicUrl: (process.env.PUBLIC_URL || 'http://localhost:4000').replace(/\/$/, ''),

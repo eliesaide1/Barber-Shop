@@ -2,9 +2,10 @@ import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import multer from 'multer';
+import { env } from '../config/env.js';
 import { ApiError } from '../middleware/error.js';
 
-export const UPLOAD_DIR = path.resolve('uploads');
+export const UPLOAD_DIR = path.resolve(env.uploadDir);
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const ALLOWED = new Map([

@@ -27,6 +27,16 @@ services:
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
+
+    # Uploaded images. A container's filesystem is rebuilt on every deploy, so
+    # without this the product and lookbook photos artists upload are deleted
+    # the next time the service ships — silently, and only noticed later when
+    # the shelf is full of broken images.
+    disk:
+      name: uploads
+      mountPath: /var/data
+      sizeGB: 2
+
     envVars:
       - key: NODE_ENV
         value: production
@@ -51,6 +61,12 @@ services:
       # to uploaded files.
       - key: PUBLIC_URL
         sync: false
+
+      # A directory on the mounted disk above, rather than the mount root, so
+      # the images sit in something named and the disk can hold anything else
+      # later without them being mixed together.
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
 
       # PORT is deliberately absent: Render assigns it and the API reads it.
 
