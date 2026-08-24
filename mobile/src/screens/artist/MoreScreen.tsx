@@ -252,6 +252,13 @@ export function ArtistMoreScreen() {
         style={{ marginTop: space.lg }}
       />
 
+      <Button
+        title="Privacy policy"
+        variant="ghost"
+        onPress={() => nav.navigate('Privacy')}
+        style={{ marginTop: space.sm }}
+      />
+
       <Button title="Sign out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
     </Screen>
   );

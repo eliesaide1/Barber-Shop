@@ -362,6 +362,16 @@ export function ProfileScreen() {
         </Between>
       </Card>
 
+      <Card style={{ marginTop: space.sm }} onPress={() => nav.navigate('Privacy')}>
+        <Between>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <Body style={{ fontWeight: '700' }}>Privacy policy</Body>
+            <Muted style={{ marginTop: 3 }}>What we collect, why, and how to have it deleted.</Muted>
+          </View>
+          <Body>›</Body>
+        </Between>
+      </Card>
+
       <Button title="Log out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
       <Button
         title="Delete account"
