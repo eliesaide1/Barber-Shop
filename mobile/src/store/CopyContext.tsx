@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { api } from '../api/client';
-import { getSocket } from '../api/socket';
+import { onSocketEvent } from '../api/socket';
 
 /**
  * Interface copy the shop can rewrite.
@@ -68,16 +68,14 @@ export function CopyProvider({ children }: { children: React.ReactNode }) {
   /* The same three moments as the shop's settings: now, when an admin saves,
      and when the app comes back from the background having missed the event. */
   useEffect(() => {
-    const socket = getSocket();
-    const onChanged = () => load();
-    socket?.on('labels:changed', onChanged);
+    const stop = onSocketEvent('labels:changed', load);
 
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') load();
     });
 
     return () => {
-      socket?.off('labels:changed', onChanged);
+      stop();
       sub.remove();
     };
   }, [load]);

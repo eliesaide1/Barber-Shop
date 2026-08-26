@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 import { api, auth, onForcedSignOut } from '../api/client';
-import { connectSocket, disconnectSocket, getSocket } from '../api/socket';
+import { connectSocket, disconnectSocket, onSocketEvent } from '../api/socket';
 import {
   SignInCancelled,
   configureGoogle,
@@ -73,7 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     await auth.clear();
+    /* Closed and reopened rather than simply closed: the token is read at
+       handshake time, so the authenticated socket has to go — but the app still
+       has screens, and they still want to hear the shop change its mind. */
     disconnectSocket();
+    connectSocket();
     setUser(null);
     setArtist(null);
   }, []);
@@ -100,23 +104,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      the basket is sent to — are read from the server rather than compiled in,
      and now they are re-read rather than believed forever. */
   useEffect(() => {
-    const socket = getSocket();
-    const onChanged = () => loadConfig();
-    socket?.on('settings:changed', onChanged);
+    const stop = onSocketEvent('settings:changed', loadConfig);
 
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') loadConfig();
     });
 
     return () => {
-      socket?.off('settings:changed', onChanged);
+      stop();
       sub.remove();
     };
-    /* Re-bound when the session changes: the socket is a different one after
-       signing in, and a listener attached to the old instance hears nothing. */
-  }, [loadConfig, user]);
+  }, [loadConfig]);
 
   useEffect(() => {
+    /* Opened before there is anybody to open it for. Signed out, it joins no
+       rooms and hears only what the shop broadcasts to everyone — which is what
+       the sign-in screen needs in order to be told its own words changed. */
+    connectSocket();
+
     (async () => {
       loadConfig();
 

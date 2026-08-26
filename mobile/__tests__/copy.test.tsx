@@ -15,7 +15,13 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 const mockGet = jest.fn();
 jest.mock('../src/api/client', () => ({ api: { get: (...a: any[]) => mockGet(...a) } }));
-jest.mock('../src/api/socket', () => ({ getSocket: () => null }));
+jest.mock('../src/api/socket', () => ({
+  getSocket: () => null,
+  /* Returns its unsubscribe, like the real one — a provider that unmounts
+     would otherwise throw on cleanup and the failure would look like the
+     component's. */
+  onSocketEvent: () => () => {},
+}));
 
 import { CopyProvider, useT } from '../src/store/CopyContext';
 
