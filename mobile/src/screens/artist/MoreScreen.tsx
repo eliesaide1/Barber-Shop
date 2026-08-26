@@ -28,6 +28,7 @@ import { useToast } from '../../store/ToastContext';
 import { api, ApiError } from '../../api/client';
 import { radius, space } from '../../theme';
 import type { Product } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -37,6 +38,7 @@ const GAPS = [0, 5, 10, 15, 20, 30];
 
 export function ArtistMoreScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { user, artist, config, signOut, refreshUser } = useAuth();
   const { preference, setPreference, name: themeName } = useTheme();
@@ -85,7 +87,7 @@ export function ArtistMoreScreen() {
 
   return (
     <Screen>
-      <Title>More</Title>
+      <Title>{t('artistMore.more', 'More')}</Title>
 
       <Card style={{ marginTop: space.lg, alignItems: 'center' }}>
         <Avatar name={artist?.displayName ?? user?.name ?? ''} size={84} />
@@ -104,31 +106,29 @@ export function ArtistMoreScreen() {
       {!!artist && (
         <Card style={{ marginTop: space.md }}>
           <Between>
-            <Muted>Working hours</Muted>
+            <Muted>{t('artistMore.workingHours', 'Working hours')}</Muted>
             <Body>
               {artist.workingHours.start}–{artist.workingHours.end}
             </Body>
           </Between>
           <Between style={{ marginTop: space.md }}>
-            <Muted>From</Muted>
+            <Muted>{t('artistMore.from', 'From')}</Muted>
             <Body>${artist.priceFrom}</Body>
           </Between>
           <Divider />
-          <Muted style={{ marginBottom: 8 }}>Days on</Muted>
+          <Muted style={{ marginBottom: 8 }}>{t('artistMore.daysOn', 'Days on')}</Muted>
           <Row style={{ flexWrap: 'wrap', gap: 6 }}>
             {DAYS.map((d, i) => (
               <Badge key={d} label={d} tone={artist.daysOff.includes(i) ? 'dim' : 'ok'} />
             ))}
           </Row>
-          <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>
-            Hours, rates and days off are set in the back office.
-          </Muted>
+          <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>{t('artistMore.hoursRatesAndDays', 'Hours, rates and days off are set in the back office.')}</Muted>
         </Card>
       )}
 
       {!!artist && (
         <Card style={{ marginTop: space.md }}>
-          <Body style={{ fontWeight: '700' }}>Time between clients</Body>
+          <Body style={{ fontWeight: '700' }}>{t('artistMore.timeBetweenClients', 'Time between clients')}</Body>
           <Muted style={{ marginTop: 4 }}>
             Your turnaround — sweeping up, cleaning the guards, taking payment. A 15-minute cut at
             10:00 with {artist.gapMin || 0} min frees the chair at{' '}
@@ -172,7 +172,7 @@ export function ArtistMoreScreen() {
         </Card>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>My shelf</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistMore.myShelf', 'My shelf')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Row style={{ gap: space.md }}>
           {[
@@ -201,19 +201,19 @@ export function ArtistMoreScreen() {
       </Card>
 
       <Button
-        title="My portfolio"
+        title={t('artistMore.myPortfolio', 'My portfolio')}
         variant="secondary"
         onPress={() => nav.navigate('Portfolio')}
         style={{ marginTop: space.lg }}
       />
       <Button
-        title="Message my clients"
+        title={t('artistMore.messageMyClients', 'Message my clients')}
         variant="secondary"
         onPress={() => nav.navigate('Broadcast')}
         style={{ marginTop: space.md }}
       />
 
-      <Heading style={{ marginTop: space.xl }}>Appearance</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistMore.appearance', 'Appearance')}</Heading>
       <View style={{ marginTop: space.sm }}>
         <Segmented
           value={preference ?? 'system'}
@@ -229,23 +229,37 @@ export function ArtistMoreScreen() {
         {preference ? `Always ${preference}.` : `Following your phone — currently ${themeName}.`}
       </Muted>
 
-      <Heading style={{ marginTop: space.xl }}>Shop</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistMore.shop', 'Shop')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Between>
           <Muted>{config?.shop.name}</Muted>
           <Body>{config?.shop.area}</Body>
         </Between>
         <Between style={{ marginTop: space.md }}>
-          <Muted>Hours</Muted>
+          <Muted>{t('artistMore.hours', 'Hours')}</Muted>
           <Body>{config?.shop.hours}</Body>
         </Between>
         <Between style={{ marginTop: space.md }}>
-          <Muted>Phone</Muted>
+          <Muted>{t('artistMore.phone', 'Phone')}</Muted>
           <Text style={{ color: c.accentInk }}>{config?.shop.phone}</Text>
         </Between>
       </Card>
 
-      <Button title="Sign out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
+      <Button
+        title={t('artistMore.thisDevice', 'This device')}
+        variant="ghost"
+        onPress={() => nav.navigate('Device')}
+        style={{ marginTop: space.lg }}
+      />
+
+      <Button
+        title={t('artistMore.privacyPolicy', 'Privacy policy')}
+        variant="ghost"
+        onPress={() => nav.navigate('Privacy')}
+        style={{ marginTop: space.sm }}
+      />
+
+      <Button title={t('artistMore.signOut', 'Sign out')} variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
     </Screen>
   );
 }
@@ -254,6 +268,7 @@ export function ArtistMoreScreen() {
 
 export function ArtistBroadcastScreen() {
   const nav = useNavigation<any>();
+  const t = useT();
   const { toast } = useToast();
   const { showError } = useDialog();
   const [form, setForm] = useState({ title: '', body: '' });
@@ -291,38 +306,38 @@ export function ArtistBroadcastScreen() {
 
   return (
     <Screen>
-      <Title>Message my clients</Title>
-      <Muted style={{ marginTop: 2 }}>Everyone who has booked your chair</Muted>
+      <Title>{t('artistMore.messageMyClients', 'Message my clients')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('artistMore.everyoneWhoHasBooked', 'Everyone who has booked your chair')}</Muted>
 
       <Card style={{ marginTop: space.lg }}>
         <Field
-          label="Title"
+          label={t('artistMore.title', 'Title')}
           value={form.title}
           onChangeText={(v) => setForm((f) => ({ ...f, title: v }))}
           maxLength={60}
-          placeholder="Saturday slots just opened"
+          placeholder={t('artistMore.saturdaySlotsJustOpened', 'Saturday slots just opened')}
           style={{ marginTop: 0 }}
         />
         <Field
-          label="Message"
+          label={t('artistMore.message', 'Message')}
           value={form.body}
           onChangeText={(v) => setForm((f) => ({ ...f, body: v }))}
           maxLength={220}
-          placeholder="Two chairs free after 4pm. Book from the app."
+          placeholder={t('artistMore.twoChairsFreeAfter', 'Two chairs free after 4pm. Book from the app.')}
           multiline
           style={{ minHeight: 90, textAlignVertical: 'top' }}
         />
         <Muted style={{ textAlign: 'right', marginTop: 4 }}>{form.body.length}/220</Muted>
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Preview</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistMore.preview', 'Preview')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Row style={{ alignItems: 'flex-start' }}>
           <Logo size={38} cornerRadius={19} />
           <View style={{ flex: 1 }}>
             <Between>
-              <Body style={{ fontWeight: '700', fontSize: 13 }}>VIA Barber House</Body>
-              <Muted style={{ fontSize: 11 }}>now</Muted>
+              <Body style={{ fontWeight: '700', fontSize: 13 }}>{t('artistMore.viaBarberHouse', 'VIA Barber House')}</Body>
+              <Muted style={{ fontSize: 11 }}>{t('artistMore.now', 'now')}</Muted>
             </Between>
             <Body style={{ fontWeight: '700', marginTop: 3 }}>
               {form.title || 'Your title appears here'}
@@ -334,8 +349,8 @@ export function ArtistBroadcastScreen() {
         </Row>
       </Card>
 
-      <Button title="Send now" onPress={send} loading={busy} style={{ marginTop: space.lg }} />
-      <Button title="Cancel" variant="ghost" onPress={() => nav.goBack()} style={{ marginTop: space.md }} />
+      <Button title={t('artistMore.sendNow', 'Send now')} onPress={send} loading={busy} style={{ marginTop: space.lg }} />
+      <Button title={t('artistMore.cancel', 'Cancel')} variant="ghost" onPress={() => nav.goBack()} style={{ marginTop: space.md }} />
     </Screen>
   );
 }

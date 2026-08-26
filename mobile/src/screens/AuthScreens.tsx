@@ -7,6 +7,7 @@ import { DateOfBirthField } from '../components/DateOfBirthField';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { ApiError } from '../api/client';
 import type { Provider } from '../api/social';
 import {
@@ -29,6 +30,7 @@ const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
  */
 function ProviderButtons({ onError }: { onError: (message: string) => void }) {
   const c = useColors();
+  const t = useT();
   const { providers, signInWith } = useAuth();
   const [busy, setBusy] = useState<Provider | null>(null);
 
@@ -81,7 +83,7 @@ function ProviderButtons({ onError }: { onError: (message: string) => void }) {
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md, marginTop: space.md }}>
         <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
-        <Muted style={{ fontSize: 11.5 }}>or with an email</Muted>
+        <Muted style={{ fontSize: 11.5 }}>{t('auth.orWithEmail', 'or with an email')}</Muted>
         <View style={{ flex: 1, height: 1, backgroundColor: c.line }} />
       </View>
     </View>
@@ -90,12 +92,13 @@ function ProviderButtons({ onError }: { onError: (message: string) => void }) {
 
 function Brand() {
   const c = useColors();
+  const t = useT();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: space.xl }}>
       <Logo size={48} cornerRadius={14} />
       <View>
         <Text style={{ fontSize: 20, fontWeight: '800', color: c.text }}>VIA Barber House</Text>
-        <Muted>Sharp cuts. No waiting.</Muted>
+        <Muted>{t('auth.tagline', 'Sharp cuts. No waiting.')}</Muted>
       </View>
     </View>
   );
@@ -103,6 +106,7 @@ function Brand() {
 
 export function LoginScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
@@ -134,14 +138,16 @@ export function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <Brand />
-        <Title>Welcome back</Title>
-        <Muted style={{ marginTop: 6 }}>Sign in to book a chair and collect your stamps.</Muted>
+        <Title>{t('auth.welcomeTitle', 'Welcome back')}</Title>
+        <Muted style={{ marginTop: 6 }}>
+          {t('auth.welcomeSubtitle', 'Sign in to book a chair and collect your stamps.')}
+        </Muted>
 
         <ProviderButtons onError={(message) => setErrors({ form: message })} />
 
         <Card style={{ marginTop: space.xl }}>
           <Field
-            label="Email"
+            label={t('auth.email', 'Email')}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -151,7 +157,7 @@ export function LoginScreen() {
             style={{ marginTop: 0 }}
           />
           <Field
-            label="Password"
+            label={t('auth.password', 'Password')}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -161,12 +167,20 @@ export function LoginScreen() {
           {!!errors.form && (
             <Text style={{ color: c.danger, fontSize: 12.5, marginTop: 10 }}>{errors.form}</Text>
           )}
-          <Button title="Sign in" onPress={submit} loading={busy} style={{ marginTop: space.xl }} />
+          <Button
+            title={t('auth.signIn', 'Sign in')}
+            onPress={submit}
+            loading={busy}
+            style={{ marginTop: space.xl }}
+          />
         </Card>
 
         <Pressable onPress={() => nav.navigate('Register')} style={{ marginTop: space.xl, alignItems: 'center' }}>
           <Body>
-            New here? <Text style={{ color: c.accentInk, fontWeight: '700' }}>Create an account</Text>
+            {t('auth.newHere', 'New here?')}{' '}
+            <Text style={{ color: c.accentInk, fontWeight: '700' }}>
+              {t('auth.createAccount', 'Create an account')}
+            </Text>
           </Body>
         </Pressable>
       </KeyboardAvoidingView>
@@ -215,6 +229,7 @@ function AuthHeader({ onBack }: { onBack: () => void }) {
 
 export function RegisterScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { register } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', phone: '', dob: '', password: '' });
@@ -277,17 +292,20 @@ export function RegisterScreen() {
           contentContainerStyle={{ padding: space.lg, flexGrow: 1, justifyContent: 'center' }}
           keyboardShouldPersistTaps="handled"
         >
-        <Title>Create account</Title>
+        <Title>{t('auth.registerTitle', 'Create account')}</Title>
         <Muted style={{ marginTop: 6 }}>
-          Your artist keeps this on file — it is how they know you before you sit down.
+          {t(
+            'auth.registerSubtitle',
+            'Your artist keeps this on file — it is how they know you before you sit down.',
+          )}
         </Muted>
 
         <ProviderButtons onError={(message) => setErrors({ form: message })} />
 
         <Card style={{ marginTop: space.xl }}>
-          <Field label="Full name" value={form.name} onChangeText={set('name')} error={errors.name} style={{ marginTop: 0 }} />
+          <Field label={t('auth.fullName', 'Full name')} value={form.name} onChangeText={set('name')} error={errors.name} style={{ marginTop: 0 }} />
           <Field
-            label="Email"
+            label={t('auth.email', 'Email')}
             value={form.email}
             onChangeText={set('email')}
             autoCapitalize="none"
@@ -295,7 +313,7 @@ export function RegisterScreen() {
             error={errors.email}
           />
           <Field
-            label="Mobile number"
+            label={t('auth.mobile', 'Mobile number')}
             value={form.phone}
             onChangeText={set('phone')}
             keyboardType="phone-pad"
@@ -343,7 +361,7 @@ export function RegisterScreen() {
           )}
 
           <Field
-            label="Password"
+            label={t('auth.password', 'Password')}
             value={form.password}
             onChangeText={set('password')}
             secureTextEntry
@@ -351,12 +369,18 @@ export function RegisterScreen() {
             error={errors.password}
           />
           {!!errors.form && <Text style={{ color: c.danger, fontSize: 12.5, marginTop: 10 }}>{errors.form}</Text>}
-          <Button title="Create account" onPress={submit} loading={busy} style={{ marginTop: space.xl }} />
+          <Button
+            title={t('auth.createAccount', 'Create an account')}
+            onPress={submit}
+            loading={busy}
+            style={{ marginTop: space.xl }}
+          />
         </Card>
 
         <Pressable onPress={toLogin} style={{ marginTop: space.xl, alignItems: 'center' }}>
           <Body>
-            Already have one? <Text style={{ color: c.accentInk, fontWeight: '700' }}>Sign in</Text>
+            {t('auth.alreadyHaveOne', 'Already have one?')}{' '}
+            <Text style={{ color: c.accentInk, fontWeight: '700' }}>{t('auth.signIn', 'Sign in')}</Text>
           </Body>
         </Pressable>
         </ScrollView>

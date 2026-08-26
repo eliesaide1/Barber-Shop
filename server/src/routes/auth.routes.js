@@ -394,18 +394,64 @@ authRouter.post(
   }),
 );
 
-/** Registers an FCM/APNs device token for push. */
+/**
+ * Records this install — its push address, and what it is running.
+ *
+ * Called on sign-in and whenever the app comes back to the foreground, so the
+ * version the shop sees is the version in somebody's hand rather than the one
+ * they installed months ago.
+ *
+ * Everything but the platform is optional. An older build sends only a token
+ * and must keep working; a device that declined notifications sends everything
+ * except one, and is still worth recording.
+ */
 authRouter.post(
   '/devices',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { token, platform } = z
-      .object({ token: z.string().min(10), platform: z.enum(['android', 'ios']) })
+    const body = z
+      .object({
+        deviceId: z.string().min(1).max(200).optional(),
+        token: z.string().min(10).optional(),
+        platform: z.enum(['android', 'ios']),
+        appVersion: z.string().max(40).optional(),
+        buildNumber: z.string().max(40).optional(),
+        osVersion: z.string().max(40).optional(),
+        model: z.string().max(120).optional(),
+      })
+      /* One of the two has to identify the row, or every call would append a
+         new device and the list would be five copies of the same phone. */
+      .refine((b) => b.deviceId || b.token, {
+        message: 'Send a deviceId or a token',
+      })
       .parse(req.body);
 
-    const devices = req.user.devices.filter((d) => d.token !== token);
-    devices.push({ token, platform, lastSeenAt: new Date() });
-    req.user.devices = devices.slice(-5); /* keep the five most recent */
+    /* Matched on deviceId first: a token rotates, the install does not. Falling
+       back to the token is what lets a row written by an older build — which
+       had no deviceId to send — be recognised and upgraded in place rather than
+       left behind as a duplicate. */
+    const isSame = (d) =>
+      body.deviceId && d.deviceId
+        ? d.deviceId === body.deviceId
+        : Boolean(body.token) && d.token === body.token;
+
+    const existing = req.user.devices.find(isSame);
+    const rest = req.user.devices.filter((d) => !isSame(d));
+
+    /* Merged, not replaced. A foreground ping carrying no token must not wipe
+       the push address this device already registered. */
+    const merged = {
+      deviceId: body.deviceId || existing?.deviceId || '',
+      token: body.token || existing?.token || '',
+      platform: body.platform,
+      appVersion: body.appVersion || existing?.appVersion || '',
+      buildNumber: body.buildNumber || existing?.buildNumber || '',
+      osVersion: body.osVersion || existing?.osVersion || '',
+      model: body.model || existing?.model || '',
+      lastSeenAt: new Date(),
+    };
+
+    req.user.devices = [...rest, merged].slice(-5); /* keep the five most recent */
     await req.user.save();
 
     res.status(204).end();

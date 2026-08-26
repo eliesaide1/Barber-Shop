@@ -1,0 +1,1659 @@
+{
+  "labels": [
+    {
+      "key": "artistCheckIn.askForTheClient",
+      "defaultText": "Ask for the client’s 6-character claim code, or read it off their phone.",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.checkIn",
+      "defaultText": "Check-in",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.checkTheCode",
+      "defaultText": "Check the code",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.claimCode",
+      "defaultText": "CLAIM CODE",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.gettingACode",
+      "defaultText": "Getting a code…",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.noCheckInsYet",
+      "defaultText": "No check-ins yet",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.orReadOutThis",
+      "defaultText": "Or read out this code",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.redeemAFreeCut",
+      "defaultText": "Redeem a free cut",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.refreshesIn",
+      "defaultText": "Refreshes in",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.showThisOnceThe",
+      "defaultText": "Show this once the cut is done",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.showThisToYour",
+      "defaultText": "SHOW THIS TO YOUR CLIENT",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistCheckIn.todaySActivity",
+      "defaultText": "Today’s activity",
+      "where": "src/screens/artist/CheckInScreen.tsx"
+    },
+    {
+      "key": "artistClientHistory.howItWasDone",
+      "defaultText": "HOW IT WAS DONE",
+      "where": "src/screens/artist/ClientHistoryScreen.tsx"
+    },
+    {
+      "key": "artistClientHistory.lookingThemUp",
+      "defaultText": "Looking them up…",
+      "where": "src/screens/artist/ClientHistoryScreen.tsx"
+    },
+    {
+      "key": "artistClientHistory.nothingSavedYet",
+      "defaultText": "Nothing saved yet",
+      "where": "src/screens/artist/ClientHistoryScreen.tsx"
+    },
+    {
+      "key": "artistClientHistory.pastCuts",
+      "defaultText": "Past cuts",
+      "where": "src/screens/artist/ClientHistoryScreen.tsx"
+    },
+    {
+      "key": "artistClients.clients",
+      "defaultText": "Clients",
+      "where": "src/screens/artist/ClientsScreen.tsx"
+    },
+    {
+      "key": "artistClients.due",
+      "defaultText": "DUE",
+      "where": "src/screens/artist/ClientsScreen.tsx"
+    },
+    {
+      "key": "artistClients.everyoneWithALoyalty",
+      "defaultText": "Everyone with a loyalty card at the shop",
+      "where": "src/screens/artist/ClientsScreen.tsx"
+    },
+    {
+      "key": "artistClients.loadingYourBook",
+      "defaultText": "Loading your book…",
+      "where": "src/screens/artist/ClientsScreen.tsx"
+    },
+    {
+      "key": "artistClients.searchByNameOr",
+      "defaultText": "Search by name or email…",
+      "where": "src/screens/artist/ClientsScreen.tsx"
+    },
+    {
+      "key": "artistMore.appearance",
+      "defaultText": "Appearance",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.cancel",
+      "defaultText": "Cancel",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.daysOn",
+      "defaultText": "Days on",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.everyoneWhoHasBooked",
+      "defaultText": "Everyone who has booked your chair",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.from",
+      "defaultText": "From",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.hours",
+      "defaultText": "Hours",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.hoursRatesAndDays",
+      "defaultText": "Hours, rates and days off are set in the back office.",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.message",
+      "defaultText": "Message",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.messageMyClients",
+      "defaultText": "Message my clients",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.more",
+      "defaultText": "More",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.myPortfolio",
+      "defaultText": "My portfolio",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.myShelf",
+      "defaultText": "My shelf",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.now",
+      "defaultText": "now",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.phone",
+      "defaultText": "Phone",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.preview",
+      "defaultText": "Preview",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.privacyPolicy",
+      "defaultText": "Privacy policy",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.saturdaySlotsJustOpened",
+      "defaultText": "Saturday slots just opened",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.sendNow",
+      "defaultText": "Send now",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.shop",
+      "defaultText": "Shop",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.signOut",
+      "defaultText": "Sign out",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.thisDevice",
+      "defaultText": "This device",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.timeBetweenClients",
+      "defaultText": "Time between clients",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.title",
+      "defaultText": "Title",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.twoChairsFreeAfter",
+      "defaultText": "Two chairs free after 4pm. Book from the app.",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.viaBarberHouse",
+      "defaultText": "VIA Barber House",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistMore.workingHours",
+      "defaultText": "Working hours",
+      "where": "src/screens/artist/MoreScreen.tsx"
+    },
+    {
+      "key": "artistOrders.find",
+      "defaultText": "Find",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistOrders.findByPickupCode",
+      "defaultText": "Find by pickup code",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistOrders.handOverAtTheir",
+      "defaultText": "Hand over at their next cut",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistOrders.loadingOrders",
+      "defaultText": "Loading orders…",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistOrders.orders",
+      "defaultText": "Orders",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistOrders.pickupCode",
+      "defaultText": "PICKUP CODE",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistOrders.the6CharactersOn",
+      "defaultText": "The 6 characters on the client’s screen.",
+      "where": "src/screens/artist/OrdersScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.addACut",
+      "defaultText": "Add a cut",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.category",
+      "defaultText": "Category",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.from",
+      "defaultText": "From ($)",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.makeSureYourClient",
+      "defaultText": "Make sure your client is happy for the photo to be posted.",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.midSkinFadeHadi",
+      "defaultText": "Mid skin fade — Hadi",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.nothingUploadedYet",
+      "defaultText": "Nothing uploaded yet",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.orChooseOneFrom",
+      "defaultText": "Or choose one from your gallery",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.photographTheCut",
+      "defaultText": "Photograph the cut",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.portfolio",
+      "defaultText": "Portfolio",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.takesMin",
+      "defaultText": "Takes (min)",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.tapToChooseA",
+      "defaultText": "Tap to choose a different photo",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.whatIsIt",
+      "defaultText": "What is it?",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.yourFirstCutWill",
+      "defaultText": "Your first cut will show up here.",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.yourUploads",
+      "defaultText": "Your uploads",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistPortfolio.yourWorkTheShop",
+      "defaultText": "Your work · the shop approves it before clients see it",
+      "where": "src/screens/artist/PortfolioScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.answerThisOneUnder",
+      "defaultText": "Answer this one under “Waiting on you”.",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.complete",
+      "defaultText": "Complete",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.decline",
+      "defaultText": "Decline",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.howLongWillYou",
+      "defaultText": "How long will you give it?",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.loadingTheChair",
+      "defaultText": "Loading the chair…",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.noAppointmentsOnThis",
+      "defaultText": "No appointments on this day.",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.noShow",
+      "defaultText": "No-show",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.nothingBooked",
+      "defaultText": "Nothing booked",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.requested",
+      "defaultText": "REQUESTED",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.start",
+      "defaultText": "Start",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.theDay",
+      "defaultText": "The day",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.waitingOnYou",
+      "defaultText": "Waiting on you",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistSchedule.wantsThisAgain",
+      "defaultText": "Wants this again",
+      "where": "src/screens/artist/ScheduleScreen.tsx"
+    },
+    {
+      "key": "artistTabs.checkIn",
+      "defaultText": "Check-in",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "artistTabs.clients",
+      "defaultText": "Clients",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "artistTabs.more",
+      "defaultText": "More",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "artistTabs.orders",
+      "defaultText": "Orders",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "artistTabs.today",
+      "defaultText": "Today",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "auth.alreadyHaveOne",
+      "defaultText": "Already have one?",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.createAccount",
+      "defaultText": "Create an account",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.email",
+      "defaultText": "Email",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.fullName",
+      "defaultText": "Full name",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.mobile",
+      "defaultText": "Mobile number",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.newHere",
+      "defaultText": "New here?",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.orWithEmail",
+      "defaultText": "or with an email",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.password",
+      "defaultText": "Password",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.registerSubtitle",
+      "defaultText": "Your artist keeps this on file — it is how they know you before you sit down.",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.registerTitle",
+      "defaultText": "Create account",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.signIn",
+      "defaultText": "Sign in",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.tagline",
+      "defaultText": "Sharp cuts. No waiting.",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.welcomeSubtitle",
+      "defaultText": "Sign in to book a chair and collect your stamps.",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.welcomeTitle",
+      "defaultText": "Welcome back",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "basket.finished",
+      "defaultText": "Finished",
+      "where": "src/components/CartBar.tsx"
+    },
+    {
+      "key": "basket.hint",
+      "defaultText": "The shop will quote you on WhatsApp",
+      "where": "src/components/CartBar.tsx"
+    },
+    {
+      "key": "book.artist",
+      "defaultText": "Artist",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.book",
+      "defaultText": "Book",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.checkingTheChair",
+      "defaultText": "Checking the chair…",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.eG2On",
+      "defaultText": "e.g. #2 on the sides, keep the top long",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.free",
+      "defaultText": "FREE 🎁",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.length",
+      "defaultText": "Length",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.noSlotsLeftOn",
+      "defaultText": "No slots left on this day.",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.notesForYourArtist",
+      "defaultText": "Notes for your artist (optional)",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.pickAnotherDayOr",
+      "defaultText": "Pick another day or another artist.",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.reference",
+      "defaultText": "Reference",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.sameAsOneOf",
+      "defaultText": "Same as one of these?",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.service",
+      "defaultText": "Service",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.thisAgain",
+      "defaultText": "This again",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.total",
+      "defaultText": "Total",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.viaBarberHouseMar",
+      "defaultText": "VIA Barber House · Mar Mikhael, Beirut",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.when",
+      "defaultText": "When",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "book.yourArtistSeesThe",
+      "defaultText": "Your artist sees the photo and how it was done, before you sit down.",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "completeProfile.done",
+      "defaultText": "Done",
+      "where": "src/screens/CompleteProfileScreen.tsx"
+    },
+    {
+      "key": "completeProfile.howOftenDoYou",
+      "defaultText": "How often do you get cut?",
+      "where": "src/screens/CompleteProfileScreen.tsx"
+    },
+    {
+      "key": "completeProfile.mobileNumber",
+      "defaultText": "Mobile number",
+      "where": "src/screens/CompleteProfileScreen.tsx"
+    },
+    {
+      "key": "completeProfile.nearlyThere",
+      "defaultText": "Nearly there",
+      "where": "src/screens/CompleteProfileScreen.tsx"
+    },
+    {
+      "key": "completeProfile.signOut",
+      "defaultText": "Sign out",
+      "where": "src/screens/CompleteProfileScreen.tsx"
+    },
+    {
+      "key": "device.account",
+      "defaultText": "Account",
+      "where": "src/screens/DeviceScreen.tsx"
+    },
+    {
+      "key": "device.app",
+      "defaultText": "App",
+      "where": "src/screens/DeviceScreen.tsx"
+    },
+    {
+      "key": "device.device",
+      "defaultText": "Device",
+      "where": "src/screens/DeviceScreen.tsx"
+    },
+    {
+      "key": "device.handyIfYouEver",
+      "defaultText": "Handy if you ever need to tell the shop what you are running.",
+      "where": "src/screens/DeviceScreen.tsx"
+    },
+    {
+      "key": "device.thisDevice",
+      "defaultText": "This device",
+      "where": "src/screens/DeviceScreen.tsx"
+    },
+    {
+      "key": "dob.done",
+      "defaultText": "Done",
+      "where": "src/components/DateOfBirthField.tsx"
+    },
+    {
+      "key": "haircutCapture.fromGallery",
+      "defaultText": "From gallery",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircutCapture.howYouDidIt",
+      "defaultText": "How you did it",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircutCapture.notNow",
+      "defaultText": "Not now",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircutCapture.photographTheCut",
+      "defaultText": "Photograph the cut",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircutCapture.sendForApproval",
+      "defaultText": "Send for approval",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircutCapture.takeAPhoto",
+      "defaultText": "Take a photo",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircutCapture.theHalfAPhoto",
+      "defaultText": "The half a photo can’t carry — this is what lets anyone repeat it.",
+      "where": "src/components/HaircutCapture.tsx"
+    },
+    {
+      "key": "haircuts.afterACutYour",
+      "defaultText": "After a cut, your artist can offer to save a photo. It’s yours — you decide.",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.myHaircuts",
+      "defaultText": "My haircuts",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.noThanks",
+      "defaultText": "No thanks",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.nothingSavedYet",
+      "defaultText": "Nothing saved yet",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.remove",
+      "defaultText": "Remove",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.saved",
+      "defaultText": "SAVED",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.saveIt",
+      "defaultText": "Save it",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.saveItToYour",
+      "defaultText": "Save it to your profile? Only you and the artist cutting your hair can see it.",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.tapToClose",
+      "defaultText": "Tap to close",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.waitingOnYou",
+      "defaultText": "Waiting on you",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "haircuts.yourHistory",
+      "defaultText": "Your history",
+      "where": "src/screens/HaircutsScreen.tsx"
+    },
+    {
+      "key": "home.bookACut",
+      "defaultText": "Book a cut",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.freeHaircutReady",
+      "defaultText": "Free haircut ready",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.fromTheShop",
+      "defaultText": "From the shop",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.goodToSeeYou",
+      "defaultText": "Good to see you",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.loyaltyCard",
+      "defaultText": "Loyalty card",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.noUpcomingVisits",
+      "defaultText": "No upcoming visits",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.ourArtists",
+      "defaultText": "Our artists",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.trendingStyles",
+      "defaultText": "Trending styles",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.yourChairIsWaiting",
+      "defaultText": "Your chair is waiting.",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "lookbook.bookACut",
+      "defaultText": "Book a cut",
+      "where": "src/screens/LookbookScreen.tsx"
+    },
+    {
+      "key": "lookbook.realWorkFromOur",
+      "defaultText": "Real work from our chairs · tap to book the look",
+      "where": "src/screens/LookbookScreen.tsx"
+    },
+    {
+      "key": "lookbook.styles",
+      "defaultText": "Styles",
+      "where": "src/screens/LookbookScreen.tsx"
+    },
+    {
+      "key": "loyalty.cardHistory",
+      "defaultText": "Card history",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.checkInsTowardYour",
+      "defaultText": "check-ins toward your free cut",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.claimCode",
+      "defaultText": "Claim code",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.expired",
+      "defaultText": "EXPIRED",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.freeCutsEarned",
+      "defaultText": "Free cuts earned",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.giftsFromTheShop",
+      "defaultText": "Gifts from the shop",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.howItWorks",
+      "defaultText": "How it works",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.lifetimeCheckIns",
+      "defaultText": "Lifetime check-ins",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.loyaltyCard",
+      "defaultText": "Loyalty card",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.ranOut",
+      "defaultText": "Ran out",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.readyToUse",
+      "defaultText": "Ready to use",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.redeemed",
+      "defaultText": "Redeemed",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.scanToCheckIn",
+      "defaultText": "Scan to check in",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "loyalty.viaBarberHouseClub",
+      "defaultText": "VIA BARBER HOUSE CLUB",
+      "where": "src/screens/LoyaltyScreen.tsx"
+    },
+    {
+      "key": "nav.openingTheShop",
+      "defaultText": "Opening the shop…",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "nav.signOut",
+      "defaultText": "Sign out",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "nav.useTheBackOffice",
+      "defaultText": "Use the back office",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "orders.address",
+      "defaultText": "Address",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.backToMyOrders",
+      "defaultText": "Back to my orders",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.browseTheShop",
+      "defaultText": "Browse the shop",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.deliverTo",
+      "defaultText": "Deliver to",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.items",
+      "defaultText": "Items",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.myOrders",
+      "defaultText": "My orders",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.noOrdersYet",
+      "defaultText": "No orders yet",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.orderNotFound",
+      "defaultText": "Order not found",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.orderPlaced",
+      "defaultText": "Order placed",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.productOrdersYourCuts",
+      "defaultText": "Product orders · your cuts live under Appointments",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.productsYouBuyWill",
+      "defaultText": "Products you buy will show up here.",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.showThisAtThe",
+      "defaultText": "Show this at the chair",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.subtotal",
+      "defaultText": "Subtotal",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "orders.total",
+      "defaultText": "Total",
+      "where": "src/screens/OrderScreens.tsx"
+    },
+    {
+      "key": "profile.about",
+      "defaultText": "About",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.aboutYou",
+      "defaultText": "About you",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.addThem",
+      "defaultText": "Add them",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.anythingYourBarberShould",
+      "defaultText": "Anything your barber should know",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.appearance",
+      "defaultText": "Appearance",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.appointments",
+      "defaultText": "Appointments",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.beard",
+      "defaultText": "Beard",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.birthdayWishesAndThe",
+      "defaultText": "Birthday wishes and the odd gift, on WhatsApp. Off unless you ask for it.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.bookACut",
+      "defaultText": "Book a cut",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.cart",
+      "defaultText": "Cart",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.claimCode",
+      "defaultText": "Claim code",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.clipperGuard",
+      "defaultText": "Clipper guard",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.cutPreferences",
+      "defaultText": "Cut preferences",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.deleteAccount",
+      "defaultText": "Delete account",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.editMyDetails",
+      "defaultText": "Edit my details",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.finishYourProfile",
+      "defaultText": "Finish your profile",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.freeCut",
+      "defaultText": "FREE CUT",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.fromViaBarberHouse",
+      "defaultText": "From VIA Barber House and your artists",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.fullName",
+      "defaultText": "Full name",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.history",
+      "defaultText": "History",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.hours",
+      "defaultText": "Hours",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.howOftenDoYou",
+      "defaultText": "How often do you get cut?",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.itIsHowYour",
+      "defaultText": "It is how your artist knows when you are due — not a commitment.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.lineUpKeepLength",
+      "defaultText": "Line up, keep length",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.logOut",
+      "defaultText": "Log out",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.loyalty",
+      "defaultText": "Loyalty",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.mobileNumber",
+      "defaultText": "Mobile number",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.myAppointments",
+      "defaultText": "My appointments",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.myCard",
+      "defaultText": "My card",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.myCutPreferences",
+      "defaultText": "My cut preferences",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.myDetails",
+      "defaultText": "My details",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.myHaircuts",
+      "defaultText": "My haircuts",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.myOrders",
+      "defaultText": "My orders",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.naturalLeft",
+      "defaultText": "Natural left",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.new",
+      "defaultText": "NEW",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.nothingYet",
+      "defaultText": "Nothing yet",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.notifications",
+      "defaultText": "Notifications",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.noUpcomingVisits",
+      "defaultText": "No upcoming visits",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.offersAndAnnouncementsFrom",
+      "defaultText": "Offers and announcements from VIA Barber House and your artist.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.part",
+      "defaultText": "Part",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.phone",
+      "defaultText": "Phone",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.privacyPolicy",
+      "defaultText": "Privacy policy",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.profile",
+      "defaultText": "Profile",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.sameAsLastTime",
+      "defaultText": "Same as last time",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.save",
+      "defaultText": "Save",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.scanToCheckIn",
+      "defaultText": "Scan to check in",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.sensitiveSkinNoAlcohol",
+      "defaultText": "Sensitive skin — no alcohol aftershave.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.shop",
+      "defaultText": "Shop",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.shopNews",
+      "defaultText": "Shop news",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.shopNewsAndYour",
+      "defaultText": "Shop news and your order updates land here.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.thisDevice",
+      "defaultText": "This device",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.upcomingVisitsYourCut",
+      "defaultText": "Upcoming visits & your cut history",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.viaBarberHouseClub",
+      "defaultText": "VIA BARBER HOUSE CLUB",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.whatsapp",
+      "defaultText": "WhatsApp",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.whatWeCollectWhy",
+      "defaultText": "What we collect, why, and how to have it deleted.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.whichPhoneWhichApp",
+      "defaultText": "Which phone, which app version, and who is signed in.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.yourArtistRedeemsIt",
+      "defaultText": "Your artist redeems it at the chair.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.yourArtistSeesThis",
+      "defaultText": "Your artist sees this before every visit.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.yourChairIsWaiting",
+      "defaultText": "Your chair is waiting.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "scan.a1b2c3",
+      "defaultText": "A1B2C3",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.checkedIn",
+      "defaultText": "Checked in",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.checkIn",
+      "defaultText": "Check in",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.done",
+      "defaultText": "Done",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.freeHaircutUnlocked",
+      "defaultText": "Free haircut unlocked!",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.openSettings",
+      "defaultText": "Open settings",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.scanTheCodeAt",
+      "defaultText": "Scan the code at your artist’s chair",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.seeMyCard",
+      "defaultText": "See my card",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.typeThe6Character",
+      "defaultText": "Type the 6-character code printed under your artist’s QR.",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.yourCard",
+      "defaultText": "Your card",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "screens.appointments",
+      "defaultText": "Appointments",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.broadcast",
+      "defaultText": "Message clients",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.cart",
+      "defaultText": "Cart",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.checkout",
+      "defaultText": "Checkout",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.client",
+      "defaultText": "Client",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.device",
+      "defaultText": "This device",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.haircuts",
+      "defaultText": "My haircuts",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.lookbook",
+      "defaultText": "Styles",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.loyalty",
+      "defaultText": "Loyalty card",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.notifications",
+      "defaultText": "Notifications",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.order",
+      "defaultText": "Order",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.orders",
+      "defaultText": "My orders",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.portfolio",
+      "defaultText": "Portfolio",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.preferences",
+      "defaultText": "Preferences",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.privacy",
+      "defaultText": "Privacy policy",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "screens.product",
+      "defaultText": "Product",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "shop.address",
+      "defaultText": "Address",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.askInTheShop",
+      "defaultText": "Ask in the shop",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.backToCart",
+      "defaultText": "Back to cart",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.browseTheShop",
+      "defaultText": "Browse the shop",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.cart",
+      "defaultText": "Cart",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.checkout",
+      "defaultText": "Checkout",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.collectFrom",
+      "defaultText": "Collect from",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.eGRingThe",
+      "defaultText": "e.g. ring the top bell",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.everythingHereIsStocked",
+      "defaultText": "Everything here is stocked by an artist you can book.",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.fulfilment",
+      "defaultText": "Fulfilment",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.fullName",
+      "defaultText": "Full name",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.handItToMe",
+      "defaultText": "Hand it to me at my next cut",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.hours",
+      "defaultText": "Hours",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.howToUseIt",
+      "defaultText": "How to use it",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.keepShopping",
+      "defaultText": "Keep shopping",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.matchesYourSavedPreference",
+      "defaultText": "Matches your saved preference",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.nothingMatchesThat",
+      "defaultText": "Nothing matches that",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.outOfStock",
+      "defaultText": "Out of stock",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.payment",
+      "defaultText": "Payment",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.phone",
+      "defaultText": "Phone",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.quantity",
+      "defaultText": "Quantity",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.ready",
+      "defaultText": "Ready",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.riderNotesOptional",
+      "defaultText": "Rider notes (optional)",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.searchProductsBrandsArtists",
+      "defaultText": "Search products, brands, artists…",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.shop",
+      "defaultText": "Shop",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.stockedByTheShop",
+      "defaultText": "Stocked by the shop · used at every chair",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.streetBuildingFloor",
+      "defaultText": "Street, building, floor",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.subtotal",
+      "defaultText": "Subtotal",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.thatProductIsNo",
+      "defaultText": "That product is no longer listed",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.thisOneIsPriced",
+      "defaultText": "This one is priced on request, and there is no number to message yet.",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.total",
+      "defaultText": "Total",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.tryAnotherCategoryOr",
+      "defaultText": "Try another category or search.",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.viaBarberHouseLabel",
+      "defaultText": "VIA Barber House label",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.weLlHaveIt",
+      "defaultText": "We’ll have it bagged and waiting at the chair",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.weRestockTheHouse",
+      "defaultText": "We restock the house label every Tuesday.",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.whatOurArtistsActually",
+      "defaultText": "What our artists actually use at the chair",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.yourCartIsEmpty",
+      "defaultText": "Your cart is empty",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.yourOrder",
+      "defaultText": "Your order",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "tabs.book",
+      "defaultText": "Book",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "tabs.home",
+      "defaultText": "Home",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "tabs.profile",
+      "defaultText": "Profile",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "tabs.scan",
+      "defaultText": "Scan",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "tabs.shop",
+      "defaultText": "Shop",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "ui.nothingToEncode",
+      "defaultText": "Nothing to encode",
+      "where": "src/components/ui.tsx"
+    },
+    {
+      "key": "walkthrough.ask.body",
+      "defaultText": "Pick a time that suits you and send it to your artist. They confirm the slot and how long your cut needs — so the book stays honest.",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.ask.title",
+      "defaultText": "Ask for a chair",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.getStarted",
+      "defaultText": "Get started",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.loyalty.body",
+      "defaultText": "Seven stamps, then a free one. The card lives in the app, so there is nothing to lose in a coat pocket.",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.loyalty.title",
+      "defaultText": "Every eighth cut is on us",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.scan.body",
+      "defaultText": "Your artist shows a code at the chair. Scan it and the visit is on your card before the cape is off.",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.scan.title",
+      "defaultText": "Scan when you arrive",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.shop.body",
+      "defaultText": "The pomades, oils and tonics your artist actually uses. Order in the app and collect at the shop.",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.shop.title",
+      "defaultText": "Shop the shelf",
+      "where": "src/screens/OnboardingScreen.tsx"
+    },
+    {
+      "key": "walkthrough.skip",
+      "defaultText": "Skip",
+      "where": "src/screens/OnboardingScreen.tsx"
+    }
+  ]
+}

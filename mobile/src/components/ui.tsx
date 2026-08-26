@@ -17,6 +17,7 @@ import {
 import Svg, { Path, Rect } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { radius, space } from '../theme';
 import { toPath } from '../lib/qr';
 
@@ -375,8 +376,9 @@ export function PunchStrip({ stamps, goal }: { stamps: number; goal: number }) {
 
 /** Always dark-on-white: inverting a QR in dark mode stops scanners reading it. */
 export function QRCode({ value, size = 200 }: { value: string; size?: number }) {
+  const t = useT();
   const path = React.useMemo(() => toPath(value), [value]);
-  if (!path) return <Muted>Nothing to encode</Muted>;
+  if (!path) return <Muted>{t('ui.nothingToEncode', 'Nothing to encode')}</Muted>;
   return (
     <View style={{ backgroundColor: '#fff', padding: 12, borderRadius: radius.lg }}>
       <Svg width={size} height={size} viewBox={`0 0 ${path.size} ${path.size}`}>
@@ -411,7 +413,16 @@ export function Loading({ label = 'Loading…' }: { label?: string }) {
   );
 }
 
-export function Screen({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Screen({
+  children,
+  style,
+  footer,
+}: {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  /** Pinned to the bottom, over the content — the basket bar is the only user. */
+  footer?: React.ReactNode;
+}) {
   const c = useColors();
   /* SafeAreaView measures the device's own insets, so the header clears the
      status bar / notch / Dynamic Island on any size. 'top' only — the bottom
@@ -420,11 +431,15 @@ export function Screen({ children, style }: { children: React.ReactNode; style?:
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={[{ padding: space.lg, paddingBottom: 40 }, style]}
+        /* A pinned footer covers the end of the list, so the scroll gains
+           roughly its height — otherwise the last product is unreachable,
+           which is exactly the item somebody was reaching for. */
+        contentContainerStyle={[{ padding: space.lg, paddingBottom: footer ? 120 : 40 }, style]}
         keyboardShouldPersistTaps="handled"
       >
         {children}
       </ScrollView>
+      {footer}
     </SafeAreaView>
   );
 }

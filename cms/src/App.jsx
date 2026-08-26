@@ -11,6 +11,7 @@ import CheckIns from './pages/CheckIns.jsx';
 import Schedule from './pages/Schedule.jsx';
 import Styles from './pages/Styles.jsx';
 import Settings from './pages/Settings.jsx';
+import Labels from './pages/Labels.jsx';
 
 export default function App() {
   const { user, loading, isAdmin } = useAuth();
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/notifications" element={<Notifications />} />
         {/* Artist management is an admin-only surface. */}
         <Route path="/artists" element={isAdmin ? <Artists /> : <Navigate to="/" replace />} />
+        <Route path="/labels" element={isAdmin ? <Labels /> : <Navigate to="/" replace />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

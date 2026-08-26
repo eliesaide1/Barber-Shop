@@ -30,6 +30,7 @@ import { absoluteUrl } from '../config';
 import { useDialog } from '../store/DialogContext';
 import { radius, space } from '../theme';
 import type { Appointment, Artist, LoyaltyCard, Order, Product, StyleLook } from '../types';
+import { useT } from '../store/CopyContext';
 
 const when = (iso: string) => {
   const d = new Date(iso);
@@ -44,6 +45,7 @@ const when = (iso: string) => {
 
 export function HomeScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const cart = useCart();
   const { user } = useAuth();
@@ -53,14 +55,20 @@ export function HomeScreen() {
 
   const { data: appointments, reload: reloadAppointments } = useApi<Appointment[]>('/appointments');
   const { data: card, reload: reloadCard } = useApi<LoyaltyCard>('/loyalty/card');
-  const { data: artists } = useApi<Artist[]>('/artists');
-  const { data: products } = useApi<Product[]>('/products?limit=6');
+  const { data: artists, reload: reloadArtists } = useApi<Artist[]>('/artists');
+  const { data: products, reload: reloadProducts } = useApi<Product[]>('/products?limit=6');
   const { data: orders, reload: reloadOrders } = useApi<Order[]>('/orders');
-  const { data: looks } = useApi<StyleLook[]>('/styles');
+  const { data: looks, reload: reloadLooks } = useApi<StyleLook[]>('/styles');
 
   useSocketEvent('loyalty:updated', () => reloadCard(true));
   useSocketEvent('order:status', () => reloadOrders(true));
   useSocketEvent('appointment:status', () => reloadAppointments(true));
+  /* The shop editing itself. Home is the screen most likely to be open and
+     left open, so it is the one where a chair added in the back office should
+     appear without anybody navigating anywhere. */
+  useSocketEvent('artists:changed', () => reloadArtists(true));
+  useSocketEvent('catalogue:changed', () => reloadProducts(true));
+  useSocketEvent('lookbook:changed', () => reloadLooks(true));
 
   const next = appointments?.find(
     (a) => ['confirmed', 'pending'].includes(a.status) && new Date(a.startsAt).getTime() > Date.now(),
@@ -83,7 +91,7 @@ export function HomeScreen() {
           <Avatar name={user?.name ?? 'You'} />
           <View>
             <Title>{user?.name.split(' ')[0]} 👋</Title>
-            <Muted>Good to see you</Muted>
+            <Muted>{t('home.goodToSeeYou', 'Good to see you')}</Muted>
           </View>
         </Row>
         <Row style={{ gap: space.sm }}>
@@ -151,7 +159,7 @@ export function HomeScreen() {
           <Row>
             <Text style={{ fontSize: 30 }}>🎁</Text>
             <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '800' }}>Free haircut ready</Body>
+              <Body style={{ fontWeight: '800' }}>{t('home.freeHaircutReady', 'Free haircut ready')}</Body>
               <Muted style={{ marginTop: 4 }}>
                 Claim code <Text style={{ color: c.accentInk, fontWeight: '700' }}>{reward.code}</Text> · show it at the chair
               </Muted>
@@ -196,9 +204,9 @@ export function HomeScreen() {
         <View style={{ marginTop: space.lg }}>
           <Empty
             icon="💈"
-            title="No upcoming visits"
-            hint="Your chair is waiting."
-            action={<Button title="Book a cut" onPress={() => nav.navigate('Tabs', { screen: 'Book' })} />}
+            title={t('home.noUpcomingVisits', 'No upcoming visits')}
+            hint={t('home.yourChairIsWaiting', 'Your chair is waiting.')}
+            action={<Button title={t('home.bookACut', 'Book a cut')} onPress={() => nav.navigate('Tabs', { screen: 'Book' })} />}
           />
         </View>
       )}
@@ -225,7 +233,7 @@ export function HomeScreen() {
       ))}
 
       <Between style={{ marginTop: space.xl }}>
-        <Heading style={{ fontSize: 17 }}>Our artists</Heading>
+        <Heading style={{ fontSize: 17 }}>{t('home.ourArtists', 'Our artists')}</Heading>
         <Pressable onPress={() => nav.navigate('Tabs', { screen: 'Book' })}>
           <Text style={{ color: c.accentInk, fontSize: 13 }}>Book now</Text>
         </Pressable>
@@ -249,7 +257,7 @@ export function HomeScreen() {
       {!!looks?.length && (
         <>
           <Between style={{ marginTop: space.xl }}>
-            <Heading style={{ fontSize: 17 }}>Trending styles</Heading>
+            <Heading style={{ fontSize: 17 }}>{t('home.trendingStyles', 'Trending styles')}</Heading>
             <Pressable onPress={() => nav.navigate('Lookbook')}>
               <Text style={{ color: c.accentInk, fontSize: 13 }}>View all</Text>
             </Pressable>
@@ -294,7 +302,7 @@ export function HomeScreen() {
       )}
 
       <Between style={{ marginTop: space.xl }}>
-        <Heading style={{ fontSize: 17 }}>From the shop</Heading>
+        <Heading style={{ fontSize: 17 }}>{t('home.fromTheShop', 'From the shop')}</Heading>
         <Pressable onPress={() => nav.navigate('Tabs', { screen: 'Shop' })}>
           <Text style={{ color: c.accentInk, fontSize: 13 }}>Browse all</Text>
         </Pressable>
@@ -317,7 +325,7 @@ export function HomeScreen() {
       <Card style={{ marginTop: space.xl }} onPress={() => nav.navigate('Loyalty')}>
         <Row>
           <View style={{ flex: 1 }}>
-            <Body style={{ fontWeight: '700' }}>Loyalty card</Body>
+            <Body style={{ fontWeight: '700' }}>{t('home.loyaltyCard', 'Loyalty card')}</Body>
             <Muted style={{ marginTop: 4 }}>
               {goal - stamps} more check-in{goal - stamps === 1 ? '' : 's'} and your next cut is on us
             </Muted>

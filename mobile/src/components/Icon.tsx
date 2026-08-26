@@ -13,6 +13,7 @@ export type IconName =
   | 'bell'
   | 'image'
   | 'scissors'
+  | 'check'
   | 'back';
 
 interface Props {
@@ -139,6 +140,8 @@ export function Icon({ name, size = 24, color, active = false }: Props) {
           <Path d="m4 17.5 4.6-3.7 3.6 2.7 3-2.2 4.8 3.5" {...stroke} />
         </>
       )}
+
+      {name === 'check' && <Path d="m4.5 12.5 5 5 10-11" {...stroke} />}
 
       {name === 'scissors' && (
         <>

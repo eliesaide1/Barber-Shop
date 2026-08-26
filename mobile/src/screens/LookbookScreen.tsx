@@ -13,7 +13,7 @@ import {
   Screen,
   Title,
 } from '../components/ui';
-import { useApi } from '../hooks/useApi';
+import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
@@ -21,12 +21,14 @@ import { api, ApiError } from '../api/client';
 import { absoluteUrl } from '../config';
 import { radius, space } from '../theme';
 import type { StyleLook } from '../types';
+import { useT } from '../store/CopyContext';
 
 const CATEGORIES = ['All', 'Fades', 'Classic', 'Textured', 'Beard', 'Design'] as const;
 
 /** The client-facing lookbook — real work from the shop's chairs. */
 export function LookbookScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { toast } = useToast();
   const { showError } = useDialog();
@@ -41,7 +43,12 @@ export function LookbookScreen() {
     return `/styles${qs ? `?${qs}` : ''}`;
   }, [category, savedOnly]);
 
-  const { data: looks, loading, setData } = useApi<StyleLook[]>(path);
+  const { data: looks, loading, setData, reload: reloadLooks } = useApi<StyleLook[]>(path);
+
+  /* A style approved, withdrawn or re-photographed in the back office. The
+     saved-hearts are held in the same rows, so this re-reads rather than
+     patching — the server is the one that knows what is published now. */
+  useSocketEvent('lookbook:changed', () => reloadLooks(true));
 
   const toggleSave = async (look: StyleLook) => {
     /* Flip it locally first — a heart that waits on the network feels broken. */
@@ -60,8 +67,8 @@ export function LookbookScreen() {
 
   return (
     <Screen>
-      <Title>Styles</Title>
-      <Muted style={{ marginTop: 2 }}>Real work from our chairs · tap to book the look</Muted>
+      <Title>{t('lookbook.styles', 'Styles')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('lookbook.realWorkFromOur', 'Real work from our chairs · tap to book the look')}</Muted>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.lg }}>
         {CATEGORIES.map((cat) => {
@@ -185,7 +192,7 @@ export function LookbookScreen() {
       )}
 
       <Button
-        title="Book a cut"
+        title={t('lookbook.bookACut', 'Book a cut')}
         onPress={() => nav.navigate('Tabs', { screen: 'Book' })}
         style={{ marginTop: space.xl }}
       />

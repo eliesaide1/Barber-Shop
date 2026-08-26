@@ -28,6 +28,7 @@ import { api, ApiError } from '../../api/client';
 import { absoluteUrl } from '../../config';
 import { radius, space } from '../../theme';
 import type { AgendaEntry, ConfirmResult } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const isoDay = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -75,6 +76,7 @@ function RequestCard({
   onDecline: (r: AgendaEntry) => void;
 }) {
   const c = useColors();
+  const t = useT();
   const [length, setLength] = useState(request.durationMin);
   /* Minutes away from the time they asked for. Zero is "yes, as asked", and the
      request keeps its own startsAt as the anchor so nudges never compound. */
@@ -97,7 +99,7 @@ function RequestCard({
           </Text>
           <Muted>{dayLabel(startsAt.toISOString())}</Muted>
         </Row>
-        <Badge label="REQUESTED" tone="warn" />
+        <Badge label={t('artistSchedule.requested', 'REQUESTED')} tone="warn" />
       </Between>
 
       <Row style={{ marginTop: space.md }}>
@@ -115,7 +117,7 @@ function RequestCard({
       {!!request.notes && <Muted style={{ marginTop: 4 }}>“{request.notes}”</Muted>}
 
       <Between style={{ marginTop: space.md }}>
-        <Muted>Start</Muted>
+        <Muted>{t('artistSchedule.start', 'Start')}</Muted>
         {moved && (
           <Pressable onPress={() => setShift(0)} accessibilityRole="button">
             <Text style={{ color: c.accentInk, fontWeight: '700', fontSize: 12 }}>
@@ -147,7 +149,7 @@ function RequestCard({
         ))}
       </View>
 
-      <Muted style={{ marginTop: space.md }}>How long will you give it?</Muted>
+      <Muted style={{ marginTop: space.md }}>{t('artistSchedule.howLongWillYou', 'How long will you give it?')}</Muted>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.sm }}>
         {options.map((m) => {
           const on = m === length;
@@ -183,7 +185,7 @@ function RequestCard({
           onPress={() => onAccept(request, length, moved ? startsAt.toISOString() : null)}
         />
         <Button
-          title="Decline"
+          title={t('artistSchedule.decline', 'Decline')}
           variant="ghost"
           compact
           style={{ flex: 1 }}
@@ -197,6 +199,7 @@ function RequestCard({
 
 export function ArtistScheduleScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { artist } = useAuth();
   const { toast } = useToast();
@@ -430,7 +433,7 @@ export function ArtistScheduleScreen() {
 
       {waiting > 0 && (
         <>
-          <Heading style={{ marginTop: space.xl }}>Waiting on you</Heading>
+          <Heading style={{ marginTop: space.xl }}>{t('artistSchedule.waitingOnYou', 'Waiting on you')}</Heading>
           <Muted style={{ marginTop: 2 }}>
             Nothing is held until you accept. Two people can ask for the same time — whoever you
             take gets it, and the rest are told.
@@ -441,7 +444,7 @@ export function ArtistScheduleScreen() {
         </>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>The day</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistSchedule.theDay', 'The day')}</Heading>
       <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.md }}>
         {days.map((d, i) => {
           const active = i === offset;
@@ -473,10 +476,10 @@ export function ArtistScheduleScreen() {
       </View>
 
       {loading && !agenda ? (
-        <Loading label="Loading the chair…" />
+        <Loading label={t('artistSchedule.loadingTheChair', 'Loading the chair…')} />
       ) : !agenda?.length ? (
         <View style={{ marginTop: space.lg }}>
-          <Empty icon="🗓️" title="Nothing booked" hint="No appointments on this day." />
+          <Empty icon="🗓️" title={t('artistSchedule.nothingBooked', 'Nothing booked')} hint={t('artistSchedule.noAppointmentsOnThis', 'No appointments on this day.')} />
         </View>
       ) : (
         agenda.map((a) => {
@@ -523,7 +526,7 @@ export function ArtistScheduleScreen() {
                     }}
                   />
                   <View style={{ flex: 1 }}>
-                    <Body style={{ fontWeight: '700' }}>Wants this again</Body>
+                    <Body style={{ fontWeight: '700' }}>{t('artistSchedule.wantsThisAgain', 'Wants this again')}</Body>
                     <Muted style={{ marginTop: 2 }}>
                       {new Date(a.reference.takenAt).toLocaleDateString([], {
                         day: 'numeric',
@@ -564,19 +567,19 @@ export function ArtistScheduleScreen() {
               {/* A request has no chair yet, so there is nothing to close out —
                   it is answered in the inbox above. */}
               {a.status === 'pending' ? (
-                <Muted style={{ marginTop: space.md }}>Answer this one under “Waiting on you”.</Muted>
+                <Muted style={{ marginTop: space.md }}>{t('artistSchedule.answerThisOneUnder', 'Answer this one under “Waiting on you”.')}</Muted>
               ) : (
                 !done && (
                   <Row style={{ marginTop: space.md, gap: space.md }}>
                     <Button
-                      title="Complete"
+                      title={t('artistSchedule.complete', 'Complete')}
                       compact
                       style={{ flex: 1 }}
                       disabled={busy}
                       onPress={() => setStatus(a, 'completed')}
                     />
                     <Button
-                      title="No-show"
+                      title={t('artistSchedule.noShow', 'No-show')}
                       variant="ghost"
                       compact
                       style={{ flex: 1 }}

@@ -1,3 +1,20 @@
+# React Native ships a prebuilt binary of its own core and uses it by default,
+# which makes installing and building considerably faster. It cannot be used
+# here: react-native-nitro-image links against RN's internal C++ and the
+# prebuilt core does not export what it reaches for, so the build ends in
+#
+#   "vtable for facebook::react::DebugStringConvertible", referenced from
+#   ... libNitroImage.a — symbol(s) not found for architecture arm64
+#
+# Set here rather than remembered as an environment variable on somebody's
+# machine, because `Pods/` is not in the repository: every fresh clone and
+# every CI run installs pods again, and without this each one rediscovers that
+# linker error with no idea what it has to do with a pod nobody edited.
+#
+# The cost is build time — RN's core is compiled rather than downloaded.
+# Prebuilt becomes an option again once nitro-image links against it cleanly.
+ENV['RCT_USE_PREBUILT_RNCORE'] = '0'
+
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(

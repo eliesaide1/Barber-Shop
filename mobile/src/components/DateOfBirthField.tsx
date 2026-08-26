@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Platform, Pressable, StyleProp, Text, View, ViewStyle } from 'react-native';
 import DateTimePicker, { DateTimePickerChangeEvent } from '@react-native-community/datetimepicker';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { radius, space } from '../theme';
 import { toIsoDate, toTypedDate } from '../lib/clientDetails';
 import { Button } from './ui';
@@ -38,6 +39,7 @@ export function DateOfBirthField({
   style?: StyleProp<ViewStyle>;
 }) {
   const c = useColors();
+  const t = useT();
   const [open, setOpen] = useState(false);
 
   const iso = toIsoDate(value);
@@ -150,7 +152,7 @@ export function DateOfBirthField({
                 themeVariant={c.name === 'dark' ? 'dark' : 'light'}
               />
               <Button
-                title="Done"
+                title={t('dob.done', 'Done')}
                 onPress={() => {
                   /* An untouched calendar fires nothing, so the date shown on
                      opening has to be committed here or a straight open-and-

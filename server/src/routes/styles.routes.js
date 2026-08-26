@@ -4,7 +4,7 @@ import { Style } from '../models/Style.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist, maybeAuth } from '../middleware/auth.js';
 import { upload, withImageUrls } from '../lib/upload.js';
-import { emitTo, rooms } from '../lib/realtime.js';
+import { broadcast, emitTo, rooms } from '../lib/realtime.js';
 
 export const stylesRouter = Router();
 
@@ -89,6 +89,7 @@ stylesRouter.post(
     });
 
     emitTo(rooms.staff(), 'style:changed', withImageUrls(style));
+    broadcast('lookbook:changed', { id: style.id });
     res.status(201).json(withImageUrls(style));
   }),
 );
@@ -106,6 +107,7 @@ stylesRouter.post(
     if (!style) throw new ApiError(404, 'Style not found');
 
     emitTo(rooms.staff(), 'style:changed', withImageUrls(style));
+    broadcast('lookbook:changed', { id: style.id });
     if (style.artist) emitTo(rooms.artist(style.artist), 'style:changed', withImageUrls(style));
 
     res.json(withImageUrls(style));

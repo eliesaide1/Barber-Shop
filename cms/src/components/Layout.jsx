@@ -132,6 +132,7 @@ export default function Layout({ children }) {
         <Nav to="/lookbook" icon="image" label="Lookbook" count={pendingLooks} onNavigate={closeNav} />
         <Nav to="/notifications" icon="bell" label="Notifications" onNavigate={closeNav} />
         {isAdmin && <Nav to="/artists" icon="users" label="Artists" onNavigate={closeNav} />}
+        {isAdmin && <Nav to="/labels" icon="dashboard" label="App wording" onNavigate={closeNav} />}
         <Nav to="/settings" icon="dashboard" label="Settings" onNavigate={closeNav} />
 
         <div className="spacer" />

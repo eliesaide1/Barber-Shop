@@ -4,6 +4,7 @@ import { Body, Button, Card, Field, Muted, Screen, Title } from '../components/u
 import { DateOfBirthField } from '../components/DateOfBirthField';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { useDialog } from '../store/DialogContext';
 import { api, ApiError } from '../api/client';
 import {
@@ -30,6 +31,7 @@ import { radius, space } from '../theme';
  */
 export function CompleteProfileScreen() {
   const c = useColors();
+  const t = useT();
   const { user, refreshUser, signOut } = useAuth();
   const { confirm, showError } = useDialog();
 
@@ -82,7 +84,7 @@ export function CompleteProfileScreen() {
 
   return (
     <Screen>
-      <Title>Nearly there</Title>
+      <Title>{t('completeProfile.nearlyThere', 'Nearly there')}</Title>
       <Muted style={{ marginTop: 6 }}>
         Welcome, {user?.name?.split(' ')[0] ?? 'and thanks'}. Your artist keeps a card on every
         client — three more things and yours is done.
@@ -90,7 +92,7 @@ export function CompleteProfileScreen() {
 
       <Card style={{ marginTop: space.xl }}>
         <Field
-          label="Mobile number"
+          label={t('completeProfile.mobileNumber', 'Mobile number')}
           value={form.phone}
           onChangeText={(v: string) => setForm((f) => ({ ...f, phone: v }))}
           keyboardType="phone-pad"
@@ -104,7 +106,7 @@ export function CompleteProfileScreen() {
           error={errors.dateOfBirth}
         />
 
-        <Body style={{ fontWeight: '700', marginTop: space.lg }}>How often do you get cut?</Body>
+        <Body style={{ fontWeight: '700', marginTop: space.lg }}>{t('completeProfile.howOftenDoYou', 'How often do you get cut?')}</Body>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.sm }}>
           {VISIT_FREQUENCIES.map((w) => {
             const on = w === frequency;
@@ -137,8 +139,8 @@ export function CompleteProfileScreen() {
         )}
       </Card>
 
-      <Button title="Done" onPress={save} loading={busy} style={{ marginTop: space.xl }} />
-      <Button title="Sign out" variant="ghost" onPress={leave} style={{ marginTop: space.md }} />
+      <Button title={t('completeProfile.done', 'Done')} onPress={save} loading={busy} style={{ marginTop: space.xl }} />
+      <Button title={t('completeProfile.signOut', 'Sign out')} variant="ghost" onPress={leave} style={{ marginTop: space.md }} />
     </Screen>
   );
 }

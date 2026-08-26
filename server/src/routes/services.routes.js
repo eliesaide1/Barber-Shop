@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
-import { emitTo, rooms } from '../lib/realtime.js';
+import { broadcast, emitTo, rooms } from '../lib/realtime.js';
 
 export const servicesRouter = Router();
 
@@ -37,6 +37,7 @@ servicesRouter.post(
       artist: req.user.role === 'artist' ? req.artist._id : body.artist || null,
     });
     emitTo(rooms.staff(), 'service:changed', service.toJSON());
+    broadcast('services:changed', { id: service.id });
     res.status(201).json(service);
   }),
 );
@@ -57,6 +58,7 @@ servicesRouter.patch(
     await service.save();
 
     emitTo(rooms.staff(), 'service:changed', service.toJSON());
+    broadcast('services:changed', { id: service.id });
     res.json(service);
   }),
 );
@@ -75,6 +77,7 @@ servicesRouter.delete(
     service.active = false;
     await service.save();
     emitTo(rooms.staff(), 'service:changed', service.toJSON());
+    broadcast('services:changed', { id: service.id });
     res.status(204).end();
   }),
 );

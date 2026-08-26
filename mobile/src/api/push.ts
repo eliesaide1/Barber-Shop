@@ -1,5 +1,4 @@
-import { Platform } from 'react-native';
-import { api } from './client';
+import { notePushToken, reportDevice } from './deviceRegistry';
 import type { AppNotification } from '../types';
 
 /**
@@ -61,21 +60,15 @@ export const pushAvailable = () => adapter !== noopAdapter;
 /**
  * Registers this device against the signed-in user so the server can push to
  * it. Safe to call on every sign-in — the server keeps the five most recent
- * tokens per user and de-duplicates by token.
+ * devices per user and matches this one by its install id.
+ *
+ * The token is handed to the device registry rather than posted from here, so
+ * the push address and what the phone is running arrive as one record instead
+ * of two writes racing each other over the same row.
  */
 const sendToken = async (token: string) => {
-  try {
-    await api.post('/auth/devices', {
-      token,
-      platform: Platform.OS === 'ios' ? 'ios' : 'android',
-    });
-    return true;
-  } catch {
-    /* A failed registration costs the user nothing right now — they still get
-       everything over the socket while the app is open, and the next launch
-       tries again. */
-    return false;
-  }
+  notePushToken(token);
+  return reportDevice();
 };
 
 export async function registerDevice(): Promise<boolean> {

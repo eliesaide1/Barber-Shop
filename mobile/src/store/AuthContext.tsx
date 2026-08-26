@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppState } from 'react-native';
 import { api, auth, onForcedSignOut } from '../api/client';
-import { connectSocket, disconnectSocket } from '../api/socket';
+import { connectSocket, disconnectSocket, getSocket } from '../api/socket';
 import {
   SignInCancelled,
   configureGoogle,
@@ -88,11 +89,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  /* Pulled out of the boot effect so the same fetch answers all three of the
+     moments the shop may have changed under us: launch, the admin saving in the
+     CMS, and coming back to an app that has been in the background for a day. */
+  const loadConfig = useCallback(() => {
+    api.get<ShopConfig>('/config').then(setConfig).catch(() => {});
+  }, []);
+
+  /* Shop rules — hours, loyalty goal, whether prices are published, the number
+     the basket is sent to — are read from the server rather than compiled in,
+     and now they are re-read rather than believed forever. */
+  useEffect(() => {
+    const socket = getSocket();
+    const onChanged = () => loadConfig();
+    socket?.on('settings:changed', onChanged);
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') loadConfig();
+    });
+
+    return () => {
+      socket?.off('settings:changed', onChanged);
+      sub.remove();
+    };
+    /* Re-bound when the session changes: the socket is a different one after
+       signing in, and a listener attached to the old instance hears nothing. */
+  }, [loadConfig, user]);
+
   useEffect(() => {
     (async () => {
-      /* Shop rules (loyalty goal, delivery fee) come from the server so the
-         app never hardcodes a number the shop might change. */
-      api.get<ShopConfig>('/config').then(setConfig).catch(() => {});
+      loadConfig();
 
       /* Which providers this shop offers, and the Google client id to configure
          with — asked for rather than compiled in, so one build serves shops that

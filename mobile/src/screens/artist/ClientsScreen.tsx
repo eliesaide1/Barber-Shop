@@ -21,6 +21,7 @@ import { useColors } from '../../store/ThemeContext';
 import { ageFrom, frequencyLabel } from '../../lib/clientDetails';
 import { space } from '../../theme';
 import type { ClientBookEntry } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const lastSeen = (iso: string | null) => {
   if (!iso) return 'Never checked in';
@@ -43,6 +44,7 @@ const standing = (entry: ClientBookEntry) => {
 
 export function ArtistClientsScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const [query, setQuery] = useState('');
   const { data: clients, loading, reload } = useApi<ClientBookEntry[]>('/loyalty/clients');
@@ -64,12 +66,12 @@ export function ArtistClientsScreen() {
      somewhere else, and that is worth seeing while it is still recoverable. */
   const overdue = (clients ?? []).filter((e) => e.overdue).length;
 
-  if (loading && !clients) return <Loading label="Loading your book…" />;
+  if (loading && !clients) return <Loading label={t('artistClients.loadingYourBook', 'Loading your book…')} />;
 
   return (
     <Screen>
-      <Title>Clients</Title>
-      <Muted style={{ marginTop: 2 }}>Everyone with a loyalty card at the shop</Muted>
+      <Title>{t('artistClients.clients', 'Clients')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('artistClients.everyoneWithALoyalty', 'Everyone with a loyalty card at the shop')}</Muted>
 
       <Row style={{ marginTop: space.lg, gap: space.md }}>
         {[
@@ -87,7 +89,7 @@ export function ArtistClientsScreen() {
       </Row>
 
       <Field
-        placeholder="Search by name or email…"
+        placeholder={t('artistClients.searchByNameOr', 'Search by name or email…')}
         value={query}
         onChangeText={setQuery}
         autoCapitalize="none"
@@ -136,7 +138,7 @@ export function ArtistClientsScreen() {
                 </View>
                 <View style={{ alignItems: 'flex-end', gap: 6 }}>
                   <Badge label={tag.label} tone={tag.tone} />
-                  {e.overdue && <Badge label="DUE" tone="warn" />}
+                  {e.overdue && <Badge label={t('artistClients.due', 'DUE')} tone="warn" />}
                 </View>
               </Row>
 

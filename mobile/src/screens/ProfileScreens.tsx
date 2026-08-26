@@ -40,6 +40,7 @@ import {
 } from '../lib/clientDetails';
 import { radius, space } from '../theme';
 import type { Appointment, AppNotification, HaircutRecord, LoyaltyCard, Order, User } from '../types';
+import { useT } from '../store/CopyContext';
 
 const STATUS_LABELS: Record<string, string> = {
   completed: 'Done',
@@ -52,6 +53,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function ProfileScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { user, config, signOut, updateUser } = useAuth();
   const { confirm, showError } = useDialog();
@@ -139,17 +141,17 @@ export function ProfileScreen() {
 
   return (
     <Screen>
-      <Title>Profile</Title>
+      <Title>{t('profile.profile', 'Profile')}</Title>
 
       <Card style={{ marginTop: space.lg, alignItems: 'center' }}>
         <Avatar name={user?.name ?? ''} size={84} />
         <Body style={{ fontWeight: '800', fontSize: 20, marginTop: 12 }}>{user?.name}</Body>
         <Muted style={{ marginTop: 2 }}>{user?.email}</Muted>
         {!!user?.phone && <Muted>{user.phone}</Muted>}
-        <Badge label="VIA BARBER HOUSE CLUB" tone="gold" style={{ marginTop: 10 }} />
+        <Badge label={t('profile.viaBarberHouseClub', 'VIA BARBER HOUSE CLUB')} tone="gold" style={{ marginTop: 10 }} />
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Loyalty</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.loyalty', 'Loyalty')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Between>
           <Body style={{ fontWeight: '700' }}>{stamps}/{goal} check-ins</Body>
@@ -159,9 +161,9 @@ export function ProfileScreen() {
           <PunchStrip stamps={stamps} goal={goal} />
         </View>
         <Row style={{ marginTop: space.lg, gap: space.md }}>
-          <Button title="My card" variant="secondary" compact style={{ flex: 1 }} onPress={() => nav.navigate('Loyalty')} />
+          <Button title={t('profile.myCard', 'My card')} variant="secondary" compact style={{ flex: 1 }} onPress={() => nav.navigate('Loyalty')} />
           <Button
-            title="Scan to check in"
+            title={t('profile.scanToCheckIn', 'Scan to check in')}
             compact
             style={{ flex: 1 }}
             onPress={() => nav.navigate('Tabs', { screen: 'Scan' })}
@@ -169,29 +171,29 @@ export function ProfileScreen() {
         </Row>
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Shop</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.shop', 'Shop')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Pressable onPress={() => nav.navigate('Orders')}>
           <Between style={{ paddingVertical: space.sm }}>
-            <Muted>My orders</Muted>
+            <Muted>{t('profile.myOrders', 'My orders')}</Muted>
             <Body>{orders?.length ?? 0} ›</Body>
           </Between>
         </Pressable>
         <Pressable onPress={() => nav.navigate('Cart')}>
           <Between style={{ paddingVertical: space.sm, borderTopWidth: 1, borderTopColor: c.line }}>
-            <Muted>Cart</Muted>
+            <Muted>{t('profile.cart', 'Cart')}</Muted>
             <Body>{cart.count} item{cart.count === 1 ? '' : 's'} ›</Body>
           </Between>
         </Pressable>
         <Pressable onPress={() => nav.navigate('Appointments')}>
           <Between style={{ paddingVertical: space.sm, borderTopWidth: 1, borderTopColor: c.line }}>
-            <Muted>My appointments</Muted>
+            <Muted>{t('profile.myAppointments', 'My appointments')}</Muted>
             <Body>›</Body>
           </Between>
         </Pressable>
         <Pressable onPress={() => nav.navigate('Haircuts')}>
           <Between style={{ paddingVertical: space.sm, borderTopWidth: 1, borderTopColor: c.line }}>
-            <Muted>My haircuts</Muted>
+            <Muted>{t('profile.myHaircuts', 'My haircuts')}</Muted>
             {/* A photo awaiting an answer is a question somebody asked — worth a
                 count here rather than only in a notification that scrolls away. */}
             <Body style={{ color: awaitingPhotos ? c.accentInk : c.text, fontWeight: awaitingPhotos ? '700' : '400' }}>
@@ -201,13 +203,13 @@ export function ProfileScreen() {
         </Pressable>
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>My details</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.myDetails', 'My details')}</Heading>
       {/* Accounts made before these were asked for have them empty. Say so once,
           plainly, rather than nagging — and only when something is actually
           missing. */}
       {incomplete && (
         <Card style={{ marginTop: space.sm, borderColor: c.accent, backgroundColor: c.accentSoft }}>
-          <Body style={{ fontWeight: '700' }}>Finish your profile</Body>
+          <Body style={{ fontWeight: '700' }}>{t('profile.finishYourProfile', 'Finish your profile')}</Body>
           <Muted style={{ marginTop: 4 }}>
             Your artist keeps a card on every client. Yours is missing{' '}
             {[
@@ -220,7 +222,7 @@ export function ProfileScreen() {
             .
           </Muted>
           <Button
-            title="Add them"
+            title={t('profile.addThem', 'Add them')}
             compact
             onPress={() => nav.navigate('Preferences')}
             style={{ marginTop: space.md }}
@@ -247,7 +249,7 @@ export function ProfileScreen() {
         ))}
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>My cut preferences</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.myCutPreferences', 'My cut preferences')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         {[
           ['Clipper guard', user?.preferences?.clipperGuard],
@@ -269,20 +271,18 @@ export function ProfileScreen() {
         ))}
       </Card>
       <Button
-        title="Edit my details"
+        title={t('profile.editMyDetails', 'Edit my details')}
         variant="ghost"
         onPress={() => nav.navigate('Preferences')}
         style={{ marginTop: space.md }}
       />
 
-      <Heading style={{ marginTop: space.xl }}>Notifications</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.notifications', 'Notifications')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Between>
           <View style={{ flex: 1, paddingRight: space.md }}>
-            <Body style={{ fontWeight: '700' }}>Shop news</Body>
-            <Muted style={{ marginTop: 3 }}>
-              Offers and announcements from VIA Barber House and your artist.
-            </Muted>
+            <Body style={{ fontWeight: '700' }}>{t('profile.shopNews', 'Shop news')}</Body>
+            <Muted style={{ marginTop: 3 }}>{t('profile.offersAndAnnouncementsFrom', 'Offers and announcements from VIA Barber House and your artist.')}</Muted>
           </View>
           <Switch
             value={broadcasts}
@@ -297,10 +297,8 @@ export function ProfileScreen() {
         </Between>
         <Between style={{ marginTop: space.lg }}>
           <View style={{ flex: 1, paddingRight: space.md }}>
-            <Body style={{ fontWeight: '700' }}>WhatsApp</Body>
-            <Muted style={{ marginTop: 3 }}>
-              Birthday wishes and the odd gift, on WhatsApp. Off unless you ask for it.
-            </Muted>
+            <Body style={{ fontWeight: '700' }}>{t('profile.whatsapp', 'WhatsApp')}</Body>
+            <Muted style={{ marginTop: 3 }}>{t('profile.birthdayWishesAndThe', 'Birthday wishes and the odd gift, on WhatsApp. Off unless you ask for it.')}</Muted>
           </View>
           <Switch
             value={whatsapp}
@@ -323,7 +321,7 @@ export function ProfileScreen() {
         </Muted>
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Appearance</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.appearance', 'Appearance')}</Heading>
       <View style={{ marginTop: space.sm }}>
         <Segmented
           value={preference ?? 'system'}
@@ -339,19 +337,40 @@ export function ProfileScreen() {
         {preference ? `Always ${preference}.` : `Following your phone — currently ${themeName}.`}
       </Muted>
 
-      <Heading style={{ marginTop: space.xl }}>Shop</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.shop', 'Shop')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Between><Muted>{config?.shop.name}</Muted><Body>{config?.shop.area}</Body></Between>
-        <Between style={{ marginTop: space.md }}><Muted>Hours</Muted><Body>{config?.shop.hours}</Body></Between>
+        <Between style={{ marginTop: space.md }}><Muted>{t('profile.hours', 'Hours')}</Muted><Body>{config?.shop.hours}</Body></Between>
         <Between style={{ marginTop: space.md }}>
-          <Muted>Phone</Muted>
+          <Muted>{t('profile.phone', 'Phone')}</Muted>
           <Text style={{ color: c.accentInk }}>{config?.shop.phone}</Text>
         </Between>
       </Card>
 
-      <Button title="Log out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
+      <Heading style={{ marginTop: space.xl }}>{t('profile.about', 'About')}</Heading>
+      <Card style={{ marginTop: space.sm }} onPress={() => nav.navigate('Device')}>
+        <Between>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <Body style={{ fontWeight: '700' }}>{t('profile.thisDevice', 'This device')}</Body>
+            <Muted style={{ marginTop: 3 }}>{t('profile.whichPhoneWhichApp', 'Which phone, which app version, and who is signed in.')}</Muted>
+          </View>
+          <Body>›</Body>
+        </Between>
+      </Card>
+
+      <Card style={{ marginTop: space.sm }} onPress={() => nav.navigate('Privacy')}>
+        <Between>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <Body style={{ fontWeight: '700' }}>{t('profile.privacyPolicy', 'Privacy policy')}</Body>
+            <Muted style={{ marginTop: 3 }}>{t('profile.whatWeCollectWhy', 'What we collect, why, and how to have it deleted.')}</Muted>
+          </View>
+          <Body>›</Body>
+        </Between>
+      </Card>
+
+      <Button title={t('profile.logOut', 'Log out')} variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
       <Button
-        title="Delete account"
+        title={t('profile.deleteAccount', 'Delete account')}
         variant="ghost"
         onPress={confirmDeleteAccount}
         loading={deleting}
@@ -365,6 +384,7 @@ export function ProfileScreen() {
 
 export function PreferencesScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
@@ -425,20 +445,20 @@ export function PreferencesScreen() {
 
   return (
     <Screen>
-      <Title>My details</Title>
-      <Muted style={{ marginTop: 2 }}>Your artist sees this before every visit.</Muted>
+      <Title>{t('profile.myDetails', 'My details')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('profile.yourArtistSeesThis', 'Your artist sees this before every visit.')}</Muted>
 
-      <Heading style={{ marginTop: space.lg }}>About you</Heading>
+      <Heading style={{ marginTop: space.lg }}>{t('profile.aboutYou', 'About you')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Field
-          label="Full name"
+          label={t('profile.fullName', 'Full name')}
           value={details.name}
           onChangeText={(v: string) => setDetails((d) => ({ ...d, name: v }))}
           error={errors.name}
           style={{ marginTop: 0 }}
         />
         <Field
-          label="Mobile number"
+          label={t('profile.mobileNumber', 'Mobile number')}
           value={details.phone}
           onChangeText={(v: string) => setDetails((d) => ({ ...d, phone: v }))}
           keyboardType="phone-pad"
@@ -451,7 +471,7 @@ export function PreferencesScreen() {
           error={errors.dateOfBirth}
         />
 
-        <Muted style={{ marginTop: space.md, fontWeight: '600' }}>How often do you get cut?</Muted>
+        <Muted style={{ marginTop: space.md, fontWeight: '600' }}>{t('profile.howOftenDoYou', 'How often do you get cut?')}</Muted>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: 8 }}>
           {VISIT_FREQUENCIES.map((w) => {
             const on = w === frequency;
@@ -477,43 +497,41 @@ export function PreferencesScreen() {
             );
           })}
         </View>
-        <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>
-          It is how your artist knows when you are due — not a commitment.
-        </Muted>
+        <Muted style={{ marginTop: space.md, fontSize: 11.5 }}>{t('profile.itIsHowYour', 'It is how your artist knows when you are due — not a commitment.')}</Muted>
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Cut preferences</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('profile.cutPreferences', 'Cut preferences')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         <Field
-          label="Clipper guard"
+          label={t('profile.clipperGuard', 'Clipper guard')}
           value={form.clipperGuard}
           onChangeText={(v: string) => setForm((f) => ({ ...f, clipperGuard: v }))}
           placeholder="#2 sides, scissor top"
           style={{ marginTop: 0 }}
         />
         <Field
-          label="Beard"
+          label={t('profile.beard', 'Beard')}
           value={form.beard}
           onChangeText={(v: string) => setForm((f) => ({ ...f, beard: v }))}
-          placeholder="Line up, keep length"
+          placeholder={t('profile.lineUpKeepLength', 'Line up, keep length')}
         />
         <Field
-          label="Part"
+          label={t('profile.part', 'Part')}
           value={form.part}
           onChangeText={(v: string) => setForm((f) => ({ ...f, part: v }))}
-          placeholder="Natural left"
+          placeholder={t('profile.naturalLeft', 'Natural left')}
         />
         <Field
-          label="Anything your barber should know"
+          label={t('profile.anythingYourBarberShould', 'Anything your barber should know')}
           value={form.notes}
           onChangeText={(v: string) => setForm((f) => ({ ...f, notes: v }))}
-          placeholder="Sensitive skin — no alcohol aftershave."
+          placeholder={t('profile.sensitiveSkinNoAlcohol', 'Sensitive skin — no alcohol aftershave.')}
           multiline
           style={{ minHeight: 80, textAlignVertical: 'top' }}
         />
       </Card>
 
-      <Button title="Save" onPress={save} loading={busy} style={{ marginTop: space.lg }} />
+      <Button title={t('profile.save', 'Save')} onPress={save} loading={busy} style={{ marginTop: space.lg }} />
     </Screen>
   );
 }
@@ -522,6 +540,7 @@ export function PreferencesScreen() {
 
 export function AppointmentsScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { toast } = useToast();
   const { confirm, showError } = useDialog();
@@ -572,16 +591,16 @@ export function AppointmentsScreen() {
 
   return (
     <Screen>
-      <Title>Appointments</Title>
-      <Muted style={{ marginTop: 2 }}>Upcoming visits & your cut history</Muted>
+      <Title>{t('profile.appointments', 'Appointments')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('profile.upcomingVisitsYourCut', 'Upcoming visits & your cut history')}</Muted>
 
       {upcoming.length === 0 ? (
         <View style={{ marginTop: space.lg }}>
           <Empty
             icon="💈"
-            title="No upcoming visits"
-            hint="Your chair is waiting."
-            action={<Button title="Book a cut" onPress={() => nav.navigate('Tabs', { screen: 'Book' })} />}
+            title={t('profile.noUpcomingVisits', 'No upcoming visits')}
+            hint={t('profile.yourChairIsWaiting', 'Your chair is waiting.')}
+            action={<Button title={t('profile.bookACut', 'Book a cut')} onPress={() => nav.navigate('Tabs', { screen: 'Book' })} />}
           />
         </View>
       ) : (
@@ -611,7 +630,7 @@ export function AppointmentsScreen() {
                   {a.artist.displayName} · {a.artist.chair} · {a.free ? 'free 🎁' : `$${a.price}`}
                 </Muted>
               </View>
-              {a.free && <Badge label="FREE CUT" tone="gold" />}
+              {a.free && <Badge label={t('profile.freeCut', 'FREE CUT')} tone="gold" />}
             </Row>
             {/* Say plainly that the chair is not yet theirs, and why that is the
                 rule — it is what keeps the times honest for everyone. */}
@@ -641,7 +660,7 @@ export function AppointmentsScreen() {
                   style={{ width: 46, height: 46, borderRadius: radius.sm + 2, backgroundColor: c.surface3 }}
                 />
                 <View style={{ flex: 1 }}>
-                  <Body style={{ fontWeight: '700' }}>Same as last time</Body>
+                  <Body style={{ fontWeight: '700' }}>{t('profile.sameAsLastTime', 'Same as last time')}</Body>
                   <Muted style={{ marginTop: 2 }}>
                     {a.reference.serviceName || 'Haircut'} ·{' '}
                     {new Date(a.reference.takenAt).toLocaleDateString([], {
@@ -655,12 +674,10 @@ export function AppointmentsScreen() {
             {!!a.rewardCode && (
               <Card style={{ marginTop: space.md, borderColor: c.accent, backgroundColor: c.accentSoft, padding: space.md }}>
                 <Between>
-                  <Muted>Claim code</Muted>
+                  <Muted>{t('profile.claimCode', 'Claim code')}</Muted>
                   <Text style={{ color: c.text, fontWeight: '800', letterSpacing: 3 }}>{a.rewardCode}</Text>
                 </Between>
-                <Muted style={{ marginTop: 6, fontSize: 11 }}>
-                  Your artist redeems it at the chair.
-                </Muted>
+                <Muted style={{ marginTop: 6, fontSize: 11 }}>{t('profile.yourArtistRedeemsIt', 'Your artist redeems it at the chair.')}</Muted>
               </Card>
             )}
             <Button
@@ -677,7 +694,7 @@ export function AppointmentsScreen() {
 
       {past.length > 0 && (
         <>
-          <Heading style={{ marginTop: space.xl }}>History</Heading>
+          <Heading style={{ marginTop: space.xl }}>{t('profile.history', 'History')}</Heading>
           <Card style={{ marginTop: space.sm }}>
             {past.map((a, i) => (
               <Row
@@ -715,6 +732,7 @@ export function AppointmentsScreen() {
 
 export function NotificationsScreen() {
   const c = useColors();
+  const t = useT();
   const { isArtist } = useAuth();
   /* The provider already holds these and keeps them live — the screen just
      renders them, so the badge and the list can never disagree. */
@@ -732,12 +750,12 @@ export function NotificationsScreen() {
 
   return (
     <Screen>
-      <Title>Notifications</Title>
-      <Muted style={{ marginTop: 2 }}>From VIA Barber House and your artists</Muted>
+      <Title>{t('profile.notifications', 'Notifications')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('profile.fromViaBarberHouse', 'From VIA Barber House and your artists')}</Muted>
 
       {!items?.length ? (
         <View style={{ marginTop: space.lg }}>
-          <Empty icon="🔔" title="Nothing yet" hint="Shop news and your order updates land here." />
+          <Empty icon="🔔" title={t('profile.nothingYet', 'Nothing yet')} hint={t('profile.shopNewsAndYour', 'Shop news and your order updates land here.')} />
         </View>
       ) : (
         items.map((n) => (
@@ -757,7 +775,7 @@ export function NotificationsScreen() {
                 <Text style={{ fontSize: 16 }}>{KIND_GLYPH[n.kind] ?? KIND_GLYPH.message}</Text>
                 <Body style={{ fontWeight: '800', flex: 1 }}>{n.title}</Body>
               </Row>
-              {!n.read && <Badge label="NEW" tone="gold" />}
+              {!n.read && <Badge label={t('profile.new', 'NEW')} tone="gold" />}
             </Between>
             <Muted style={{ marginTop: 6, lineHeight: 19 }}>{n.body}</Muted>
             <Muted style={{ marginTop: 8, fontSize: 11 }}>

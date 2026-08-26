@@ -13,6 +13,7 @@ import { ThemeProvider, useColors } from './src/store/ThemeContext';
 import { ToastProvider } from './src/store/ToastContext';
 import { DialogProvider } from './src/store/DialogContext';
 import { AuthProvider } from './src/store/AuthContext';
+import { CopyProvider } from './src/store/CopyContext';
 import { CartProvider } from './src/store/CartContext';
 import { NotificationsProvider } from './src/store/NotificationsContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -29,11 +30,16 @@ function Shell() {
       <ToastProvider>
         <DialogProvider>
           <AuthProvider>
+            {/* Inside Auth, because the socket it listens on is opened by the
+                session — and above everything that draws, because everything
+                that draws asks it for its words. */}
+            <CopyProvider>
             <CartProvider>
               <NotificationsProvider>
                 <RootNavigator />
               </NotificationsProvider>
             </CartProvider>
+            </CopyProvider>
           </AuthProvider>
         </DialogProvider>
       </ToastProvider>
