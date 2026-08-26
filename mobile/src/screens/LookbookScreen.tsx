@@ -13,7 +13,7 @@ import {
   Screen,
   Title,
 } from '../components/ui';
-import { useApi } from '../hooks/useApi';
+import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
@@ -41,7 +41,12 @@ export function LookbookScreen() {
     return `/styles${qs ? `?${qs}` : ''}`;
   }, [category, savedOnly]);
 
-  const { data: looks, loading, setData } = useApi<StyleLook[]>(path);
+  const { data: looks, loading, setData, reload: reloadLooks } = useApi<StyleLook[]>(path);
+
+  /* A style approved, withdrawn or re-photographed in the back office. The
+     saved-hearts are held in the same rows, so this re-reads rather than
+     patching — the server is the one that knows what is published now. */
+  useSocketEvent('lookbook:changed', () => reloadLooks(true));
 
   const toggleSave = async (look: StyleLook) => {
     /* Flip it locally first — a heart that waits on the network feels broken. */

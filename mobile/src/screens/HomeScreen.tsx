@@ -53,14 +53,20 @@ export function HomeScreen() {
 
   const { data: appointments, reload: reloadAppointments } = useApi<Appointment[]>('/appointments');
   const { data: card, reload: reloadCard } = useApi<LoyaltyCard>('/loyalty/card');
-  const { data: artists } = useApi<Artist[]>('/artists');
-  const { data: products } = useApi<Product[]>('/products?limit=6');
+  const { data: artists, reload: reloadArtists } = useApi<Artist[]>('/artists');
+  const { data: products, reload: reloadProducts } = useApi<Product[]>('/products?limit=6');
   const { data: orders, reload: reloadOrders } = useApi<Order[]>('/orders');
-  const { data: looks } = useApi<StyleLook[]>('/styles');
+  const { data: looks, reload: reloadLooks } = useApi<StyleLook[]>('/styles');
 
   useSocketEvent('loyalty:updated', () => reloadCard(true));
   useSocketEvent('order:status', () => reloadOrders(true));
   useSocketEvent('appointment:status', () => reloadAppointments(true));
+  /* The shop editing itself. Home is the screen most likely to be open and
+     left open, so it is the one where a chair added in the back office should
+     appear without anybody navigating anywhere. */
+  useSocketEvent('artists:changed', () => reloadArtists(true));
+  useSocketEvent('catalogue:changed', () => reloadProducts(true));
+  useSocketEvent('lookbook:changed', () => reloadLooks(true));
 
   const next = appointments?.find(
     (a) => ['confirmed', 'pending'].includes(a.status) && new Date(a.startsAt).getTime() > Date.now(),

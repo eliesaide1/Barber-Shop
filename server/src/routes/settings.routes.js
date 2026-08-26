@@ -4,6 +4,7 @@ import { getSettings, fillTokens } from '../models/ShopSettings.js';
 import { User } from '../models/User.js';
 import { asyncHandler, ApiError } from '../middleware/error.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
+import { broadcast } from '../lib/realtime.js';
 import { sendTemplate, whatsappConfigured, toWhatsAppNumber } from '../lib/whatsapp.js';
 import { sweepBirthdays } from '../lib/birthdays.js';
 
@@ -125,6 +126,14 @@ settingsRouter.patch(
     }
     settings.updatedBy = req.user._id;
     await settings.save();
+
+    /* These are the shop itself — its hours, its loyalty goal, whether prices
+       are published, the number the basket is sent to. The app reads them once
+       at sign-in and had no way of hearing that any of it moved, so a shop
+       that changed its closing time was telling nobody already holding the app
+       open. There is nothing to send but the fact: `/config` is one request,
+       and it is the one thing every client wants after this. */
+    broadcast('settings:changed', {});
 
     res.json({
       birthday: settings.birthday,

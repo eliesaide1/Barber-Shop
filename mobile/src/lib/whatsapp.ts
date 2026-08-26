@@ -1,4 +1,5 @@
 import { Linking } from 'react-native';
+import { absoluteUrl } from '../config';
 import type { Artist, Product, ShopConfig } from '../types';
 
 /**
@@ -63,4 +64,45 @@ export function priceEnquiry(
   const described = [product.name, product.size].filter(Boolean).join(' · ');
   const template = config?.contact?.priceEnquiry ?? 'Hi, how much is {product}?';
   return template.replaceAll('{product}', described);
+}
+
+/**
+ * The basket, as a message the shop can answer.
+ *
+ * Addressed to the shop rather than to each product's owner: a basket can hold
+ * two artists' shelves, and splitting it would open two conversations for one
+ * order and leave the client to explain themselves twice.
+ *
+ * No total, and no per-item price. Prices are not published to the app at all —
+ * `forViewer` deletes them server-side rather than blanking them — so there is
+ * no figure here to put in the text. Inventing one from a stale cache would be
+ * worse than asking. The shop quotes, in the conversation, which is the whole
+ * point of quoting rather than listing.
+ *
+ * Each line carries a link to the product's photograph, so whoever answers can
+ * see what was meant without going and looking it up.
+ */
+export function basketEnquiry(
+  lines: { product: Pick<Product, 'name' | 'brand' | 'size' | 'images'>; qty: number }[],
+  config: ShopConfig | null,
+): string {
+  const items = lines.map(({ product, qty }) => {
+    const described = [product.brand, product.name, product.size].filter(Boolean).join(' · ');
+    const link = absoluteUrl(product.images?.[0]);
+    return `• ${qty} × ${described}${link ? `\n  ${link}` : ''}`;
+  });
+
+  const shop = config?.shop?.name ?? 'the shop';
+  return [
+    `Hi ${shop}, I'd like to order:`,
+    '',
+    ...items,
+    '',
+    'Could you confirm the total and when I can collect it?',
+  ].join('\n');
+}
+
+/** The shop's own number — who a basket goes to. Null when none is published. */
+export function shopWhatsApp(config: ShopConfig | null): string | null {
+  return config?.contact?.whatsapp ?? null;
 }

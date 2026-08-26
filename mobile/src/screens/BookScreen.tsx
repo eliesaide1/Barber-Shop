@@ -18,7 +18,7 @@ import {
   Screen,
   Title,
 } from '../components/ui';
-import { useApi } from '../hooks/useApi';
+import { useApi, useSocketEvent } from '../hooks/useApi';
 import { nextRewardToUse, rewardTitle } from '../lib/rewards';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
@@ -69,13 +69,19 @@ export function BookScreen() {
   const [busy, setBusy] = useState(false);
 
   const { config } = useAuth();
-  const { data: artists, loading: loadingArtists } = useApi<Artist[]>('/artists');
-  const { data: services } = useApi<Service[]>('/services');
+  const { data: artists, loading: loadingArtists, reload: reloadArtists } = useApi<Artist[]>('/artists');
+  const { data: services, reload: reloadServices } = useApi<Service[]>('/services');
   const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
   /* Approved only — the server filters, and a pending photo must never be
      offered as something to show an artist. */
   const { data: allCuts } = useApi<HaircutRecord[]>('/haircuts/mine');
   const haircuts = (allCuts ?? []).filter((h) => h.status === 'approved');
+
+  /* A chair deactivated or a service renamed mid-booking changes what is on
+     offer, and the person choosing should see the change rather than send a
+     request against something the shop has already withdrawn. */
+  useSocketEvent('artists:changed', () => reloadArtists(true));
+  useSocketEvent('services:changed', () => reloadServices(true));
 
   const artist = artists?.find((a) => a.id === artistId) ?? artists?.[0] ?? null;
   const service = services?.find((s) => s.id === serviceId) ?? services?.[0] ?? null;

@@ -21,7 +21,7 @@ import {
 } from '../components/ui';
 import { ProductCard } from '../components/ProductCard';
 import { Icon } from '../components/Icon';
-import { useApi } from '../hooks/useApi';
+import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useCart } from '../store/CartContext';
 import { useAuth } from '../store/AuthContext';
 import { useToast } from '../store/ToastContext';
@@ -30,6 +30,7 @@ import { useColors } from '../store/ThemeContext';
 import { api, ApiError } from '../api/client';
 import { absoluteUrl } from '../config';
 import { contactForProduct, openWhatsApp, priceEnquiry } from '../lib/whatsapp';
+import { CartBar } from '../components/CartBar';
 import { radius, space } from '../theme';
 import type { Fulfilment, Order, Product } from '../types';
 
@@ -54,7 +55,12 @@ export function ShopScreen() {
     return `/products${qs ? `?${qs}` : ''}`;
   }, [category, query]);
 
-  const { data: products, loading } = useApi<Product[]>(path);
+  const { data: products, loading, reload: reloadProducts } = useApi<Product[]>(path);
+
+  /* The server has broadcast this on every product change all along — nothing
+     was listening, so a price or a photo edited in the back office reached the
+     shelf only when somebody navigated away and came back. */
+  useSocketEvent('catalogue:changed', () => reloadProducts(true));
 
   const add = (p: Product) => {
     const res = cart.add(p);
@@ -63,7 +69,7 @@ export function ShopScreen() {
   };
 
   return (
-    <Screen>
+    <Screen footer={<CartBar />}>
       <Between>
         <View style={{ flex: 1 }}>
           <Title>Shop</Title>
@@ -188,7 +194,12 @@ export function ProductScreen() {
   const { showError } = useDialog();
   const [qty, setQty] = useState(1);
 
-  const { data: product, loading } = useApi<Product>(`/products/${params.id}`);
+  const { data: product, loading, reload: reloadProduct } = useApi<Product>(`/products/${params.id}`);
+
+  /* Reloaded on any catalogue change rather than only its own: the event
+     carries an id, but a page showing one product is cheap to re-read and
+     comparing ids here would be a second place for them to drift apart. */
+  useSocketEvent('catalogue:changed', () => reloadProduct(true));
   const { user, config } = useAuth();
 
   if (loading && !product) return <Loading />;
@@ -228,7 +239,7 @@ export function ProductScreen() {
   };
 
   return (
-    <Screen>
+    <Screen footer={<CartBar />}>
       <View
         style={{
           height: 220,
@@ -366,7 +377,7 @@ export function ProductScreen() {
         </View>
       )}
 
-      {!product.priceHidden && product.stock > 0 && (
+      {product.stock > 0 && (
         <View style={{ marginTop: space.xl }}>
           <Row>
             <View>
@@ -375,7 +386,13 @@ export function ProductScreen() {
             </View>
             <View style={{ flex: 1, justifyContent: 'flex-end' }}>
               <Button
-                title={canAdd ? `Add to cart · $${(product.price ?? 0) * qty}` : 'All of it is in your cart'}
+                title={
+                  canAdd
+                    ? product.priceHidden
+                      ? 'Add to cart'
+                      : `Add to cart · $${(product.price ?? 0) * qty}`
+                    : 'All of it is in your cart'
+                }
                 disabled={!canAdd}
                 onPress={add}
               />
@@ -425,7 +442,7 @@ export function CartScreen() {
   }
 
   return (
-    <Screen>
+    <Screen footer={<CartBar />}>
       <Title>Cart</Title>
       <Muted style={{ marginTop: 2 }}>
         {cart.count} item{cart.count === 1 ? '' : 's'} · ${cart.subtotal}
@@ -468,9 +485,11 @@ export function CartScreen() {
               <View style={{ flex: 1 }}>
                 <Body style={{ fontWeight: '700' }} >{line.product.name}</Body>
                 <Muted style={{ marginTop: 2 }}>{line.product.size}</Muted>
-                <Text style={{ color: c.text, fontWeight: '800', marginTop: 6 }}>
-                  ${(line.product.price ?? 0) * line.qty}
-                </Text>
+                {!line.product.priceHidden && (
+                  <Text style={{ color: c.text, fontWeight: '800', marginTop: 6 }}>
+                    ${(line.product.price ?? 0) * line.qty}
+                  </Text>
+                )}
               </View>
 
               <Stepper
@@ -483,49 +502,23 @@ export function CartScreen() {
         })}
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>How do you want it?</Heading>
-      <View style={{ marginTop: space.sm }}>
-        <Segmented
-          value={fulfilment}
-          onChange={setFulfilment}
-          options={[
-            { value: 'pickup', label: '💈 Pick up' },
-            { value: 'delivery', label: '🛵 Delivery' },
-          ]}
-        />
-      </View>
-      <Muted style={{ marginTop: space.sm }}>
-        {fulfilment === 'pickup'
-          ? 'Free · collect it at the shop, or at your next cut'
-          : `Inside Beirut · $${deliveryFee}, free over $${freeOver}`}
-      </Muted>
-
+      {/* No fulfilment choice and no total. Both were questions this screen
+          could only ask because it was going to place an order; it now hands
+          the list to the shop, and how it gets to you is part of the same
+          conversation as what it costs. */}
       <Card style={{ marginTop: space.lg }}>
-        <Between>
-          <Muted>Subtotal</Muted>
-          <Body>${cart.subtotal}</Body>
-        </Between>
-        <Between style={{ marginTop: space.sm }}>
-          <Muted>{fulfilment === 'pickup' ? 'Pickup' : 'Delivery'}</Muted>
-          <Body>{fee ? `$${fee}` : 'Free'}</Body>
-        </Between>
-        <Divider />
-        <Between>
-          <Body style={{ fontWeight: '700' }}>Total</Body>
-          <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 20 }}>${cart.subtotal + fee}</Text>
-        </Between>
+        <Body style={{ fontWeight: '700' }}>Sending this to {config?.shop.name ?? 'the shop'}</Body>
+        <Muted style={{ marginTop: space.xs }}>
+          Tap Finished and WhatsApp opens with your list ready to send. Nothing is charged in the
+          app — the shop replies with the total and when to collect it.
+        </Muted>
       </Card>
 
-      <Button
-        title={`Checkout · $${cart.subtotal + fee}`}
-        onPress={() => nav.navigate('Checkout', { fulfilment })}
-        style={{ marginTop: space.lg }}
-      />
       <Button
         title="Keep shopping"
         variant="ghost"
         onPress={() => nav.navigate('Tabs', { screen: 'Shop' })}
-        style={{ marginTop: space.md }}
+        style={{ marginTop: space.lg }}
       />
     </Screen>
   );

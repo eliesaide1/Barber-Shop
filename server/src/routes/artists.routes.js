@@ -5,7 +5,7 @@ import { User } from '../models/User.js';
 import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
-import { emitTo, rooms } from '../lib/realtime.js';
+import { broadcast, emitTo, rooms } from '../lib/realtime.js';
 import { toWhatsAppNumber } from '../lib/whatsapp.js';
 
 export const artistsRouter = Router();
@@ -99,6 +99,7 @@ artistsRouter.post(
     });
 
     emitTo(rooms.staff(), 'artist:changed', artist.toJSON());
+    broadcast('artists:changed', { id: artist.id });
     res.status(201).json(artist);
   }),
 );
@@ -119,6 +120,7 @@ artistsRouter.patch(
     if (!artist) throw new ApiError(404, 'Artist not found');
 
     emitTo(rooms.staff(), 'artist:changed', artist.toJSON());
+    broadcast('artists:changed', { id: artist.id });
     res.json(artist);
   }),
 );
@@ -134,6 +136,9 @@ artistsRouter.delete(
     await User.findByIdAndUpdate(artist.user, { active: false });
 
     emitTo(rooms.staff(), 'artist:changed', artist.toJSON());
+    /* A deactivated chair has to leave the booking screen of anyone standing
+       on it, not wait until they navigate away and back. */
+    broadcast('artists:changed', { id: artist.id });
     res.status(204).end();
   }),
 );

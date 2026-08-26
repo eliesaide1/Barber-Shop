@@ -411,7 +411,16 @@ export function Loading({ label = 'Loading…' }: { label?: string }) {
   );
 }
 
-export function Screen({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Screen({
+  children,
+  style,
+  footer,
+}: {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  /** Pinned to the bottom, over the content — the basket bar is the only user. */
+  footer?: React.ReactNode;
+}) {
   const c = useColors();
   /* SafeAreaView measures the device's own insets, so the header clears the
      status bar / notch / Dynamic Island on any size. 'top' only — the bottom
@@ -420,11 +429,15 @@ export function Screen({ children, style }: { children: React.ReactNode; style?:
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={[{ padding: space.lg, paddingBottom: 40 }, style]}
+        /* A pinned footer covers the end of the list, so the scroll gains
+           roughly its height — otherwise the last product is unreachable,
+           which is exactly the item somebody was reaching for. */
+        contentContainerStyle={[{ padding: space.lg, paddingBottom: footer ? 120 : 40 }, style]}
         keyboardShouldPersistTaps="handled"
       >
         {children}
       </ScrollView>
+      {footer}
     </SafeAreaView>
   );
 }
