@@ -13,6 +13,7 @@ import { Body, Logo, Muted, Title } from '../components/ui';
 import { Icon } from '../components/Icon';
 import { ONBOARDING_ART } from '../components/OnboardingArt';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { radius, space } from '../theme';
 
 interface Slide {
@@ -22,30 +23,8 @@ interface Slide {
 
 /* Four, and in the order the app is actually used: ask for a chair, turn up
    and scan, watch the card fill, buy what your artist put in your hair. */
-const SLIDES: Slide[] = [
-  {
-    title: 'Ask for a chair',
-    body:
-      'Pick a time that suits you and send it to your artist. They confirm the slot and how long your cut needs — so the book stays honest.',
-  },
-  {
-    title: 'Scan when you arrive',
-    body:
-      'Your artist shows a code at the chair. Scan it and the visit is on your card before the cape is off.',
-  },
-  {
-    title: 'Every eighth cut is on us',
-    body:
-      'Seven stamps, then a free one. The card lives in the app, so there is nothing to lose in a coat pocket.',
-  },
-  {
-    title: 'Shop the shelf',
-    body:
-      'The pomades, oils and tonics your artist actually uses. Order in the app and collect at the shop.',
-  },
-];
-
-const LAST = SLIDES.length - 1;
+const SLIDE_COUNT = 4;
+const LAST = SLIDE_COUNT - 1;
 
 /**
  * The introduction, shown once per install.
@@ -62,7 +41,42 @@ const LAST = SLIDES.length - 1;
  */
 export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const c = useColors();
+  const t = useT();
   const { width } = useWindowDimensions();
+
+  /* Built here rather than at module scope so it re-reads when the shop edits
+     the wording, and written out one key at a time so the extractor — and
+     therefore the back office — can see all eight of them. */
+  const SLIDES: Slide[] = [
+    {
+      title: t('walkthrough.ask.title', 'Ask for a chair'),
+      body: t(
+        'walkthrough.ask.body',
+        'Pick a time that suits you and send it to your artist. They confirm the slot and how long your cut needs — so the book stays honest.',
+      ),
+    },
+    {
+      title: t('walkthrough.scan.title', 'Scan when you arrive'),
+      body: t(
+        'walkthrough.scan.body',
+        'Your artist shows a code at the chair. Scan it and the visit is on your card before the cape is off.',
+      ),
+    },
+    {
+      title: t('walkthrough.loyalty.title', 'Every eighth cut is on us'),
+      body: t(
+        'walkthrough.loyalty.body',
+        'Seven stamps, then a free one. The card lives in the app, so there is nothing to lose in a coat pocket.',
+      ),
+    },
+    {
+      title: t('walkthrough.shop.title', 'Shop the shelf'),
+      body: t(
+        'walkthrough.shop.body',
+        'The pomades, oils and tonics your artist actually uses. Order in the app and collect at the shop.',
+      ),
+    },
+  ];
   const [index, setIndex] = useState(0);
   const scroller = useRef<ScrollView>(null);
 
@@ -110,7 +124,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
             opacity: pressed ? 0.5 : 1,
           })}
         >
-          <Body style={{ color: c.muted, fontWeight: '700' }}>Skip</Body>
+          <Body style={{ color: c.muted, fontWeight: '700' }}>{t('walkthrough.skip', 'Skip')}</Body>
         </Pressable>
       </View>
 
@@ -140,7 +154,9 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
                 <Art />
               </View>
 
-              <Title style={{ fontSize: 26, textAlign: 'center' }}>{slide.title}</Title>
+              <Title style={{ fontSize: 26, textAlign: 'center' }}>
+                {slide.title}
+              </Title>
               <Muted style={{ fontSize: 14.5, lineHeight: 21, textAlign: 'center', marginTop: space.md }}>
                 {slide.body}
               </Muted>
@@ -198,7 +214,9 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
           {onLast ? (
             <>
               <Icon name="check" color={c.onAccent} size={22} active />
-              <Body style={{ color: c.onAccent, fontWeight: '800', fontSize: 16 }}>Get started</Body>
+              <Body style={{ color: c.onAccent, fontWeight: '800', fontSize: 16 }}>
+                {t('walkthrough.getStarted', 'Get started')}
+              </Body>
             </>
           ) : (
             /* The one arrow in the set points back, so it is mirrored rather

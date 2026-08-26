@@ -23,6 +23,7 @@ import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { space } from '../theme';
 import type { LoyaltyCard, Reward } from '../types';
+import { useT } from '../store/CopyContext';
 
 const ago = (iso: string) => {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -35,6 +36,7 @@ const ago = (iso: string) => {
 
 export function LoyaltyScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { toast } = useToast();
   const { data: card, loading, reload } = useApi<LoyaltyCard>('/loyalty/card');
@@ -73,16 +75,16 @@ export function LoyaltyScreen() {
 
   return (
     <Screen>
-      <Title>Loyalty card</Title>
+      <Title>{t('loyalty.loyaltyCard', 'Loyalty card')}</Title>
       <Muted style={{ marginTop: 2 }}>Every {card.goal} check-ins = 1 free haircut</Muted>
 
       <Card hero style={{ marginTop: space.lg, alignItems: 'center' }}>
-        <Badge label="VIA BARBER HOUSE CLUB" tone="gold" />
+        <Badge label={t('loyalty.viaBarberHouseClub', 'VIA BARBER HOUSE CLUB')} tone="gold" />
         <Row style={{ alignItems: 'baseline', marginTop: 10, gap: 2 }}>
           <Text style={{ fontSize: 44, fontWeight: '800', color: c.text }}>{card.stamps}</Text>
           <Text style={{ fontSize: 20, color: c.muted, fontWeight: '700' }}>/{card.goal}</Text>
         </Row>
-        <Muted>check-ins toward your free cut</Muted>
+        <Muted>{t('loyalty.checkInsTowardYour', 'check-ins toward your free cut')}</Muted>
         <View style={{ marginTop: space.lg, alignSelf: 'stretch' }}>
           <PunchStrip stamps={card.stamps} goal={card.goal} />
         </View>
@@ -90,7 +92,7 @@ export function LoyaltyScreen() {
           {left === card.goal ? 'Scan at the chair after your next cut' : `${left} to go`}
         </Muted>
         <Button
-          title="Scan to check in"
+          title={t('loyalty.scanToCheckIn', 'Scan to check in')}
           onPress={() => nav.navigate('Tabs', { screen: 'Scan' })}
           style={{ marginTop: space.md, alignSelf: 'stretch' }}
         />
@@ -98,7 +100,7 @@ export function LoyaltyScreen() {
 
       {live.length > 0 && (
         <>
-          <Heading style={{ marginTop: space.xl }}>Ready to use</Heading>
+          <Heading style={{ marginTop: space.xl }}>{t('loyalty.readyToUse', 'Ready to use')}</Heading>
           {ordered.map((r) => {
             /* A gift is not always a free cut, and saying "free haircut" over a
                beard trim or a discount would be the card telling a lie the
@@ -139,7 +141,7 @@ export function LoyaltyScreen() {
 
                 <Divider />
                 <Between>
-                  <Muted>Claim code</Muted>
+                  <Muted>{t('loyalty.claimCode', 'Claim code')}</Muted>
                   <Text style={{ color: c.text, fontWeight: '800', fontSize: 22, letterSpacing: 4 }}>{r.code}</Text>
                 </Between>
                 <Button
@@ -165,7 +167,7 @@ export function LoyaltyScreen() {
 
       {lapsed.length > 0 && (
         <>
-          <Heading style={{ marginTop: space.xl }}>Ran out</Heading>
+          <Heading style={{ marginTop: space.xl }}>{t('loyalty.ranOut', 'Ran out')}</Heading>
           {lapsed.map((r) => (
             <Card key={r.code} style={{ marginTop: space.sm, opacity: 0.6 }}>
               <Between>
@@ -175,14 +177,14 @@ export function LoyaltyScreen() {
                     Expired {ago(r.expiresAt as string)}
                   </Muted>
                 </View>
-                <Badge label="EXPIRED" tone="dim" />
+                <Badge label={t('loyalty.expired', 'EXPIRED')} tone="dim" />
               </Between>
             </Card>
           ))}
         </>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>How it works</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('loyalty.howItWorks', 'How it works')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         {[
           ['📷', <>After every cut, scan the QR on your artist’s phone. That’s <Text style={{ fontWeight: '700' }}>one stamp</Text>.</>],
@@ -198,27 +200,27 @@ export function LoyaltyScreen() {
         ))}
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Card history</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('loyalty.cardHistory', 'Card history')}</Heading>
       <Card style={{ marginTop: space.sm }}>
-        <Between><Muted>Lifetime check-ins</Muted><Body style={{ fontWeight: '700' }}>{card.totalCheckIns}</Body></Between>
+        <Between><Muted>{t('loyalty.lifetimeCheckIns', 'Lifetime check-ins')}</Muted><Body style={{ fontWeight: '700' }}>{card.totalCheckIns}</Body></Between>
         {/* Earned and given are different things, and lumping them together
             makes the card overstate what the stamps actually bought. */}
         <Between style={{ marginTop: space.md }}>
-          <Muted>Free cuts earned</Muted>
+          <Muted>{t('loyalty.freeCutsEarned', 'Free cuts earned')}</Muted>
           <Body style={{ fontWeight: '700' }}>
             {card.rewards.filter((r) => r.kind !== 'birthday').length}
           </Body>
         </Between>
         {card.rewards.some((r) => r.kind === 'birthday') && (
           <Between style={{ marginTop: space.md }}>
-            <Muted>Gifts from the shop</Muted>
+            <Muted>{t('loyalty.giftsFromTheShop', 'Gifts from the shop')}</Muted>
             <Body style={{ fontWeight: '700' }}>
               {card.rewards.filter((r) => r.kind === 'birthday').length}
             </Body>
           </Between>
         )}
         <Between style={{ marginTop: space.md }}>
-          <Muted>Redeemed</Muted><Body style={{ fontWeight: '700' }}>{used.length}</Body>
+          <Muted>{t('loyalty.redeemed', 'Redeemed')}</Muted><Body style={{ fontWeight: '700' }}>{used.length}</Body>
         </Between>
       </Card>
 

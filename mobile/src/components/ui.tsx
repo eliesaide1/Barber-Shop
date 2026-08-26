@@ -17,6 +17,7 @@ import {
 import Svg, { Path, Rect } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { radius, space } from '../theme';
 import { toPath } from '../lib/qr';
 
@@ -375,8 +376,9 @@ export function PunchStrip({ stamps, goal }: { stamps: number; goal: number }) {
 
 /** Always dark-on-white: inverting a QR in dark mode stops scanners reading it. */
 export function QRCode({ value, size = 200 }: { value: string; size?: number }) {
+  const t = useT();
   const path = React.useMemo(() => toPath(value), [value]);
-  if (!path) return <Muted>Nothing to encode</Muted>;
+  if (!path) return <Muted>{t('ui.nothingToEncode', 'Nothing to encode')}</Muted>;
   return (
     <View style={{ backgroundColor: '#fff', padding: 12, borderRadius: radius.lg }}>
       <Svg width={size} height={size} viewBox={`0 0 ${path.size} ${path.size}`}>

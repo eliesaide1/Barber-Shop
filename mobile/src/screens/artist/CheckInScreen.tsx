@@ -26,6 +26,7 @@ import { useToast } from '../../store/ToastContext';
 import { api, ApiError } from '../../api/client';
 import { space } from '../../theme';
 import type { CheckInEvent, CheckInToken, RewardLookup } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const ago = (iso: string) => {
   const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
@@ -43,6 +44,7 @@ const KIND: Record<string, { tone: 'ok' | 'gold'; label: string }> = {
 
 export function ArtistCheckInScreen() {
   const c = useColors();
+  const t = useT();
   const focused = useIsFocused();
   const { config } = useAuth();
   const { toast } = useToast();
@@ -132,18 +134,18 @@ export function ArtistCheckInScreen() {
 
   return (
     <Screen>
-      <Title>Check-in</Title>
-      <Muted style={{ marginTop: 2 }}>Show this once the cut is done</Muted>
+      <Title>{t('artistCheckIn.checkIn', 'Check-in')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('artistCheckIn.showThisOnceThe', 'Show this once the cut is done')}</Muted>
 
       <Card hero style={{ marginTop: space.lg, alignItems: 'center' }}>
-        <Badge label="SHOW THIS TO YOUR CLIENT" tone="gold" />
+        <Badge label={t('artistCheckIn.showThisToYour', 'SHOW THIS TO YOUR CLIENT')} tone="gold" />
         <View style={{ marginTop: space.lg }}>
-          {qr ? <QRCode value={qr.token} size={220} /> : <Muted>Getting a code…</Muted>}
+          {qr ? <QRCode value={qr.token} size={220} /> : <Muted>{t('artistCheckIn.gettingACode', 'Getting a code…')}</Muted>}
         </View>
 
         <Between style={{ alignSelf: 'stretch', marginTop: space.lg, alignItems: 'flex-end' }}>
           <View>
-            <Muted style={{ fontSize: 11 }}>Or read out this code</Muted>
+            <Muted style={{ fontSize: 11 }}>{t('artistCheckIn.orReadOutThis', 'Or read out this code')}</Muted>
             <Text
               style={{
                 color: c.text,
@@ -157,7 +159,7 @@ export function ArtistCheckInScreen() {
             </Text>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            <Muted style={{ fontSize: 11 }}>Refreshes in</Muted>
+            <Muted style={{ fontSize: 11 }}>{t('artistCheckIn.refreshesIn', 'Refreshes in')}</Muted>
             <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 22 }}>
               {Math.ceil(remaining / 1000)}s
             </Text>
@@ -170,19 +172,19 @@ export function ArtistCheckInScreen() {
         </Muted>
       </Card>
 
-      <Heading style={{ marginTop: space.xl }}>Redeem a free cut</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistCheckIn.redeemAFreeCut', 'Redeem a free cut')}</Heading>
       <Card style={{ marginTop: space.sm }}>
-        <Muted>Ask for the client’s 6-character claim code, or read it off their phone.</Muted>
+        <Muted>{t('artistCheckIn.askForTheClient', 'Ask for the client’s 6-character claim code, or read it off their phone.')}</Muted>
         <Field
           value={claim}
           onChangeText={(v) => setClaim(v.toUpperCase())}
           autoCapitalize="characters"
           maxLength={20}
-          placeholder="CLAIM CODE"
+          placeholder={t('artistCheckIn.claimCode', 'CLAIM CODE')}
           style={{ textAlign: 'center', letterSpacing: 4, fontWeight: '700' }}
         />
         <Button
-          title="Check the code"
+          title={t('artistCheckIn.checkTheCode', 'Check the code')}
           onPress={redeem}
           loading={busy}
           disabled={claim.trim().length < 6}
@@ -191,13 +193,13 @@ export function ArtistCheckInScreen() {
       </Card>
 
       <Between style={{ marginTop: space.xl }}>
-        <Heading>Today’s activity</Heading>
+        <Heading>{t('artistCheckIn.todaySActivity', 'Today’s activity')}</Heading>
         <Badge label={`${feed?.length ?? 0} events`} />
       </Between>
 
       {!feed?.length ? (
         <View style={{ marginTop: space.sm }}>
-          <Empty icon="💈" title="No check-ins yet" />
+          <Empty icon="💈" title={t('artistCheckIn.noCheckInsYet', 'No check-ins yet')} />
         </View>
       ) : (
         <Card style={{ marginTop: space.sm }}>

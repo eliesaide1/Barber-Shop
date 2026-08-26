@@ -24,6 +24,7 @@ import { useToast } from '../../store/ToastContext';
 import { api, ApiError } from '../../api/client';
 import { space } from '../../theme';
 import type { ManagedOrder } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const FLOW: Record<string, [string, string][]> = {
   pickup: [
@@ -51,6 +52,7 @@ const isOpen = (o: ManagedOrder) => o.status !== 'cancelled' && Boolean(nextStep
 
 export function ArtistOrdersScreen() {
   const c = useColors();
+  const t = useT();
   const { toast } = useToast();
   const { confirm, showError } = useDialog();
   const [tab, setTab] = useState<'open' | 'done'>('open');
@@ -133,18 +135,18 @@ export function ArtistOrdersScreen() {
     }
   };
 
-  if (loading && !orders) return <Loading label="Loading orders…" />;
+  if (loading && !orders) return <Loading label={t('artistOrders.loadingOrders', 'Loading orders…')} />;
 
   return (
     <Screen>
-      <Title>Orders</Title>
+      <Title>{t('artistOrders.orders', 'Orders')}</Title>
       <Muted style={{ marginTop: 2 }}>
         {openCount} waiting to be handed over
       </Muted>
 
       <Card style={{ marginTop: space.lg }}>
-        <Body style={{ fontWeight: '700' }}>Find by pickup code</Body>
-        <Muted style={{ marginTop: 6 }}>The 6 characters on the client’s screen.</Muted>
+        <Body style={{ fontWeight: '700' }}>{t('artistOrders.findByPickupCode', 'Find by pickup code')}</Body>
+        <Muted style={{ marginTop: 6 }}>{t('artistOrders.the6CharactersOn', 'The 6 characters on the client’s screen.')}</Muted>
         <Row style={{ marginTop: space.md, gap: space.md }}>
           <View style={{ flex: 1 }}>
             <Field
@@ -152,11 +154,11 @@ export function ArtistOrdersScreen() {
               onChangeText={(v) => setCode(v.toUpperCase())}
               autoCapitalize="characters"
               maxLength={20}
-              placeholder="PICKUP CODE"
+              placeholder={t('artistOrders.pickupCode', 'PICKUP CODE')}
               style={{ textAlign: 'center', letterSpacing: 4, fontWeight: '700', marginTop: 0 }}
             />
           </View>
-          <Button title="Find" compact onPress={lookup} disabled={busy || !code.trim()} />
+          <Button title={t('artistOrders.find', 'Find')} compact onPress={lookup} disabled={busy || !code.trim()} />
         </Row>
       </Card>
 
@@ -200,7 +202,7 @@ export function ArtistOrdersScreen() {
               </Muted>
               {!!o.address && <Muted style={{ marginTop: 3 }}>🛵 {o.address.line}</Muted>}
               {o.withAppointment && (
-                <Muted style={{ marginTop: 3, color: c.accentInk }}>Hand over at their next cut</Muted>
+                <Muted style={{ marginTop: 3, color: c.accentInk }}>{t('artistOrders.handOverAtTheir', 'Hand over at their next cut')}</Muted>
               )}
 
               <Between style={{ marginTop: space.md }}>

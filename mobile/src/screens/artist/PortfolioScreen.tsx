@@ -24,6 +24,7 @@ import { api, ApiError } from '../../api/client';
 import { absoluteUrl } from '../../config';
 import { radius, space } from '../../theme';
 import type { StyleCategory, StyleLook } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const CATEGORIES: StyleCategory[] = ['Fades', 'Classic', 'Textured', 'Beard', 'Design'];
 
@@ -42,6 +43,7 @@ const asUpload = (asset: Asset) => ({
 
 export function ArtistPortfolioScreen() {
   const c = useColors();
+  const t = useT();
   const { toast } = useToast();
   const { confirm, showError } = useDialog();
 
@@ -126,8 +128,8 @@ export function ArtistPortfolioScreen() {
 
   return (
     <Screen>
-      <Title>Portfolio</Title>
-      <Muted style={{ marginTop: 2 }}>Your work · the shop approves it before clients see it</Muted>
+      <Title>{t('artistPortfolio.portfolio', 'Portfolio')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('artistPortfolio.yourWorkTheShop', 'Your work · the shop approves it before clients see it')}</Muted>
 
       <Row style={{ marginTop: space.lg, gap: space.md }}>
         {[
@@ -144,7 +146,7 @@ export function ArtistPortfolioScreen() {
         ))}
       </Row>
 
-      <Heading style={{ marginTop: space.xl }}>Add a cut</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistPortfolio.addACut', 'Add a cut')}</Heading>
 
       <Pressable onPress={pick} disabled={busy}>
         <Card
@@ -163,27 +165,27 @@ export function ArtistPortfolioScreen() {
                 style={{ width: '100%', height: 220, borderRadius: radius.md }}
                 resizeMode="cover"
               />
-              <Muted style={{ marginTop: space.md }}>Tap to choose a different photo</Muted>
+              <Muted style={{ marginTop: space.md }}>{t('artistPortfolio.tapToChooseA', 'Tap to choose a different photo')}</Muted>
             </>
           ) : (
             <>
               <Text style={{ fontSize: 34 }}>📸</Text>
-              <Body style={{ fontWeight: '700', marginTop: space.sm }}>Photograph the cut</Body>
-              <Muted style={{ marginTop: 4 }}>Or choose one from your gallery</Muted>
+              <Body style={{ fontWeight: '700', marginTop: space.sm }}>{t('artistPortfolio.photographTheCut', 'Photograph the cut')}</Body>
+              <Muted style={{ marginTop: 4 }}>{t('artistPortfolio.orChooseOneFrom', 'Or choose one from your gallery')}</Muted>
             </>
           )}
         </Card>
       </Pressable>
 
       <Field
-        label="What is it?"
+        label={t('artistPortfolio.whatIsIt', 'What is it?')}
         value={form.title}
         onChangeText={(v) => setForm((f) => ({ ...f, title: v }))}
-        placeholder="Mid skin fade — Hadi"
+        placeholder={t('artistPortfolio.midSkinFadeHadi', 'Mid skin fade — Hadi')}
         maxLength={60}
       />
 
-      <Muted style={{ marginTop: space.md, fontWeight: '600' }}>Category</Muted>
+      <Muted style={{ marginTop: space.md, fontWeight: '600' }}>{t('artistPortfolio.category', 'Category')}</Muted>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.sm }}>
         {CATEGORIES.map((cat) => {
           const active = cat === category;
@@ -213,7 +215,7 @@ export function ArtistPortfolioScreen() {
       <Row style={{ gap: space.md }}>
         <View style={{ flex: 1 }}>
           <Field
-            label="Takes (min)"
+            label={t('artistPortfolio.takesMin', 'Takes (min)')}
             value={form.durationMin}
             onChangeText={(v) => setForm((f) => ({ ...f, durationMin: v.replace(/\D/g, '') }))}
             keyboardType="number-pad"
@@ -222,7 +224,7 @@ export function ArtistPortfolioScreen() {
         </View>
         <View style={{ flex: 1 }}>
           <Field
-            label="From ($)"
+            label={t('artistPortfolio.from', 'From ($)')}
             value={form.price}
             onChangeText={(v) => setForm((f) => ({ ...f, price: v.replace(/\D/g, '') }))}
             keyboardType="number-pad"
@@ -238,17 +240,15 @@ export function ArtistPortfolioScreen() {
         disabled={!photo}
         style={{ marginTop: space.lg }}
       />
-      <Muted style={{ marginTop: space.sm, textAlign: 'center', fontSize: 11.5 }}>
-        Make sure your client is happy for the photo to be posted.
-      </Muted>
+      <Muted style={{ marginTop: space.sm, textAlign: 'center', fontSize: 11.5 }}>{t('artistPortfolio.makeSureYourClient', 'Make sure your client is happy for the photo to be posted.')}</Muted>
 
-      <Heading style={{ marginTop: space.xl }}>Your uploads</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistPortfolio.yourUploads', 'Your uploads')}</Heading>
 
       {loading && !looks ? (
         <Loading />
       ) : !looks?.length ? (
         <View style={{ marginTop: space.sm }}>
-          <Empty icon="🖼️" title="Nothing uploaded yet" hint="Your first cut will show up here." />
+          <Empty icon="🖼️" title={t('artistPortfolio.nothingUploadedYet', 'Nothing uploaded yet')} hint={t('artistPortfolio.yourFirstCutWill', 'Your first cut will show up here.')} />
         </View>
       ) : (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.md, marginTop: space.sm }}>

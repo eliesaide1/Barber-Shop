@@ -22,6 +22,7 @@ import { api, ApiError } from '../api/client';
 import { absoluteUrl } from '../config';
 import { radius, space } from '../theme';
 import type { HaircutRecord } from '../types';
+import { useT } from '../store/CopyContext';
 
 const when = (iso: string) =>
   new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
@@ -36,6 +37,7 @@ const when = (iso: string) =>
  */
 export function HaircutsScreen() {
   const c = useColors();
+  const t = useT();
   const { toast } = useToast();
   const { confirm, showError } = useDialog();
   const { data: records, loading, reload } = useApi<HaircutRecord[]>('/haircuts/mine');
@@ -138,21 +140,21 @@ export function HaircutsScreen() {
           }}
           resizeMode="cover"
         />
-        <Muted style={{ textAlign: 'center', marginTop: 6, fontSize: 11.5 }}>Tap to close</Muted>
+        <Muted style={{ textAlign: 'center', marginTop: 6, fontSize: 11.5 }}>{t('haircuts.tapToClose', 'Tap to close')}</Muted>
       </Pressable>
     );
   };
 
   return (
     <Screen>
-      <Title>My haircuts</Title>
+      <Title>{t('haircuts.myHaircuts', 'My haircuts')}</Title>
       <Muted style={{ marginTop: 2 }}>
         Photos your artist took, kept only if you say so — so the next cut can match the last one.
       </Muted>
 
       {pending.length > 0 && (
         <>
-          <Heading style={{ marginTop: space.xl }}>Waiting on you</Heading>
+          <Heading style={{ marginTop: space.xl }}>{t('haircuts.waitingOnYou', 'Waiting on you')}</Heading>
           {pending.map((r) => (
             <Card key={r.id} style={{ marginTop: space.sm, borderColor: c.accent }}>
               <Row style={{ alignItems: 'flex-start' }}>
@@ -166,19 +168,17 @@ export function HaircutsScreen() {
                 </View>
               </Row>
               <Enlarged record={r} />
-              <Muted style={{ marginTop: space.md }}>
-                Save it to your profile? Only you and the artist cutting your hair can see it.
-              </Muted>
+              <Muted style={{ marginTop: space.md }}>{t('haircuts.saveItToYour', 'Save it to your profile? Only you and the artist cutting your hair can see it.')}</Muted>
               <Row style={{ marginTop: space.md, gap: space.md }}>
                 <Button
-                  title="Save it"
+                  title={t('haircuts.saveIt', 'Save it')}
                   compact
                   style={{ flex: 1 }}
                   disabled={busy === r.id}
                   onPress={() => approve(r)}
                 />
                 <Button
-                  title="No thanks"
+                  title={t('haircuts.noThanks', 'No thanks')}
                   variant="ghost"
                   compact
                   style={{ flex: 1 }}
@@ -191,13 +191,13 @@ export function HaircutsScreen() {
         </>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>Your history</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('haircuts.yourHistory', 'Your history')}</Heading>
       {saved.length === 0 ? (
         <View style={{ marginTop: space.sm }}>
           <Empty
             icon="✂️"
-            title="Nothing saved yet"
-            hint="After a cut, your artist can offer to save a photo. It’s yours — you decide."
+            title={t('haircuts.nothingSavedYet', 'Nothing saved yet')}
+            hint={t('haircuts.afterACutYour', 'After a cut, your artist can offer to save a photo. It’s yours — you decide.')}
           />
         </View>
       ) : (
@@ -208,7 +208,7 @@ export function HaircutsScreen() {
               <View style={{ flex: 1 }}>
                 <Between>
                   <Body style={{ fontWeight: '700' }}>{r.serviceName || 'Haircut'}</Body>
-                  <Badge label="SAVED" tone="ok" />
+                  <Badge label={t('haircuts.saved', 'SAVED')} tone="ok" />
                 </Between>
                 <Muted style={{ marginTop: 2 }}>
                   {r.artist?.displayName ?? 'Your artist'} · {when(r.takenAt)}
@@ -225,7 +225,7 @@ export function HaircutsScreen() {
               </Row>
             )}
             <Button
-              title="Remove"
+              title={t('haircuts.remove', 'Remove')}
               variant="danger"
               compact
               style={{ marginTop: space.md }}

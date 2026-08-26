@@ -33,6 +33,7 @@ import { contactForProduct, openWhatsApp, priceEnquiry } from '../lib/whatsapp';
 import { CartBar } from '../components/CartBar';
 import { radius, space } from '../theme';
 import type { Fulfilment, Order, Product } from '../types';
+import { useT } from '../store/CopyContext';
 
 const CATEGORIES = ['All', 'Hair', 'Beard', 'Shave', 'Tools', 'Aftercare'];
 
@@ -40,6 +41,7 @@ const CATEGORIES = ['All', 'Hair', 'Beard', 'Shave', 'Tools', 'Aftercare'];
 
 export function ShopScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const cart = useCart();
   const { toast } = useToast();
@@ -72,14 +74,14 @@ export function ShopScreen() {
     <Screen footer={<CartBar />}>
       <Between>
         <View style={{ flex: 1 }}>
-          <Title>Shop</Title>
-          <Muted style={{ marginTop: 2 }}>What our artists actually use at the chair</Muted>
+          <Title>{t('shop.shop', 'Shop')}</Title>
+          <Muted style={{ marginTop: 2 }}>{t('shop.whatOurArtistsActually', 'What our artists actually use at the chair')}</Muted>
         </View>
         <CartButton />
       </Between>
 
       <Field
-        placeholder="Search products, brands, artists…"
+        placeholder={t('shop.searchProductsBrandsArtists', 'Search products, brands, artists…')}
         value={query}
         onChangeText={setQuery}
         autoCapitalize="none"
@@ -113,7 +115,7 @@ export function ShopScreen() {
       {loading && !products ? (
         <Loading />
       ) : !products?.length ? (
-        <Empty icon="🔍" title="Nothing matches that" hint="Try another category or search." />
+        <Empty icon="🔍" title={t('shop.nothingMatchesThat', 'Nothing matches that')} hint={t('shop.tryAnotherCategoryOr', 'Try another category or search.')} />
       ) : (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.md, marginTop: space.lg }}>
           {products.map((p) => (
@@ -187,6 +189,7 @@ export function CartButton() {
 
 export function ProductScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { params } = useRoute<any>();
   const cart = useCart();
@@ -203,7 +206,7 @@ export function ProductScreen() {
   const { user, config } = useAuth();
 
   if (loading && !product) return <Loading />;
-  if (!product) return <Screen><Empty icon="📦" title="That product is no longer listed" /></Screen>;
+  if (!product) return <Screen><Empty icon="📦" title={t('shop.thatProductIsNo', 'That product is no longer listed')} /></Screen>;
 
   /* Whose shelf it is, falling back to the shop. Null when neither has published
      a number, in which case there is nothing to offer and we say so. */
@@ -300,8 +303,8 @@ export function ProductScreen() {
 
       {product.stock <= 0 ? (
         <Card style={{ marginTop: space.md, alignItems: 'center' }}>
-          <Body style={{ fontWeight: '700' }}>Out of stock</Body>
-          <Muted style={{ marginTop: 6 }}>We restock the house label every Tuesday.</Muted>
+          <Body style={{ fontWeight: '700' }}>{t('shop.outOfStock', 'Out of stock')}</Body>
+          <Muted style={{ marginTop: 6 }}>{t('shop.weRestockTheHouse', 'We restock the house label every Tuesday.')}</Muted>
         </Card>
       ) : product.stock <= 3 ? (
         <Text style={{ color: c.danger, fontWeight: '700', marginTop: space.md }}>
@@ -314,7 +317,7 @@ export function ProductScreen() {
           <Row>
             <Text style={{ fontSize: 22 }}>✅</Text>
             <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '700' }}>Matches your saved preference</Body>
+              <Body style={{ fontWeight: '700' }}>{t('shop.matchesYourSavedPreference', 'Matches your saved preference')}</Body>
               <Muted style={{ marginTop: 2 }}>“{user!.preferences.notes}”</Muted>
             </View>
           </Row>
@@ -336,8 +339,8 @@ export function ProductScreen() {
           <Row>
             <Text style={{ fontSize: 22 }}>✂</Text>
             <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '700' }}>VIA Barber House label</Body>
-              <Muted style={{ marginTop: 2 }}>Stocked by the shop · used at every chair</Muted>
+              <Body style={{ fontWeight: '700' }}>{t('shop.viaBarberHouseLabel', 'VIA Barber House label')}</Body>
+              <Muted style={{ marginTop: 2 }}>{t('shop.stockedByTheShop', 'Stocked by the shop · used at every chair')}</Muted>
             </View>
           </Row>
         </Card>
@@ -347,7 +350,7 @@ export function ProductScreen() {
 
       {!!product.howToUse && (
         <>
-          <Heading style={{ marginTop: space.xl }}>How to use it</Heading>
+          <Heading style={{ marginTop: space.xl }}>{t('shop.howToUseIt', 'How to use it')}</Heading>
           <Card style={{ marginTop: space.sm }}>
             <Muted style={{ lineHeight: 20 }}>{product.howToUse}</Muted>
           </Card>
@@ -368,10 +371,8 @@ export function ProductScreen() {
             </>
           ) : (
             <Card>
-              <Body style={{ fontWeight: '700' }}>Ask in the shop</Body>
-              <Muted style={{ marginTop: 4 }}>
-                This one is priced on request, and there is no number to message yet.
-              </Muted>
+              <Body style={{ fontWeight: '700' }}>{t('shop.askInTheShop', 'Ask in the shop')}</Body>
+              <Muted style={{ marginTop: 4 }}>{t('shop.thisOneIsPriced', 'This one is priced on request, and there is no number to message yet.')}</Muted>
             </Card>
           )}
         </View>
@@ -381,7 +382,7 @@ export function ProductScreen() {
         <View style={{ marginTop: space.xl }}>
           <Row>
             <View>
-              <Muted style={{ marginBottom: 7, fontWeight: '600' }}>Quantity</Muted>
+              <Muted style={{ marginBottom: 7, fontWeight: '600' }}>{t('shop.quantity', 'Quantity')}</Muted>
               <Stepper qty={qty} max={Math.max(1, product.stock - inCart)} onChange={(n) => setQty(Math.max(1, n))} />
             </View>
             <View style={{ flex: 1, justifyContent: 'flex-end' }}>
@@ -416,6 +417,7 @@ export function ProductScreen() {
 
 export function CartScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const cart = useCart();
   const { config } = useAuth();
@@ -428,13 +430,13 @@ export function CartScreen() {
   if (!cart.lines.length) {
     return (
       <Screen>
-        <Title>Cart</Title>
+        <Title>{t('shop.cart', 'Cart')}</Title>
         <View style={{ marginTop: space.lg }}>
           <Empty
             icon="🛍️"
-            title="Your cart is empty"
-            hint="Everything here is stocked by an artist you can book."
-            action={<Button title="Browse the shop" onPress={() => nav.navigate('Tabs', { screen: 'Shop' })} />}
+            title={t('shop.yourCartIsEmpty', 'Your cart is empty')}
+            hint={t('shop.everythingHereIsStocked', 'Everything here is stocked by an artist you can book.')}
+            action={<Button title={t('shop.browseTheShop', 'Browse the shop')} onPress={() => nav.navigate('Tabs', { screen: 'Shop' })} />}
           />
         </View>
       </Screen>
@@ -443,7 +445,7 @@ export function CartScreen() {
 
   return (
     <Screen footer={<CartBar />}>
-      <Title>Cart</Title>
+      <Title>{t('shop.cart', 'Cart')}</Title>
       <Muted style={{ marginTop: 2 }}>
         {cart.count} item{cart.count === 1 ? '' : 's'} · ${cart.subtotal}
       </Muted>
@@ -515,7 +517,7 @@ export function CartScreen() {
       </Card>
 
       <Button
-        title="Keep shopping"
+        title={t('shop.keepShopping', 'Keep shopping')}
         variant="ghost"
         onPress={() => nav.navigate('Tabs', { screen: 'Shop' })}
         style={{ marginTop: space.lg }}
@@ -528,6 +530,7 @@ export function CartScreen() {
 
 export function CheckoutScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const cart = useCart();
@@ -586,12 +589,12 @@ export function CheckoutScreen() {
 
   return (
     <Screen>
-      <Title>Checkout</Title>
+      <Title>{t('shop.checkout', 'Checkout')}</Title>
       <Muted style={{ marginTop: 2 }}>
         {cart.count} item{cart.count === 1 ? '' : 's'} · ${total}
       </Muted>
 
-      <Heading style={{ marginTop: space.xl }}>Fulfilment</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('shop.fulfilment', 'Fulfilment')}</Heading>
       <View style={{ marginTop: space.sm }}>
         <Segmented
           value={fulfilment}
@@ -606,10 +609,10 @@ export function CheckoutScreen() {
       {fulfilment === 'pickup' ? (
         <>
           <Card style={{ marginTop: space.md }}>
-            <Between><Muted>Collect from</Muted><Body>{config?.shop.name} · {config?.shop.area}</Body></Between>
-            <Between style={{ marginTop: space.sm }}><Muted>Hours</Muted><Body>{config?.shop.hours}</Body></Between>
+            <Between><Muted>{t('shop.collectFrom', 'Collect from')}</Muted><Body>{config?.shop.name} · {config?.shop.area}</Body></Between>
+            <Between style={{ marginTop: space.sm }}><Muted>{t('shop.hours', 'Hours')}</Muted><Body>{config?.shop.hours}</Body></Between>
             <Between style={{ marginTop: space.sm }}>
-              <Muted>Ready</Muted>
+              <Muted>{t('shop.ready', 'Ready')}</Muted>
               <Text style={{ color: c.accentInk, fontWeight: '600' }}>Today, within the hour</Text>
             </Between>
           </Card>
@@ -642,46 +645,46 @@ export function CheckoutScreen() {
               {withAppointment && <Text style={{ color: c.onAccent, fontWeight: '800', fontSize: 13 }}>✓</Text>}
             </View>
             <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '700' }}>Hand it to me at my next cut</Body>
-              <Muted style={{ marginTop: 2 }}>We’ll have it bagged and waiting at the chair</Muted>
+              <Body style={{ fontWeight: '700' }}>{t('shop.handItToMe', 'Hand it to me at my next cut')}</Body>
+              <Muted style={{ marginTop: 2 }}>{t('shop.weLlHaveIt', 'We’ll have it bagged and waiting at the chair')}</Muted>
             </View>
           </Pressable>
         </>
       ) : (
         <Card style={{ marginTop: space.md }}>
           <Field
-            label="Full name"
+            label={t('shop.fullName', 'Full name')}
             value={address.name}
             onChangeText={(v) => setAddress((a) => ({ ...a, name: v }))}
             error={fields.name}
             style={{ marginTop: 0 }}
           />
           <Field
-            label="Phone"
+            label={t('shop.phone', 'Phone')}
             value={address.phone}
             onChangeText={(v) => setAddress((a) => ({ ...a, phone: v }))}
             keyboardType="phone-pad"
             error={fields.phone}
           />
           <Field
-            label="Address"
+            label={t('shop.address', 'Address')}
             value={address.line}
             onChangeText={(v) => setAddress((a) => ({ ...a, line: v }))}
-            placeholder="Street, building, floor"
+            placeholder={t('shop.streetBuildingFloor', 'Street, building, floor')}
             multiline
             style={{ minHeight: 74, textAlignVertical: 'top' }}
             error={fields.line}
           />
           <Field
-            label="Rider notes (optional)"
+            label={t('shop.riderNotesOptional', 'Rider notes (optional)')}
             value={address.note}
             onChangeText={(v) => setAddress((a) => ({ ...a, note: v }))}
-            placeholder="e.g. ring the top bell"
+            placeholder={t('shop.eGRingThe', 'e.g. ring the top bell')}
           />
         </Card>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>Payment</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('shop.payment', 'Payment')}</Heading>
       <View style={{ marginTop: space.sm }}>
         <Segmented
           value={payment}
@@ -696,7 +699,7 @@ export function CheckoutScreen() {
         Paid on {fulfilment === 'pickup' ? 'collection at the shop' : 'delivery, to the rider'} — no card is stored.
       </Muted>
 
-      <Heading style={{ marginTop: space.xl }}>Your order</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('shop.yourOrder', 'Your order')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         {cart.lines.map((l) => (
           <Between key={l.product.id} style={{ paddingVertical: 6 }}>
@@ -705,19 +708,19 @@ export function CheckoutScreen() {
           </Between>
         ))}
         <Divider />
-        <Between><Muted>Subtotal</Muted><Body>${cart.subtotal}</Body></Between>
+        <Between><Muted>{t('shop.subtotal', 'Subtotal')}</Muted><Body>${cart.subtotal}</Body></Between>
         <Between style={{ marginTop: space.sm }}>
           <Muted>{fulfilment === 'pickup' ? 'Pickup' : 'Delivery'}</Muted>
           <Body>{fee ? `$${fee}` : 'Free'}</Body>
         </Between>
         <Between style={{ marginTop: space.md }}>
-          <Body style={{ fontWeight: '700' }}>Total</Body>
+          <Body style={{ fontWeight: '700' }}>{t('shop.total', 'Total')}</Body>
           <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 20 }}>${total}</Text>
         </Between>
       </Card>
 
       <Button title={`Place order · $${total}`} onPress={place} loading={busy} style={{ marginTop: space.lg }} />
-      <Button title="Back to cart" variant="ghost" onPress={() => nav.goBack()} style={{ marginTop: space.md }} />
+      <Button title={t('shop.backToCart', 'Back to cart')} variant="ghost" onPress={() => nav.goBack()} style={{ marginTop: space.md }} />
     </Screen>
   );
 }

@@ -41,6 +41,7 @@ import { ArtistPortfolioScreen } from '../screens/artist/PortfolioScreen';
 import { ArtistClientHistoryScreen } from '../screens/artist/ClientHistoryScreen';
 
 import { useFirstLaunch } from '../lib/firstLaunch';
+import { useT } from '../store/CopyContext';
 import { navigationRef } from './ref';
 
 import type {
@@ -112,6 +113,7 @@ function TabIcon({ name, focused }: { name: keyof TabParamList; focused: boolean
 
 function MainTabs() {
   const c = useColors();
+  const t = useT();
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
@@ -129,11 +131,14 @@ function MainTabs() {
         tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
       })}
     >
-      <Tabs.Screen name="Home" component={HomeScreen} />
-      <Tabs.Screen name="Book" component={BookScreen} />
-      <Tabs.Screen name="Scan" component={ScanScreen} options={{ tabBarLabel: 'Scan' }} />
-      <Tabs.Screen name="Shop" component={ShopScreen} />
-      <Tabs.Screen name="Profile" component={ProfileScreen} />
+      {/* Every tab names itself explicitly rather than falling back to the
+          route name, so the shop can rename one without the route — and every
+          navigate('Shop') in the app — moving with it. */}
+      <Tabs.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: t('tabs.home', 'Home') }} />
+      <Tabs.Screen name="Book" component={BookScreen} options={{ tabBarLabel: t('tabs.book', 'Book') }} />
+      <Tabs.Screen name="Scan" component={ScanScreen} options={{ tabBarLabel: t('tabs.scan', 'Scan') }} />
+      <Tabs.Screen name="Shop" component={ShopScreen} options={{ tabBarLabel: t('tabs.shop', 'Shop') }} />
+      <Tabs.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('tabs.profile', 'Profile') }} />
     </Tabs.Navigator>
   );
 }
@@ -171,6 +176,7 @@ function ArtistTabIcon({ name, focused }: { name: keyof ArtistTabParamList; focu
 
 function ArtistMainTabs() {
   const c = useColors();
+  const t = useT();
   return (
     <ArtistTabs.Navigator
       screenOptions={({ route }) => ({
@@ -188,11 +194,11 @@ function ArtistMainTabs() {
         tabBarIcon: ({ focused }) => <ArtistTabIcon name={route.name} focused={focused} />,
       })}
     >
-      <ArtistTabs.Screen name="Today" component={ArtistScheduleScreen} />
-      <ArtistTabs.Screen name="Clients" component={ArtistClientsScreen} />
-      <ArtistTabs.Screen name="CheckIn" component={ArtistCheckInScreen} options={{ tabBarLabel: 'Check-in' }} />
-      <ArtistTabs.Screen name="Orders" component={ArtistOrdersScreen} />
-      <ArtistTabs.Screen name="More" component={ArtistMoreScreen} />
+      <ArtistTabs.Screen name="Today" component={ArtistScheduleScreen} options={{ tabBarLabel: t('artistTabs.today', 'Today') }} />
+      <ArtistTabs.Screen name="Clients" component={ArtistClientsScreen} options={{ tabBarLabel: t('artistTabs.clients', 'Clients') }} />
+      <ArtistTabs.Screen name="CheckIn" component={ArtistCheckInScreen} options={{ tabBarLabel: t('artistTabs.checkIn', 'Check-in') }} />
+      <ArtistTabs.Screen name="Orders" component={ArtistOrdersScreen} options={{ tabBarLabel: t('artistTabs.orders', 'Orders') }} />
+      <ArtistTabs.Screen name="More" component={ArtistMoreScreen} options={{ tabBarLabel: t('artistTabs.more', 'More') }} />
     </ArtistTabs.Navigator>
   );
 }
@@ -204,6 +210,7 @@ function ArtistMainTabs() {
  * surface, say plainly where their tools are.
  */
 function AdminNotice() {
+  const t = useT();
   const { user, config, signOut } = useAuth();
   const { confirm } = useDialog();
 
@@ -222,7 +229,7 @@ function AdminNotice() {
     <Screen style={{ flexGrow: 1, justifyContent: 'center' }}>
       <Card style={{ alignItems: 'center', paddingVertical: space.xxl }}>
         <Text style={{ fontSize: 42 }}>🖥️</Text>
-        <Title style={{ marginTop: space.md, textAlign: 'center' }}>Use the back office</Title>
+        <Title style={{ marginTop: space.md, textAlign: 'center' }}>{t('nav.useTheBackOffice', 'Use the back office')}</Title>
         <Muted style={{ marginTop: space.sm, textAlign: 'center' }}>
           You’re signed in as a shop admin. Approving products, managing artists and
           broadcasting to the whole shop all live in the web back office.
@@ -230,7 +237,7 @@ function AdminNotice() {
         <Body style={{ marginTop: space.lg, fontWeight: '700' }}>{user?.email}</Body>
         <Muted style={{ marginTop: 4 }}>{config?.shop.name}</Muted>
       </Card>
-      <Button title="Sign out" variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
+      <Button title={t('nav.signOut', 'Sign out')} variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
     </Screen>
   );
 }
@@ -238,6 +245,7 @@ function AdminNotice() {
 export function RootNavigator() {
   const { user, isArtist, booting, profileComplete } = useAuth();
   const firstLaunch = useFirstLaunch();
+  const t = useT();
   const isAdmin = user?.role === 'admin';
   const c = useColors();
   const { name } = useTheme();
@@ -260,7 +268,7 @@ export function RootNavigator() {
   if (booting || firstLaunch.state === 'loading') {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, justifyContent: 'center' }}>
-        <Loading label="Opening the shop…" />
+        <Loading label={t('nav.openingTheShop', 'Opening the shop…')} />
       </View>
     );
   }
@@ -297,24 +305,24 @@ export function RootNavigator() {
           <ArtistStack.Screen
             name="Broadcast"
             component={ArtistBroadcastScreen}
-            options={{ title: 'Message clients' }}
+            options={{ title: t('screens.broadcast', 'Message clients') }}
           />
           <ArtistStack.Screen
             name="ClientHistory"
             component={ArtistClientHistoryScreen}
-            options={{ title: 'Client' }}
+            options={{ title: t('screens.client', 'Client') }}
           />
           <ArtistStack.Screen
             name="Portfolio"
             component={ArtistPortfolioScreen}
-            options={{ title: 'Portfolio' }}
+            options={{ title: t('screens.portfolio', 'Portfolio') }}
           />
-          <ArtistStack.Screen name="Device" component={DeviceScreen} options={{ title: 'This device' }} />
-          <ArtistStack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy policy' }} />
+          <ArtistStack.Screen name="Device" component={DeviceScreen} options={{ title: t('screens.device', 'This device') }} />
+          <ArtistStack.Screen name="Privacy" component={PrivacyScreen} options={{ title: t('screens.privacy', 'Privacy policy') }} />
           <ArtistStack.Screen
             name="Notifications"
             component={NotificationsScreen}
-            options={{ title: 'Notifications' }}
+            options={{ title: t('screens.notifications', 'Notifications') }}
           />
         </ArtistStack.Navigator>
       ) : user ? (
@@ -328,19 +336,19 @@ export function RootNavigator() {
           }}
         >
           <RootStack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
-          <RootStack.Screen name="Product" component={ProductScreen} options={{ title: 'Product' }} />
-          <RootStack.Screen name="Cart" component={CartScreen} options={{ title: 'Cart' }} />
-          <RootStack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
-          <RootStack.Screen name="Orders" component={OrdersScreen} options={{ title: 'My orders' }} />
-          <RootStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: 'Order' }} />
-          <RootStack.Screen name="Loyalty" component={LoyaltyScreen} options={{ title: 'Loyalty card' }} />
-          <RootStack.Screen name="Appointments" component={AppointmentsScreen} options={{ title: 'Appointments' }} />
-          <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
-          <RootStack.Screen name="Preferences" component={PreferencesScreen} options={{ title: 'Preferences' }} />
-          <RootStack.Screen name="Lookbook" component={LookbookScreen} options={{ title: 'Styles' }} />
-          <RootStack.Screen name="Haircuts" component={HaircutsScreen} options={{ title: 'My haircuts' }} />
-          <RootStack.Screen name="Device" component={DeviceScreen} options={{ title: 'This device' }} />
-          <RootStack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy policy' }} />
+          <RootStack.Screen name="Product" component={ProductScreen} options={{ title: t('screens.product', 'Product') }} />
+          <RootStack.Screen name="Cart" component={CartScreen} options={{ title: t('screens.cart', 'Cart') }} />
+          <RootStack.Screen name="Checkout" component={CheckoutScreen} options={{ title: t('screens.checkout', 'Checkout') }} />
+          <RootStack.Screen name="Orders" component={OrdersScreen} options={{ title: t('screens.orders', 'My orders') }} />
+          <RootStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: t('screens.order', 'Order') }} />
+          <RootStack.Screen name="Loyalty" component={LoyaltyScreen} options={{ title: t('screens.loyalty', 'Loyalty card') }} />
+          <RootStack.Screen name="Appointments" component={AppointmentsScreen} options={{ title: t('screens.appointments', 'Appointments') }} />
+          <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ title: t('screens.notifications', 'Notifications') }} />
+          <RootStack.Screen name="Preferences" component={PreferencesScreen} options={{ title: t('screens.preferences', 'Preferences') }} />
+          <RootStack.Screen name="Lookbook" component={LookbookScreen} options={{ title: t('screens.lookbook', 'Styles') }} />
+          <RootStack.Screen name="Haircuts" component={HaircutsScreen} options={{ title: t('screens.haircuts', 'My haircuts') }} />
+          <RootStack.Screen name="Device" component={DeviceScreen} options={{ title: t('screens.device', 'This device') }} />
+          <RootStack.Screen name="Privacy" component={PrivacyScreen} options={{ title: t('screens.privacy', 'Privacy policy') }} />
         </RootStack.Navigator>
       ) : firstLaunch.state === 'first' ? (
         /* Swapped out rather than navigated away from: finishing the

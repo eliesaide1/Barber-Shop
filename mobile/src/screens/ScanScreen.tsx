@@ -32,6 +32,7 @@ import { useAuth } from '../store/AuthContext';
 import { api, ApiError } from '../api/client';
 import { radius, space } from '../theme';
 import type { LoyaltyCard, Reward } from '../types';
+import { useT } from '../store/CopyContext';
 
 interface CheckInResult {
   stamps: number;
@@ -43,6 +44,7 @@ interface CheckInResult {
 
 export function ScanScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const focused = useIsFocused();
   const { toast } = useToast();
@@ -157,8 +159,8 @@ export function ScanScreen() {
     <Screen>
       <Between>
         <View style={{ flex: 1 }}>
-          <Title>Check in</Title>
-          <Muted style={{ marginTop: 2 }}>Scan the code at your artist’s chair</Muted>
+          <Title>{t('scan.checkIn', 'Check in')}</Title>
+          <Muted style={{ marginTop: 2 }}>{t('scan.scanTheCodeAt', 'Scan the code at your artist’s chair')}</Muted>
         </View>
         <Badge label={`${stamps}/${goal}`} tone="gold" />
       </Between>
@@ -231,7 +233,7 @@ export function ScanScreen() {
 
       {scanner.supported && !hasPermission && (
         <Button
-          title="Open settings"
+          title={t('scan.openSettings', 'Open settings')}
           variant="ghost"
           onPress={() => Linking.openSettings()}
           style={{ marginTop: space.md }}
@@ -240,7 +242,7 @@ export function ScanScreen() {
 
       <Card style={{ marginTop: space.lg }}>
         <Between>
-          <Body style={{ fontWeight: '700' }}>Your card</Body>
+          <Body style={{ fontWeight: '700' }}>{t('scan.yourCard', 'Your card')}</Body>
           <Muted>{goal - stamps} to go</Muted>
         </Between>
         <View style={{ marginTop: space.md }}>
@@ -252,19 +254,17 @@ export function ScanScreen() {
         <Body style={{ fontWeight: '700' }}>
           {scanner.supported ? 'Camera not working?' : 'Enter your code'}
         </Body>
-        <Muted style={{ marginTop: 6 }}>
-          Type the 6-character code printed under your artist’s QR.
-        </Muted>
+        <Muted style={{ marginTop: 6 }}>{t('scan.typeThe6Character', 'Type the 6-character code printed under your artist’s QR.')}</Muted>
         <Field
           value={manual}
           onChangeText={(v) => setManual(v.toUpperCase())}
           autoCapitalize="characters"
           maxLength={6}
-          placeholder="A1B2C3"
+          placeholder={t('scan.a1b2c3', 'A1B2C3')}
           style={{ textAlign: 'center', letterSpacing: 4, fontWeight: '700' }}
         />
         <Button
-          title="Check in"
+          title={t('scan.checkIn', 'Check in')}
           onPress={() => submit(manual)}
           loading={busy}
           disabled={manual.length < 6}
@@ -277,7 +277,7 @@ export function ScanScreen() {
           {result.reward ? (
             <>
               <Text style={{ fontSize: 50 }}>🎁</Text>
-              <Title style={{ marginTop: 8, textAlign: 'center' }}>Free haircut unlocked!</Title>
+              <Title style={{ marginTop: 8, textAlign: 'center' }}>{t('scan.freeHaircutUnlocked', 'Free haircut unlocked!')}</Title>
               <Muted style={{ marginTop: 6, textAlign: 'center' }}>
                 {goal} check-ins done — your next cut is on VIA Barber House.
               </Muted>
@@ -302,7 +302,7 @@ export function ScanScreen() {
           ) : (
             <>
               <Text style={{ fontSize: 46 }}>✂️</Text>
-              <Title style={{ marginTop: 8 }}>Checked in</Title>
+              <Title style={{ marginTop: 8 }}>{t('scan.checkedIn', 'Checked in')}</Title>
               <Muted style={{ marginTop: 6 }}>
                 Stamp {result.stamps} of {result.goal} · {result.artist.displayName}
               </Muted>
@@ -315,7 +315,7 @@ export function ScanScreen() {
             </>
           )}
           <Button
-            title="See my card"
+            title={t('scan.seeMyCard', 'See my card')}
             onPress={() => {
               setResult(null);
               nav.navigate('Loyalty');
@@ -323,7 +323,7 @@ export function ScanScreen() {
             style={{ marginTop: space.lg, alignSelf: 'stretch' }}
           />
           <Button
-            title="Done"
+            title={t('scan.done', 'Done')}
             variant="ghost"
             onPress={() => setResult(null)}
             style={{ marginTop: space.md, alignSelf: 'stretch' }}

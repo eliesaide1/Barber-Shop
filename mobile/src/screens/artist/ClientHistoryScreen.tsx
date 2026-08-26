@@ -21,6 +21,7 @@ import { ageFrom, frequencyLabel } from '../../lib/clientDetails';
 import { useColors } from '../../store/ThemeContext';
 import { radius, space } from '../../theme';
 import type { HaircutRecord } from '../../types';
+import { useT } from '../../store/CopyContext';
 
 const when = (iso: string) =>
   new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
@@ -40,6 +41,7 @@ const when = (iso: string) =>
  */
 export function ArtistClientHistoryScreen() {
   const c = useColors();
+  const t = useT();
   const { params } = useRoute<any>();
   const { userId, name, phone, dateOfBirth, visitFrequencyWeeks } = params ?? {};
 
@@ -49,7 +51,7 @@ export function ArtistClientHistoryScreen() {
   );
   const [zoomed, setZoomed] = useState<string | null>(null);
 
-  if (loading && !records) return <Loading label="Looking them up…" />;
+  if (loading && !records) return <Loading label={t('artistClientHistory.lookingThemUp', 'Looking them up…')} />;
 
   const saved = (records ?? []).filter((r) => r.status === 'approved');
   const waiting = (records ?? []).filter((r) => r.status === 'pending');
@@ -82,12 +84,12 @@ export function ArtistClientHistoryScreen() {
         </Card>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>Past cuts</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('artistClientHistory.pastCuts', 'Past cuts')}</Heading>
       {saved.length === 0 ? (
         <View style={{ marginTop: space.sm }}>
           <Empty
             icon="✂️"
-            title="Nothing saved yet"
+            title={t('artistClientHistory.nothingSavedYet', 'Nothing saved yet')}
             hint="After a cut, offer to photograph it. With their approval it lands here for next time."
           />
         </View>
@@ -133,7 +135,7 @@ export function ArtistClientHistoryScreen() {
                   backgroundColor: c.surface2,
                 }}
               >
-                <Muted style={{ fontSize: 11, fontWeight: '700', marginBottom: 3 }}>HOW IT WAS DONE</Muted>
+                <Muted style={{ fontSize: 11, fontWeight: '700', marginBottom: 3 }}>{t('artistClientHistory.howItWasDone', 'HOW IT WAS DONE')}</Muted>
                 <Body>{r.notes}</Body>
               </View>
             )}

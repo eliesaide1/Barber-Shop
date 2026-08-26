@@ -8,6 +8,7 @@ import { useToast } from '../store/ToastContext';
 import { api, ApiError } from '../api/client';
 import { radius, space } from '../theme';
 import type { AgendaEntry } from '../types';
+import { useT } from '../store/CopyContext';
 
 /**
  * Photographing a finished cut, at the chair.
@@ -31,6 +32,7 @@ export function HaircutCapture({
   onSent: () => void;
 }) {
   const c = useColors();
+  const t = useT();
   const { toast } = useToast();
   const { showError } = useDialog();
   const [photo, setPhoto] = useState<Asset | null>(null);
@@ -95,7 +97,7 @@ export function HaircutCapture({
             paddingBottom: space.xxl,
           }}
         >
-          <Title>Photograph the cut</Title>
+          <Title>{t('haircutCapture.photographTheCut', 'Photograph the cut')}</Title>
           <Muted style={{ marginTop: 4 }}>
             {entry.user?.name ?? 'This client'} · {entry.serviceName}
           </Muted>
@@ -119,7 +121,7 @@ export function HaircutCapture({
             ) : (
               <>
                 <Text style={{ fontSize: 34 }}>📷</Text>
-                <Body style={{ fontWeight: '700', marginTop: 6 }}>Take a photo</Body>
+                <Body style={{ fontWeight: '700', marginTop: 6 }}>{t('haircutCapture.takeAPhoto', 'Take a photo')}</Body>
               </>
             )}
           </Pressable>
@@ -133,7 +135,7 @@ export function HaircutCapture({
               onPress={() => pick(true)}
             />
             <Button
-              title="From gallery"
+              title={t('haircutCapture.fromGallery', 'From gallery')}
               variant="ghost"
               compact
               style={{ flex: 1 }}
@@ -142,16 +144,14 @@ export function HaircutCapture({
           </Row>
 
           <Field
-            label="How you did it"
+            label={t('haircutCapture.howYouDidIt', 'How you did it')}
             value={notes}
             onChangeText={setNotes}
             placeholder="#2 sides, scissor top, natural left part"
             multiline
             style={{ minHeight: 64, textAlignVertical: 'top' }}
           />
-          <Muted style={{ marginTop: 4, fontSize: 11.5 }}>
-            The half a photo can’t carry — this is what lets anyone repeat it.
-          </Muted>
+          <Muted style={{ marginTop: 4, fontSize: 11.5 }}>{t('haircutCapture.theHalfAPhoto', 'The half a photo can’t carry — this is what lets anyone repeat it.')}</Muted>
 
           <Card style={{ marginTop: space.lg, backgroundColor: c.surface2 }}>
             <Muted style={{ lineHeight: 19 }}>
@@ -161,13 +161,13 @@ export function HaircutCapture({
           </Card>
 
           <Button
-            title="Send for approval"
+            title={t('haircutCapture.sendForApproval', 'Send for approval')}
             disabled={!photo}
             loading={busy}
             onPress={send}
             style={{ marginTop: space.lg }}
           />
-          <Button title="Not now" variant="ghost" onPress={onClose} style={{ marginTop: space.sm }} />
+          <Button title={t('haircutCapture.notNow', 'Not now')} variant="ghost" onPress={onClose} style={{ marginTop: space.sm }} />
         </View>
       </View>
     </Modal>

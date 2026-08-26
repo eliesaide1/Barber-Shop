@@ -6,6 +6,7 @@ import { Body, Muted } from './ui';
 import { useCart } from '../store/CartContext';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { useDialog } from '../store/DialogContext';
 import { basketEnquiry, openWhatsApp, shopWhatsApp } from '../lib/whatsapp';
 import { radius, space } from '../theme';
@@ -25,6 +26,7 @@ import { radius, space } from '../theme';
  */
 export function CartBar({ onEmpty }: { onEmpty?: () => void } = {}) {
   const c = useColors();
+  const t = useT();
   const cart = useCart();
   const { config } = useAuth();
   const { alert } = useDialog();
@@ -92,7 +94,9 @@ export function CartBar({ onEmpty }: { onEmpty?: () => void } = {}) {
         <Body style={{ fontWeight: '800' }}>
           {cart.count} {noun}
         </Body>
-        <Muted style={{ marginTop: 2 }}>The shop will quote you on WhatsApp</Muted>
+        <Muted style={{ marginTop: 2 }}>
+          {t('basket.hint', 'The shop will quote you on WhatsApp')}
+        </Muted>
       </View>
 
       <Pressable
@@ -108,7 +112,9 @@ export function CartBar({ onEmpty }: { onEmpty?: () => void } = {}) {
           transform: [{ scale: pressed && !busy ? 0.98 : 1 }],
         })}
       >
-        <Text style={{ color: c.onAccent, fontWeight: '800', fontSize: 15.5 }}>Finished</Text>
+        <Text style={{ color: c.onAccent, fontWeight: '800', fontSize: 15.5 }}>
+          {t('basket.finished', 'Finished')}
+        </Text>
       </Pressable>
     </View>
   );

@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { Between, Body, Card, Heading, Muted, Screen, Title } from '../components/ui';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
+import { useT } from '../store/CopyContext';
 import { deviceFacts, platformLabel, type DeviceFacts } from '../lib/device';
 import { space } from '../theme';
 
@@ -18,6 +19,7 @@ import { space } from '../theme';
  */
 export function DeviceScreen() {
   const c = useColors();
+  const t = useT();
   const { user, artist, isArtist } = useAuth();
   const [facts, setFacts] = useState<DeviceFacts | null>(null);
 
@@ -68,18 +70,16 @@ export function DeviceScreen() {
 
   return (
     <Screen>
-      <Title>This device</Title>
-      <Muted style={{ marginTop: space.xs }}>
-        Handy if you ever need to tell the shop what you are running.
-      </Muted>
+      <Title>{t('device.thisDevice', 'This device')}</Title>
+      <Muted style={{ marginTop: space.xs }}>{t('device.handyIfYouEver', 'Handy if you ever need to tell the shop what you are running.')}</Muted>
 
-      <Heading style={{ marginTop: space.xl }}>Device</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('device.device', 'Device')}</Heading>
       <Rows items={rows} />
 
-      <Heading style={{ marginTop: space.xl }}>App</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('device.app', 'App')}</Heading>
       <Rows items={appRows} />
 
-      <Heading style={{ marginTop: space.xl }}>Account</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('device.account', 'Account')}</Heading>
       <Rows items={accountRows} />
 
       <View style={{ height: space.xxl }} />

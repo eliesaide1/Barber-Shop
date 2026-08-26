@@ -22,6 +22,7 @@ import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { space } from '../theme';
 import type { Order } from '../types';
+import { useT } from '../store/CopyContext';
 
 const FLOW: Record<string, [string, string, string][]> = {
   pickup: [
@@ -48,6 +49,7 @@ const ago = (iso: string) => {
 
 export function OrdersScreen() {
   const nav = useNavigation<any>();
+  const t = useT();
   const { toast } = useToast();
   const { data: orders, loading, reload } = useApi<Order[]>('/orders');
 
@@ -61,16 +63,16 @@ export function OrdersScreen() {
 
   return (
     <Screen>
-      <Title>My orders</Title>
-      <Muted style={{ marginTop: 2 }}>Product orders · your cuts live under Appointments</Muted>
+      <Title>{t('orders.myOrders', 'My orders')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('orders.productOrdersYourCuts', 'Product orders · your cuts live under Appointments')}</Muted>
 
       {!orders?.length ? (
         <View style={{ marginTop: space.lg }}>
           <Empty
             icon="📦"
-            title="No orders yet"
-            hint="Products you buy will show up here."
-            action={<Button title="Browse the shop" onPress={() => nav.navigate('Tabs', { screen: 'Shop' })} />}
+            title={t('orders.noOrdersYet', 'No orders yet')}
+            hint={t('orders.productsYouBuyWill', 'Products you buy will show up here.')}
+            action={<Button title={t('orders.browseTheShop', 'Browse the shop')} onPress={() => nav.navigate('Tabs', { screen: 'Shop' })} />}
           />
         </View>
       ) : (
@@ -104,6 +106,7 @@ export function OrdersScreen() {
 
 export function OrderDetailScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { params } = useRoute<any>();
   const { data: order, loading, reload } = useApi<Order>(`/orders/${params.id}`);
@@ -113,7 +116,7 @@ export function OrderDetailScreen() {
   });
 
   if (loading && !order) return <Loading />;
-  if (!order) return <Screen><Empty icon="📦" title="Order not found" /></Screen>;
+  if (!order) return <Screen><Empty icon="📦" title={t('orders.orderNotFound', 'Order not found')} /></Screen>;
 
   const steps = FLOW[order.fulfilment] ?? [];
   const at = steps.findIndex(([s]) => s === order.status);
@@ -123,7 +126,7 @@ export function OrderDetailScreen() {
       {params.justPlaced && (
         <Card hero style={{ alignItems: 'center', marginBottom: space.lg }}>
           <Text style={{ fontSize: 46 }}>{order.fulfilment === 'pickup' ? '🛍️' : '🛵'}</Text>
-          <Title style={{ marginTop: 8 }}>Order placed</Title>
+          <Title style={{ marginTop: 8 }}>{t('orders.orderPlaced', 'Order placed')}</Title>
           <Muted style={{ marginTop: 6, textAlign: 'center' }}>
             {order.fulfilment === 'pickup'
               ? order.withAppointment
@@ -165,7 +168,7 @@ export function OrderDetailScreen() {
 
       {order.fulfilment === 'pickup' && order.isOpen && (
         <Card style={{ marginTop: space.md, alignItems: 'center', borderColor: c.accent }}>
-          <Muted>Show this at the chair</Muted>
+          <Muted>{t('orders.showThisAtThe', 'Show this at the chair')}</Muted>
           <Text
             style={{
               color: c.text,
@@ -186,15 +189,15 @@ export function OrderDetailScreen() {
 
       {order.address && (
         <Card style={{ marginTop: space.md }}>
-          <Between><Muted>Deliver to</Muted><Body>{order.address.name}</Body></Between>
+          <Between><Muted>{t('orders.deliverTo', 'Deliver to')}</Muted><Body>{order.address.name}</Body></Between>
           <Between style={{ marginTop: space.sm, alignItems: 'flex-start' }}>
-            <Muted>Address</Muted>
+            <Muted>{t('orders.address', 'Address')}</Muted>
             <Body style={{ maxWidth: '62%', textAlign: 'right' }}>{order.address.line}</Body>
           </Between>
         </Card>
       )}
 
-      <Heading style={{ marginTop: space.xl }}>Items</Heading>
+      <Heading style={{ marginTop: space.xl }}>{t('orders.items', 'Items')}</Heading>
       <Card style={{ marginTop: space.sm }}>
         {order.items.map((i) => (
           <Between key={i.product} style={{ paddingVertical: 6 }}>
@@ -203,19 +206,19 @@ export function OrderDetailScreen() {
           </Between>
         ))}
         <Divider />
-        <Between><Muted>Subtotal</Muted><Body>${order.subtotal}</Body></Between>
+        <Between><Muted>{t('orders.subtotal', 'Subtotal')}</Muted><Body>${order.subtotal}</Body></Between>
         <Between style={{ marginTop: space.sm }}>
           <Muted>{order.fulfilment === 'pickup' ? 'Pickup' : 'Delivery'}</Muted>
           <Body>{order.fee ? `$${order.fee}` : 'Free'}</Body>
         </Between>
         <Between style={{ marginTop: space.md }}>
-          <Body style={{ fontWeight: '700' }}>Total</Body>
+          <Body style={{ fontWeight: '700' }}>{t('orders.total', 'Total')}</Body>
           <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 18 }}>${order.total}</Text>
         </Between>
       </Card>
 
       <Button
-        title="Back to my orders"
+        title={t('orders.backToMyOrders', 'Back to my orders')}
         variant="ghost"
         onPress={() => nav.navigate('Orders')}
         style={{ marginTop: space.lg }}

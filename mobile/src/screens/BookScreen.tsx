@@ -28,6 +28,7 @@ import { api, ApiError } from '../api/client';
 import { absoluteUrl } from '../config';
 import { radius, space } from '../theme';
 import type { Artist, HaircutRecord, LoyaltyCard, Service, Slot } from '../types';
+import { useT } from '../store/CopyContext';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -54,6 +55,7 @@ const to12h = (hhmm: string) => {
 
 export function BookScreen() {
   const c = useColors();
+  const t = useT();
   const nav = useNavigation<any>();
   const { toast } = useToast();
   const { showError } = useDialog();
@@ -136,8 +138,8 @@ export function BookScreen() {
 
   return (
     <Screen>
-      <Title>Book</Title>
-      <Muted style={{ marginTop: 2 }}>VIA Barber House · Mar Mikhael, Beirut</Muted>
+      <Title>{t('book.book', 'Book')}</Title>
+      <Muted style={{ marginTop: 2 }}>{t('book.viaBarberHouseMar', 'VIA Barber House · Mar Mikhael, Beirut')}</Muted>
 
       <Heading style={{ marginTop: space.xl }}>1 · Choose your artist</Heading>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.md }}>
@@ -276,13 +278,13 @@ export function BookScreen() {
         for is still worth asking for.
       </Muted>
       {loadingSlots && !availability ? (
-        <Loading label="Checking the chair…" />
+        <Loading label={t('book.checkingTheChair', 'Checking the chair…')} />
       ) : availability?.dayOff ? (
         <View style={{ marginTop: space.md }}>
           <Empty
             icon="💈"
             title={`${artist?.displayName.split(' ')[0]} is off this day`}
-            hint="Pick another day or another artist."
+            hint={t('book.pickAnotherDayOr', 'Pick another day or another artist.')}
           />
         </View>
       ) : (
@@ -325,7 +327,7 @@ export function BookScreen() {
             );
           })}
           {availability?.slots.length === 0 && (
-            <Muted style={{ padding: space.lg }}>No slots left on this day.</Muted>
+            <Muted style={{ padding: space.lg }}>{t('book.noSlotsLeftOn', 'No slots left on this day.')}</Muted>
           )}
         </View>
       )}
@@ -372,10 +374,8 @@ export function BookScreen() {
           still awaiting an answer is not one to put in front of an artist. */}
       {!!haircuts?.length && (
         <>
-          <Heading style={{ marginTop: space.xl }}>Same as one of these?</Heading>
-          <Muted style={{ marginTop: 4 }}>
-            Your artist sees the photo and how it was done, before you sit down.
-          </Muted>
+          <Heading style={{ marginTop: space.xl }}>{t('book.sameAsOneOf', 'Same as one of these?')}</Heading>
+          <Muted style={{ marginTop: 4 }}>{t('book.yourArtistSeesThe', 'Your artist sees the photo and how it was done, before you sit down.')}</Muted>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.md }}>
             <Row style={{ gap: space.sm, paddingRight: space.lg }}>
               {haircuts.map((h) => {
@@ -419,27 +419,27 @@ export function BookScreen() {
       )}
 
       <Field
-        label="Notes for your artist (optional)"
+        label={t('book.notesForYourArtist', 'Notes for your artist (optional)')}
         value={notes}
         onChangeText={setNotes}
-        placeholder="e.g. #2 on the sides, keep the top long"
+        placeholder={t('book.eG2On', 'e.g. #2 on the sides, keep the top long')}
         multiline
         style={{ minHeight: 72, textAlignVertical: 'top' }}
       />
 
       <Card style={{ marginTop: space.lg }}>
-        <Between><Muted>Service</Muted><Body style={{ fontWeight: '700' }}>{service?.name ?? '—'}</Body></Between>
+        <Between><Muted>{t('book.service', 'Service')}</Muted><Body style={{ fontWeight: '700' }}>{service?.name ?? '—'}</Body></Between>
         <Between style={{ marginTop: space.sm }}>
-          <Muted>Artist</Muted><Body style={{ fontWeight: '700' }}>{artist?.displayName ?? '—'}</Body>
+          <Muted>{t('book.artist', 'Artist')}</Muted><Body style={{ fontWeight: '700' }}>{artist?.displayName ?? '—'}</Body>
         </Between>
         <Between style={{ marginTop: space.sm }}>
-          <Muted>When</Muted>
+          <Muted>{t('book.when', 'When')}</Muted>
           <Body style={{ fontWeight: '700' }}>
             {slot ? `${day.label} ${day.day} · ${to12h(slot.time)}` : '—'}
           </Body>
         </Between>
         <Between style={{ marginTop: space.sm }}>
-          <Muted>Length</Muted>
+          <Muted>{t('book.length', 'Length')}</Muted>
           <Body style={{ fontWeight: '700' }}>
             {artist?.displayName.split(' ')[0] ?? 'Your artist'} sets it
           </Body>
@@ -448,9 +448,9 @@ export function BookScreen() {
             acknowledged is one people make twice, unsure it registered. */}
         {!!reference && (
           <Between style={{ marginTop: space.sm }}>
-            <Muted>Reference</Muted>
+            <Muted>{t('book.reference', 'Reference')}</Muted>
             <Row style={{ gap: space.sm }}>
-              <Body style={{ fontWeight: '700' }}>This again</Body>
+              <Body style={{ fontWeight: '700' }}>{t('book.thisAgain', 'This again')}</Body>
               <Image
                 source={{ uri: absoluteUrl(haircuts.find((h) => h.id === reference)?.images[0]) }}
                 style={{ width: 26, height: 26, borderRadius: 6, backgroundColor: c.surface3 }}
@@ -460,11 +460,11 @@ export function BookScreen() {
         )}
         <Divider />
         <Between>
-          <Body style={{ fontWeight: '700' }}>Total</Body>
+          <Body style={{ fontWeight: '700' }}>{t('book.total', 'Total')}</Body>
           {useReward && freeCut ? (
             <Row style={{ gap: 8 }}>
               <Text style={{ color: c.muted, textDecorationLine: 'line-through' }}>${service?.price}</Text>
-              <Badge label="FREE 🎁" tone="gold" />
+              <Badge label={t('book.free', 'FREE 🎁')} tone="gold" />
             </Row>
           ) : (
             <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 18 }}>${service?.price ?? 0}</Text>
