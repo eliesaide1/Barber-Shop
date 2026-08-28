@@ -8,7 +8,7 @@ import { env } from './config/env.js';
 import { UPLOAD_DIR } from './lib/upload.js';
 import { errorHandler, notFound, asyncHandler } from './middleware/error.js';
 import { getSettings, fillTokens } from './models/ShopSettings.js';
-import { toWhatsAppNumber, whatsappConfigured } from './lib/whatsapp.js';
+import { toWhatsAppNumber } from './lib/whatsapp.js';
 
 import { authRouter } from './routes/auth.routes.js';
 import { artistsRouter } from './routes/artists.routes.js';
@@ -22,7 +22,7 @@ import { stylesRouter } from './routes/styles.routes.js';
 import { settingsRouter } from './routes/settings.routes.js';
 import { haircutsRouter } from './routes/haircuts.routes.js';
 import { labelsRouter } from './routes/labels.routes.js';
-import { verificationRouter } from './routes/verification.routes.js';
+import { verificationRouter, verificationRequired } from './routes/verification.routes.js';
 
 export function createApp() {
   const app = express();
@@ -104,14 +104,13 @@ export function createApp() {
         },
         /* Whether sign-up will ask for a code. Public, because the app needs to
            know before it has an account — and it is not a secret: anybody can
-           discover it by trying to register once. */
-        verification: {
-          required: Boolean(
-            whatsappConfigured() &&
-              settings.verification?.required &&
-              settings.verification?.templateName,
-          ),
-        },
+           discover it by trying to register once.
+           
+           Asked of the same function `/auth/register` enforces with, rather
+           than worked out again here. Two copies of this rule disagreed the
+           moment a test number became a way through: the app was told no code
+           was needed and registration then refused it for not having one. */
+        verification: { required: await verificationRequired() },
       });
     }),
   );
