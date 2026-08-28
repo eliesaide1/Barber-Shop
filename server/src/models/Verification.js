@@ -2,9 +2,13 @@ import mongoose from 'mongoose';
 import crypto from 'node:crypto';
 
 /**
- * A code sent to a mobile number, waiting to be typed back.
+ * A code sent to somebody, waiting to be typed back.
  *
- * One row per number, replaced on each new request rather than accumulated:
+ * `target` is a mobile number in dialled digits or an email in lower case —
+ * whichever channel the shop asks on — normalised before it gets here so the
+ * same person typed three ways is one row rather than three.
+ *
+ * One row per target, replaced on each new request rather than accumulated:
  * asking again means the first code is no longer wanted, and leaving it valid
  * would mean two live codes for one number and twice the surface to guess at.
  *
@@ -20,9 +24,8 @@ import crypto from 'node:crypto';
  */
 const verificationSchema = new mongoose.Schema(
   {
-    /* Normalised to digits by `toWhatsAppNumber` before it gets here, so the
-       same phone typed three ways is one row rather than three. */
-    phone: { type: String, required: true, unique: true, index: true },
+    channel: { type: String, enum: ['whatsapp', 'email'], required: true },
+    target: { type: String, required: true, unique: true, index: true },
     codeHash: { type: String, required: true },
 
     /* Wrong guesses against this code. The row dies at the limit rather than

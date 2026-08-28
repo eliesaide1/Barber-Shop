@@ -441,11 +441,6 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
-      "key": "auth.code",
-      "defaultText": "Code from WhatsApp",
-      "where": "src/screens/AuthScreens.tsx"
-    },
-    {
       "key": "auth.confirmCode",
       "defaultText": "Confirm",
       "where": "src/screens/AuthScreens.tsx"
@@ -473,11 +468,6 @@
     {
       "key": "auth.newHere",
       "defaultText": "New here?",
-      "where": "src/screens/AuthScreens.tsx"
-    },
-    {
-      "key": "auth.numberVerified",
-      "defaultText": "✓ Number verified",
       "where": "src/screens/AuthScreens.tsx"
     },
     {

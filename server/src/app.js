@@ -22,7 +22,11 @@ import { stylesRouter } from './routes/styles.routes.js';
 import { settingsRouter } from './routes/settings.routes.js';
 import { haircutsRouter } from './routes/haircuts.routes.js';
 import { labelsRouter } from './routes/labels.routes.js';
-import { verificationRouter, verificationRequired } from './routes/verification.routes.js';
+import {
+  verificationRouter,
+  verificationRequired,
+  verificationChannel,
+} from './routes/verification.routes.js';
 
 export function createApp() {
   const app = express();
@@ -110,7 +114,11 @@ export function createApp() {
            than worked out again here. Two copies of this rule disagreed the
            moment a test number became a way through: the app was told no code
            was needed and registration then refused it for not having one. */
-        verification: { required: await verificationRequired() },
+        verification: {
+          required: await verificationRequired(),
+          /* Which field the sign-up form has to prove. */
+          channel: await verificationChannel(),
+        },
       });
     }),
   );

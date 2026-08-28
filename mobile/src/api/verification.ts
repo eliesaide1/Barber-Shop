@@ -11,19 +11,28 @@ import { api } from './client';
  * switched off, so the screen can move straight on rather than waiting for a
  * message that is never coming.
  */
+export type Channel = 'whatsapp' | 'email';
+
 export interface StartResult {
   required: boolean;
+  channel: Channel;
   expiresInSeconds?: number;
 }
 
 export interface CheckResult {
   required: boolean;
+  channel: Channel;
   verificationToken?: string;
-  phone?: string;
+  target?: string;
 }
 
-export const startVerification = (phone: string) =>
-  api.post<StartResult>('/auth/verify/start', { phone });
+/* The server decides which field it wants; the app just sends the one that
+   matches the channel it was told about. */
+const payload = (channel: Channel, value: string) =>
+  channel === 'email' ? { email: value } : { phone: value };
 
-export const checkVerification = (phone: string, code: string) =>
-  api.post<CheckResult>('/auth/verify/check', { phone, code });
+export const startVerification = (channel: Channel, value: string) =>
+  api.post<StartResult>('/auth/verify/start', payload(channel, value));
+
+export const checkVerification = (channel: Channel, value: string, code: string) =>
+  api.post<CheckResult>('/auth/verify/check', { ...payload(channel, value), code });

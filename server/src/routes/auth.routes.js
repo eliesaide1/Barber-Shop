@@ -10,7 +10,7 @@ import { Order } from '../models/Order.js';
 import { Notification } from '../models/Notification.js';
 import { Style } from '../models/Style.js';
 import { issueTokens, verifyRefreshToken, signAccessToken } from '../lib/tokens.js';
-import { verificationRequired, verifiedPhoneFrom } from './verification.routes.js';
+import { verificationRequired, verificationChannel, verifiedFrom } from './verification.routes.js';
 import { toWhatsAppNumber } from '../lib/whatsapp.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth } from '../middleware/auth.js';
@@ -96,18 +96,32 @@ authRouter.post(
        by calling the API directly — which is exactly what an app-side check
        alone would allow. */
     if (await verificationRequired()) {
-      const provenPhone = verifiedPhoneFrom(body.verificationToken);
-      if (!provenPhone) {
-        throw new ApiError(422, 'Verify your mobile number first', {
-          fields: { phone: 'Not verified yet' },
-        });
+      const channel = await verificationChannel();
+      const field = channel === 'email' ? 'email' : 'phone';
+      const proven = verifiedFrom(body.verificationToken);
+
+      if (!proven) {
+        throw new ApiError(
+          422,
+          channel === 'email' ? 'Verify your email first' : 'Verify your mobile number first',
+          { fields: { [field]: 'Not verified yet' } },
+        );
       }
-      /* The proof names a number, and it has to be *this* number. Without this
-         one verified number would mint accounts on any number at all. */
-      if (provenPhone !== toWhatsAppNumber(body.phone)) {
-        throw new ApiError(422, 'That is not the number you verified', {
-          fields: { phone: 'Verify this number' },
-        });
+      /* The proof names one thing, and it has to be *this* thing — otherwise
+         one verified address would mint accounts on any address at all. The
+         channel is checked too: a proof issued while the shop verified by
+         WhatsApp must not be spent against an email once it switched. */
+      const submitted =
+        channel === 'email' ? body.email.trim().toLowerCase() : toWhatsAppNumber(body.phone);
+
+      if (proven.channel !== channel || proven.target !== submitted) {
+        throw new ApiError(
+          422,
+          channel === 'email'
+            ? 'That is not the email you verified'
+            : 'That is not the number you verified',
+          { fields: { [field]: 'Verify this one' } },
+        );
       }
     }
 

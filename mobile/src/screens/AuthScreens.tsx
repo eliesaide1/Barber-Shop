@@ -246,7 +246,10 @@ export function RegisterScreen() {
   const [proof, setProof] = useState<string | null>(null);
 
   const set = (k: keyof typeof form) => (v: string) => {
-    if (k === 'phone') {
+    /* Editing the proven field throws the proof away — it vouches for what was
+       typed when it was issued, and the server will refuse it against anything
+       else anyway. Better to show that here than at the end. */
+    if (k === verifyField) {
       setSent(false);
       setProof(null);
       setCode('');
@@ -254,21 +257,31 @@ export function RegisterScreen() {
     setForm((f) => ({ ...f, [k]: v }));
   };
 
+  /* Which field has to be proven, and therefore which one clears the proof when
+     it is edited. The shop can switch this while somebody is mid-form. */
+  const channel = config?.verification?.channel ?? 'whatsapp';
+  const verifyField = channel === 'email' ? 'email' : 'phone';
+  const verifyValue = channel === 'email' ? form.email.trim() : form.phone.trim();
   const needsCode = Boolean(config?.verification?.required) && !proof;
 
   const sendCode = async () => {
-    if (form.phone.replace(/\D/g, '').length < 7) {
-      setErrors((e) => ({ ...e, phone: 'Enter a valid phone number' }));
+    const bad =
+      channel === 'email' ? !isEmail(verifyValue) : verifyValue.replace(/\D/g, '').length < 7;
+    if (bad) {
+      setErrors((e) => ({
+        ...e,
+        [verifyField]: channel === 'email' ? 'Enter a valid email' : 'Enter a valid phone number',
+      }));
       return;
     }
     setBusy(true);
     try {
-      const res = await startVerification(form.phone.trim());
+      const res = await startVerification(channel, verifyValue);
       /* The shop may have switched verification off between the app reading the
          config and somebody reaching this button. */
       if (!res.required) setProof('not-required');
       else setSent(true);
-      setErrors((e) => ({ ...e, phone: '', form: '' }));
+      setErrors((e) => ({ ...e, [verifyField]: '', form: '' }));
     } catch (err) {
       setErrors((e) => ({ ...e, form: err instanceof ApiError ? err.message : 'Could not send the code' }));
     } finally {
@@ -279,7 +292,7 @@ export function RegisterScreen() {
   const confirmCode = async () => {
     setBusy(true);
     try {
-      const res = await checkVerification(form.phone.trim(), code.trim());
+      const res = await checkVerification(channel, verifyValue, code.trim());
       setProof(res.verificationToken ?? 'not-required');
       setErrors((e) => ({ ...e, code: '', form: '' }));
     } catch (err) {
@@ -307,7 +320,9 @@ export function RegisterScreen() {
     if (dobError) next.dateOfBirth = dobError;
     if (!frequency) next.visitFrequencyWeeks = 'Pick how often you usually get cut';
     if (form.password.length < 6) next.password = 'Password must be at least 6 characters';
-    if (needsCode) next.phone = 'Verify this number first';
+    if (needsCode) {
+      next[verifyField] = channel === 'email' ? 'Verify this email first' : 'Verify this number first';
+    }
 
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -331,6 +346,76 @@ export function RegisterScreen() {
       setBusy(false);
     }
   };
+
+  /* Drawn once and placed under whichever field it proves — a code box sitting
+     under the email while the number is what needs verifying is the kind of
+     thing people stare at rather than report. */
+  const verifyStep = (
+    <>
+        {Boolean(config?.verification?.required) && !proof && (
+          <View style={{ marginTop: space.sm }}>
+            {!sent ? (
+              <>
+                <Muted>
+                  {t(
+                    'auth.verifyHint',
+                    'We’ll send a code to this number on WhatsApp to check it’s yours.',
+                  )}
+                </Muted>
+                <Button
+                  title={t('auth.sendCode', 'Send me a code')}
+                  variant="secondary"
+                  compact
+                  onPress={sendCode}
+                  loading={busy}
+                  style={{ marginTop: space.sm }}
+                />
+              </>
+            ) : (
+              <>
+                <Field
+                  label={t(
+                      channel === 'email' ? 'auth.codeEmail' : 'auth.code',
+                      channel === 'email' ? 'Code from your email' : 'Code from WhatsApp',
+                    )}
+                  value={code}
+                  onChangeText={setCode}
+                  keyboardType="number-pad"
+                  placeholder="123456"
+                  error={errors.code}
+                  style={{ marginTop: 0 }}
+                />
+                <Row style={{ gap: space.sm, marginTop: space.sm }}>
+                  <Button
+                    title={t('auth.confirmCode', 'Confirm')}
+                    compact
+                    onPress={confirmCode}
+                    loading={busy}
+                    disabled={code.trim().length < 4}
+                    style={{ flex: 1 }}
+                  />
+                  <Button
+                    title={t('auth.resendCode', 'Send again')}
+                    variant="ghost"
+                    compact
+                    onPress={sendCode}
+                    style={{ flex: 1 }}
+                  />
+                </Row>
+              </>
+            )}
+          </View>
+        )}
+        {Boolean(proof) && proof !== 'not-required' && (
+          <Muted style={{ marginTop: space.sm, color: c.ok }}>
+            {t(
+                channel === 'email' ? 'auth.emailVerified' : 'auth.numberVerified',
+                channel === 'email' ? '✓ Email verified' : '✓ Number verified',
+              )}
+          </Muted>
+        )}
+    </>
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
@@ -367,6 +452,7 @@ export function RegisterScreen() {
             keyboardType="email-address"
             error={errors.email}
           />
+          {channel === 'email' && verifyStep}
           <Field
             label={t('auth.mobile', 'Mobile number')}
             value={form.phone}
@@ -376,66 +462,7 @@ export function RegisterScreen() {
             error={errors.phone}
           />
 
-          {/* Only drawn when the shop asks for it, and it disappears the moment
-              the number is proven — a step that stays on screen after it is
-              done reads as one that failed. */}
-          {Boolean(config?.verification?.required) && !proof && (
-            <View style={{ marginTop: space.sm }}>
-              {!sent ? (
-                <>
-                  <Muted>
-                    {t(
-                      'auth.verifyHint',
-                      'We’ll send a code to this number on WhatsApp to check it’s yours.',
-                    )}
-                  </Muted>
-                  <Button
-                    title={t('auth.sendCode', 'Send me a code')}
-                    variant="secondary"
-                    compact
-                    onPress={sendCode}
-                    loading={busy}
-                    style={{ marginTop: space.sm }}
-                  />
-                </>
-              ) : (
-                <>
-                  <Field
-                    label={t('auth.code', 'Code from WhatsApp')}
-                    value={code}
-                    onChangeText={setCode}
-                    keyboardType="number-pad"
-                    placeholder="123456"
-                    error={errors.code}
-                    style={{ marginTop: 0 }}
-                  />
-                  <Row style={{ gap: space.sm, marginTop: space.sm }}>
-                    <Button
-                      title={t('auth.confirmCode', 'Confirm')}
-                      compact
-                      onPress={confirmCode}
-                      loading={busy}
-                      disabled={code.trim().length < 4}
-                      style={{ flex: 1 }}
-                    />
-                    <Button
-                      title={t('auth.resendCode', 'Send again')}
-                      variant="ghost"
-                      compact
-                      onPress={sendCode}
-                      style={{ flex: 1 }}
-                    />
-                  </Row>
-                </>
-              )}
-            </View>
-          )}
-
-          {Boolean(proof) && proof !== 'not-required' && (
-            <Muted style={{ marginTop: space.sm, color: c.ok }}>
-              {t('auth.numberVerified', '✓ Number verified')}
-            </Muted>
-          )}
+          {channel !== 'email' && verifyStep}
 
           <DateOfBirthField
             value={form.dob}

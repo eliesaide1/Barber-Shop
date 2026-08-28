@@ -34,12 +34,14 @@ export default function Settings() {
   const [marketplace, setMarketplace] = useState({ hideAllPrices: false, priceEnquiry: '' });
   const [verification, setVerification] = useState({
     required: false,
+    channel: 'whatsapp',
     templateName: '',
     templateLanguage: 'en',
     ttlMinutes: 10,
     testPhone: '',
     testCode: '',
   });
+  const [email, setEmail] = useState({ configured: false });
   const [loyalty, setLoyalty] = useState({ goal: 8, freeCutValue: 25 });
   const [whatsapp, setWhatsapp] = useState({ configured: false });
   const [upcoming, setUpcoming] = useState([]);
@@ -58,6 +60,7 @@ export default function Settings() {
       if (data.verification) setVerification(data.verification);
       setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
+      if (data.email) setEmail(data.email);
     } catch (err) {
       showError(err.message, { title: 'Couldn’t load the settings', icon: '⚙️' });
     }
@@ -90,6 +93,7 @@ export default function Settings() {
       if (data.verification) setVerification(data.verification);
       setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
+      if (data.email) setEmail(data.email);
       toast('Saved ✓');
     } catch (err) {
       if (err.fields) setFields(err.fields);
@@ -277,15 +281,48 @@ export default function Settings() {
             <input
               type="checkbox"
               checked={verification.required}
-              disabled={!whatsapp.configured && !(verification.testPhone && verification.testCode)}
+              disabled={
+                !(verification.channel === 'email' ? email.configured : whatsapp.configured) &&
+                !(verification.testPhone && verification.testCode)
+              }
               onChange={(e) => setVerification((v) => ({ ...v, required: e.target.checked }))}
             />
             <span className="hint">{verification.required ? 'Code required' : 'Off'}</span>
           </label>
         </div>
+        <div className="row" style={{ gap: 8, marginTop: 10 }}>
+          {['whatsapp', 'email'].map((ch) => (
+            <label key={ch} className="row" style={{ gap: 6 }}>
+              <input
+                type="radio"
+                name="verifyChannel"
+                checked={verification.channel === ch}
+                onChange={() => setVerification((v) => ({ ...v, channel: ch }))}
+              />
+              <span className="hint">
+                {ch === 'email' ? 'Email' : 'WhatsApp'}
+                {ch === 'email'
+                  ? email.configured
+                    ? ' · ready'
+                    : ' · no provider'
+                  : whatsapp.configured
+                    ? ' · ready'
+                    : ' · not connected'}
+              </span>
+            </label>
+          ))}
+        </div>
+
         <div className="hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
-          Sends a six-digit code on WhatsApp and refuses to create the account until it comes back.
-          {!whatsapp.configured && (
+          Sends a six-digit code and refuses to create the account until it comes back.
+          {verification.channel === 'email' && !email.configured && (
+            <>
+              {' '}
+              <b>No email provider is configured</b> — set EMAIL_PROVIDER, EMAIL_FROM and the key
+              for it in the server environment. Until then only the test address below gets through.
+            </>
+          )}
+          {verification.channel !== 'email' && !whatsapp.configured && (
             <>
               {' '}
               <b>WhatsApp is not connected</b>, so no real code can be sent. Set a test number below
@@ -300,7 +337,7 @@ export default function Settings() {
             </>
           )}
         </div>
-        {verification.required && (
+        {verification.required && verification.channel !== 'email' && (
           <div className="row" style={{ gap: 10, marginTop: 10, alignItems: 'flex-start' }}>
             <div style={{ flex: 2 }}>
               <label className="hint" htmlFor="verifyTemplate">
@@ -340,12 +377,14 @@ export default function Settings() {
 
         <div className="row" style={{ gap: 10, marginTop: 14, alignItems: 'flex-start' }}>
           <div style={{ flex: 2 }}>
-            <label className="hint" htmlFor="testPhone">Test number (never messaged)</label>
+            <label className="hint" htmlFor="testPhone">
+              {verification.channel === 'email' ? 'Test address (never emailed)' : 'Test number (never messaged)'}
+            </label>
             <input
               id="testPhone"
               className={`input ${fields['verification.testPhone'] ? 'err' : ''}`}
               value={verification.testPhone}
-              placeholder="+961 …"
+              placeholder={verification.channel === 'email' ? 'tester@example.com' : '+961 …'}
               onChange={(e) => setVerification((v) => ({ ...v, testPhone: e.target.value }))}
             />
           </div>

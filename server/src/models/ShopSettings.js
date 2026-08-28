@@ -164,6 +164,9 @@ const shopSettingsSchema = new mongoose.Schema(
       type: new mongoose.Schema(
         {
           required: { type: Boolean, default: false },
+          /* Which of the two the shop asks somebody to prove. Email needs an
+             API key or an inbox; WhatsApp needs a Meta template. */
+          channel: { type: String, enum: ['whatsapp', 'email'], default: 'whatsapp' },
           templateName: { type: String, default: '', trim: true },
           templateLanguage: { type: String, default: 'en', trim: true },
           /* Minutes a code stays good for. Long enough to find the phone, short
@@ -182,6 +185,8 @@ const shopSettingsSchema = new mongoose.Schema(
            * office says so next to the field. It opens exactly one number, and
            * only somebody who knows both halves can walk through it.
            */
+          /* Named for the channel it was born on; it holds an email just as
+             happily, and is normalised the same way the real one is. */
           testPhone: { type: String, default: '', trim: true },
           testCode: { type: String, default: '', trim: true },
         },
