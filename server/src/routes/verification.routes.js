@@ -124,9 +124,14 @@ verificationRouter.post(
 
     if (!isTest) {
       if (!canSend(settings)) {
+        /* Deliberately in the 400s. A 5xx has its message replaced with
+           "Something went wrong" in production — right for a genuine fault,
+           wrong here, where the person is left staring at a button that
+           appears broken. This is a state the shop has put the app in, and
+           saying so plainly is the only useful thing to do. */
         throw new ApiError(
-          503,
-          'Sign-up verification is not available right now. Please try again later.',
+          409,
+          'We can’t send a code to that number yet. Please try again later.',
         );
       }
       const sent = await sendTemplate(number, {
