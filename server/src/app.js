@@ -8,7 +8,7 @@ import { env } from './config/env.js';
 import { UPLOAD_DIR } from './lib/upload.js';
 import { errorHandler, notFound, asyncHandler } from './middleware/error.js';
 import { getSettings, fillTokens } from './models/ShopSettings.js';
-import { toWhatsAppNumber } from './lib/whatsapp.js';
+import { toWhatsAppNumber, whatsappConfigured } from './lib/whatsapp.js';
 
 import { authRouter } from './routes/auth.routes.js';
 import { artistsRouter } from './routes/artists.routes.js';
@@ -22,6 +22,7 @@ import { stylesRouter } from './routes/styles.routes.js';
 import { settingsRouter } from './routes/settings.routes.js';
 import { haircutsRouter } from './routes/haircuts.routes.js';
 import { labelsRouter } from './routes/labels.routes.js';
+import { verificationRouter } from './routes/verification.routes.js';
 
 export function createApp() {
   const app = express();
@@ -101,6 +102,16 @@ export function createApp() {
             product: '{product}',
           }),
         },
+        /* Whether sign-up will ask for a code. Public, because the app needs to
+           know before it has an account — and it is not a secret: anybody can
+           discover it by trying to register once. */
+        verification: {
+          required: Boolean(
+            whatsappConfigured() &&
+              settings.verification?.required &&
+              settings.verification?.templateName,
+          ),
+        },
       });
     }),
   );
@@ -115,6 +126,9 @@ export function createApp() {
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/styles', stylesRouter);
   app.use('/api/labels', labelsRouter);
+  /* Under /auth because it is part of getting an account, and because the app
+     reaches for it before it has any credentials at all. */
+  app.use('/api/auth/verify', verificationRouter);
   app.use('/api/settings', settingsRouter);
   app.use('/api/haircuts', haircutsRouter);
 

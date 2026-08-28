@@ -43,6 +43,13 @@ const birthdayBody = z.object({
   sendHour: z.coerce.number().int().min(0).max(23).optional(),
 });
 
+const verificationBody = z.object({
+  required: z.boolean().optional(),
+  templateName: z.string().max(120).optional(),
+  templateLanguage: z.string().max(10).optional(),
+  ttlMinutes: z.coerce.number().min(2).max(60).optional(),
+});
+
 const contactBody = z.object({
   enabled: z.boolean().optional(),
   whatsapp: z
@@ -82,6 +89,7 @@ settingsRouter.get(
       birthday: settings.birthday,
       contact: settings.contact,
       marketplace: settings.marketplace,
+      verification: settings.verification,
       loyalty: settings.loyalty,
       /* What the app will actually dial, so the CMS shows the effect of what
          was typed rather than the typing. */
@@ -104,6 +112,7 @@ settingsRouter.patch(
         birthday: birthdayBody.optional(),
         contact: contactBody.optional(),
         marketplace: marketplaceBody.optional(),
+        verification: verificationBody.optional(),
         loyalty: loyaltyBody.optional(),
       })
       .parse(req.body);
@@ -111,6 +120,19 @@ settingsRouter.patch(
     const settings = await getSettings();
     if (body.contact) Object.assign(settings.contact, body.contact);
     if (body.marketplace) Object.assign(settings.marketplace, body.marketplace);
+    if (body.verification) {
+      Object.assign(settings.verification, body.verification);
+      /* Same refusal the birthday greeting makes: switching it on with no
+         template would send nothing and report success — except here the cost
+         is that nobody can register at all. */
+      if (settings.verification.required && !settings.verification.templateName) {
+        throw new ApiError(
+          422,
+          'Name the approved WhatsApp template, or nobody will be able to sign up',
+          { fields: { 'verification.templateName': 'Required to switch verification on' } },
+        );
+      }
+    }
     if (body.loyalty) Object.assign(settings.loyalty, body.loyalty);
     if (body.birthday) {
       Object.assign(settings.birthday, body.birthday);
@@ -139,6 +161,7 @@ settingsRouter.patch(
       birthday: settings.birthday,
       contact: settings.contact,
       marketplace: settings.marketplace,
+      verification: settings.verification,
       loyalty: settings.loyalty,
       contactNumber: toWhatsAppNumber(settings.contact.whatsapp),
       whatsapp: { configured: whatsappConfigured() },

@@ -441,6 +441,16 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
+      "key": "auth.code",
+      "defaultText": "Code from WhatsApp",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.confirmCode",
+      "defaultText": "Confirm",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
       "key": "auth.createAccount",
       "defaultText": "Create an account",
       "where": "src/screens/AuthScreens.tsx"
@@ -466,6 +476,11 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
+      "key": "auth.numberVerified",
+      "defaultText": "✓ Number verified",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
       "key": "auth.orWithEmail",
       "defaultText": "or with an email",
       "where": "src/screens/AuthScreens.tsx"
@@ -486,6 +501,16 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
+      "key": "auth.resendCode",
+      "defaultText": "Send again",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.sendCode",
+      "defaultText": "Send me a code",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
       "key": "auth.signIn",
       "defaultText": "Sign in",
       "where": "src/screens/AuthScreens.tsx"
@@ -493,6 +518,11 @@
     {
       "key": "auth.tagline",
       "defaultText": "Sharp cuts. No waiting.",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.verifyHint",
+      "defaultText": "We’ll send a code to this number on WhatsApp to check it’s yours.",
       "where": "src/screens/AuthScreens.tsx"
     },
     {

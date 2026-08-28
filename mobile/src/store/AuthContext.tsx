@@ -43,6 +43,7 @@ interface AuthContextValue {
     phone: string;
     dateOfBirth: string;
     visitFrequencyWeeks: number;
+    verificationToken?: string;
   }) => Promise<void>;
   signInWith: (provider: Provider) => Promise<void>;
   /** Which provider buttons to draw — both this build and this shop have to offer one. */
@@ -170,6 +171,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       phone: string;
       dateOfBirth: string;
       visitFrequencyWeeks: number;
+      /* Present only when the shop asks for verification. The server decides
+         whether its absence is allowed — the app never gets to skip it. */
+      verificationToken?: string;
     }) => {
       const data = await api.post<Session & { accessToken: string; refreshToken: string }>(
         '/auth/register',

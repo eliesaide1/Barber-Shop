@@ -214,6 +214,8 @@ export interface ShopConfig {
   shop: { name: string; area: string; phone: string; hours: string };
   /** The "message us" button. A null number means it does not appear. */
   contact: { whatsapp: string | null; greeting: string; priceEnquiry: string };
+  /** Whether sign-up asks for a code on WhatsApp before making the account. */
+  verification: { required: boolean };
 }
 
 /* ---------------- artist portal ---------------- */

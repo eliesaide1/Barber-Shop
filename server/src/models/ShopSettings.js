@@ -152,6 +152,29 @@ const shopSettingsSchema = new mongoose.Schema(
     key: { type: String, default: 'shop', unique: true, immutable: true },
     birthday: { type: birthdaySchema, default: () => ({}) },
     contact: { type: contactSchema, default: () => ({}) },
+    /**
+     * Proving a new client's mobile number before the account exists.
+     *
+     * Off by default, and inert without an approved template — Meta will not
+     * carry a business-initiated message without one, so a shop that turns this
+     * on with nothing named would block sign-up entirely rather than verify
+     * anything.
+     */
+    verification: {
+      type: new mongoose.Schema(
+        {
+          required: { type: Boolean, default: false },
+          templateName: { type: String, default: '', trim: true },
+          templateLanguage: { type: String, default: 'en', trim: true },
+          /* Minutes a code stays good for. Long enough to find the phone, short
+             enough that a screenshot in somebody's chat history is worthless. */
+          ttlMinutes: { type: Number, default: 10, min: 2, max: 60 },
+        },
+        { _id: false },
+      ),
+      default: () => ({}),
+    },
+
     marketplace: { type: marketplaceSchema, default: () => ({}) },
     loyalty: { type: loyaltySchema, default: () => ({}) },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },

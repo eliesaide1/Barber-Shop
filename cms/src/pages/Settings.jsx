@@ -32,6 +32,12 @@ export default function Settings() {
   const [contact, setContact] = useState({ enabled: true, whatsapp: '', greeting: '' });
   const [contactNumber, setContactNumber] = useState(null);
   const [marketplace, setMarketplace] = useState({ hideAllPrices: false, priceEnquiry: '' });
+  const [verification, setVerification] = useState({
+    required: false,
+    templateName: '',
+    templateLanguage: 'en',
+    ttlMinutes: 10,
+  });
   const [loyalty, setLoyalty] = useState({ goal: 8, freeCutValue: 25 });
   const [whatsapp, setWhatsapp] = useState({ configured: false });
   const [upcoming, setUpcoming] = useState([]);
@@ -46,6 +52,8 @@ export default function Settings() {
       setContact(data.contact);
       setContactNumber(data.contactNumber);
       setMarketplace(data.marketplace);
+      if (data.verification) setVerification(data.verification);
+      if (data.verification) setVerification(data.verification);
       setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
     } catch (err) {
@@ -66,11 +74,18 @@ export default function Settings() {
     setBusy(true);
     setFields({});
     try {
-      const data = await patch('/settings', { birthday: form, contact, marketplace, loyalty });
+      const data = await patch('/settings', {
+        birthday: form,
+        contact,
+        marketplace,
+        verification,
+        loyalty,
+      });
       setForm(data.birthday);
       setContact(data.contact);
       setContactNumber(data.contactNumber);
       setMarketplace(data.marketplace);
+      if (data.verification) setVerification(data.verification);
       setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
       toast('Saved ✓');
@@ -251,6 +266,75 @@ export default function Settings() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 14 }}>
+        <div className="row between">
+          <h2>Verify new sign-ups</h2>
+          <label className="row" style={{ gap: 8 }}>
+            <input
+              type="checkbox"
+              checked={verification.required}
+              disabled={!whatsapp.configured}
+              onChange={(e) => setVerification((v) => ({ ...v, required: e.target.checked }))}
+            />
+            <span className="hint">{verification.required ? 'Code required' : 'Off'}</span>
+          </label>
+        </div>
+        <div className="hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
+          Sends a six-digit code on WhatsApp and refuses to create the account until it comes back.
+          {!whatsapp.configured && (
+            <>
+              {' '}
+              <b>WhatsApp is not connected</b>, so this cannot be switched on — and while it is
+              disconnected nobody is asked for a code, whatever this says.
+            </>
+          )}
+          {verification.required && (
+            <>
+              {' '}
+              <b>Nobody can create an account without a working number</b> while this is on. Turn it
+              off before a reviewer or a tester needs to sign up on a number you cannot message.
+            </>
+          )}
+        </div>
+        {verification.required && (
+          <div className="row" style={{ gap: 10, marginTop: 10, alignItems: 'flex-start' }}>
+            <div style={{ flex: 2 }}>
+              <label className="hint" htmlFor="verifyTemplate">
+                Approved authentication template
+              </label>
+              <input
+                id="verifyTemplate"
+                className={`input ${fields['verification.templateName'] ? 'err' : ''}`}
+                value={verification.templateName}
+                placeholder="e.g. signup_code"
+                onChange={(e) => setVerification((v) => ({ ...v, templateName: e.target.value }))}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="hint" htmlFor="verifyLang">Language</label>
+              <input
+                id="verifyLang"
+                className="input"
+                value={verification.templateLanguage}
+                onChange={(e) => setVerification((v) => ({ ...v, templateLanguage: e.target.value }))}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="hint" htmlFor="verifyTtl">Valid for (min)</label>
+              <input
+                id="verifyTtl"
+                className="input"
+                type="number"
+                min="2"
+                max="60"
+                value={verification.ttlMinutes}
+                onChange={(e) => setVerification((v) => ({ ...v, ttlMinutes: e.target.value }))}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card" style={{ marginTop: 14 }}>

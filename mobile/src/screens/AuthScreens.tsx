@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Body, Button, Card, Field, Logo, Muted, Title } from '../components/ui';
+import { Body, Button, Card, Field, Logo, Muted, Row, Title } from '../components/ui';
 import { DateOfBirthField } from '../components/DateOfBirthField';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
 import { useT } from '../store/CopyContext';
 import { ApiError } from '../api/client';
+import { checkVerification, startVerification } from '../api/verification';
 import type { Provider } from '../api/social';
 import {
   VISIT_FREQUENCIES,
@@ -231,13 +232,65 @@ export function RegisterScreen() {
   const c = useColors();
   const t = useT();
   const nav = useNavigation<any>();
-  const { register } = useAuth();
+  const { register, config } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', phone: '', dob: '', password: '' });
   const [frequency, setFrequency] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
-  const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
+  /* The proof that the number answered. Held here rather than sent straight on,
+     because the form is still being filled in when it arrives — and cleared if
+     the number is edited afterwards, or it would vouch for the old one. */
+  const [code, setCode] = useState('');
+  const [sent, setSent] = useState(false);
+  const [proof, setProof] = useState<string | null>(null);
+
+  const set = (k: keyof typeof form) => (v: string) => {
+    if (k === 'phone') {
+      setSent(false);
+      setProof(null);
+      setCode('');
+    }
+    setForm((f) => ({ ...f, [k]: v }));
+  };
+
+  const needsCode = Boolean(config?.verification?.required) && !proof;
+
+  const sendCode = async () => {
+    if (form.phone.replace(/\D/g, '').length < 7) {
+      setErrors((e) => ({ ...e, phone: 'Enter a valid phone number' }));
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await startVerification(form.phone.trim());
+      /* The shop may have switched verification off between the app reading the
+         config and somebody reaching this button. */
+      if (!res.required) setProof('not-required');
+      else setSent(true);
+      setErrors((e) => ({ ...e, phone: '', form: '' }));
+    } catch (err) {
+      setErrors((e) => ({ ...e, form: err instanceof ApiError ? err.message : 'Could not send the code' }));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const confirmCode = async () => {
+    setBusy(true);
+    try {
+      const res = await checkVerification(form.phone.trim(), code.trim());
+      setProof(res.verificationToken ?? 'not-required');
+      setErrors((e) => ({ ...e, code: '', form: '' }));
+    } catch (err) {
+      setErrors((e) => ({
+        ...e,
+        code: err instanceof ApiError ? err.message : 'Could not check the code',
+      }));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   /* Register is always pushed from Login, so going back is the right move — it
      keeps whatever was typed there. `navigate` is the fallback for the case
@@ -254,6 +307,7 @@ export function RegisterScreen() {
     if (dobError) next.dateOfBirth = dobError;
     if (!frequency) next.visitFrequencyWeeks = 'Pick how often you usually get cut';
     if (form.password.length < 6) next.password = 'Password must be at least 6 characters';
+    if (needsCode) next.phone = 'Verify this number first';
 
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -267,6 +321,7 @@ export function RegisterScreen() {
         dateOfBirth: toIsoDate(form.dob) as string,
         visitFrequencyWeeks: frequency as number,
         password: form.password,
+        ...(proof && proof !== 'not-required' ? { verificationToken: proof } : {}),
       });
     } catch (err) {
       if (err instanceof ApiError) {
@@ -320,6 +375,68 @@ export function RegisterScreen() {
             placeholder="+961 …"
             error={errors.phone}
           />
+
+          {/* Only drawn when the shop asks for it, and it disappears the moment
+              the number is proven — a step that stays on screen after it is
+              done reads as one that failed. */}
+          {Boolean(config?.verification?.required) && !proof && (
+            <View style={{ marginTop: space.sm }}>
+              {!sent ? (
+                <>
+                  <Muted>
+                    {t(
+                      'auth.verifyHint',
+                      'We’ll send a code to this number on WhatsApp to check it’s yours.',
+                    )}
+                  </Muted>
+                  <Button
+                    title={t('auth.sendCode', 'Send me a code')}
+                    variant="secondary"
+                    compact
+                    onPress={sendCode}
+                    loading={busy}
+                    style={{ marginTop: space.sm }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Field
+                    label={t('auth.code', 'Code from WhatsApp')}
+                    value={code}
+                    onChangeText={setCode}
+                    keyboardType="number-pad"
+                    placeholder="123456"
+                    error={errors.code}
+                    style={{ marginTop: 0 }}
+                  />
+                  <Row style={{ gap: space.sm, marginTop: space.sm }}>
+                    <Button
+                      title={t('auth.confirmCode', 'Confirm')}
+                      compact
+                      onPress={confirmCode}
+                      loading={busy}
+                      disabled={code.trim().length < 4}
+                      style={{ flex: 1 }}
+                    />
+                    <Button
+                      title={t('auth.resendCode', 'Send again')}
+                      variant="ghost"
+                      compact
+                      onPress={sendCode}
+                      style={{ flex: 1 }}
+                    />
+                  </Row>
+                </>
+              )}
+            </View>
+          )}
+
+          {Boolean(proof) && proof !== 'not-required' && (
+            <Muted style={{ marginTop: space.sm, color: c.ok }}>
+              {t('auth.numberVerified', '✓ Number verified')}
+            </Muted>
+          )}
+
           <DateOfBirthField
             value={form.dob}
             onChange={(v: string) => set('dob')(v)}
