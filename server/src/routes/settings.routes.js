@@ -48,6 +48,18 @@ const verificationBody = z.object({
   templateName: z.string().max(120).optional(),
   templateLanguage: z.string().max(10).optional(),
   ttlMinutes: z.coerce.number().min(2).max(60).optional(),
+  testPhone: z
+    .string()
+    .max(30)
+    .refine((v) => v.trim() === '' || toWhatsAppNumber(v) !== null, 'That is not a usable number')
+    .optional(),
+  /* Four to eight digits, matching what /verify/check will accept — a test code
+     the check would refuse is a door that looks open and is not. */
+  testCode: z
+    .string()
+    .max(8)
+    .refine((v) => v.trim() === '' || /^\d{4,8}$/.test(v.trim()), 'Use 4 to 8 digits')
+    .optional(),
 });
 
 const contactBody = z.object({
@@ -125,12 +137,25 @@ settingsRouter.patch(
       /* Same refusal the birthday greeting makes: switching it on with no
          template would send nothing and report success — except here the cost
          is that nobody can register at all. */
-      if (settings.verification.required && !settings.verification.templateName) {
+      /* A test number counts as a way through, which is the whole point of
+         having one before the template is approved. Requiring verification with
+         neither is the case that locks everybody out. */
+      const hasTestNumber = Boolean(
+        settings.verification.testPhone && settings.verification.testCode,
+      );
+      if (settings.verification.required && !settings.verification.templateName && !hasTestNumber) {
         throw new ApiError(
           422,
-          'Name the approved WhatsApp template, or nobody will be able to sign up',
+          'Name the approved WhatsApp template, or set a test number — otherwise nobody can sign up',
           { fields: { 'verification.templateName': 'Required to switch verification on' } },
         );
+      }
+      /* Half a test number is worse than none: it looks configured and answers
+         nothing. */
+      if (Boolean(settings.verification.testPhone) !== Boolean(settings.verification.testCode)) {
+        throw new ApiError(422, 'A test number needs both a number and a code', {
+          fields: { 'verification.testCode': 'Set both, or clear both' },
+        });
       }
     }
     if (body.loyalty) Object.assign(settings.loyalty, body.loyalty);

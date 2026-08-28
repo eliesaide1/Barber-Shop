@@ -27,10 +27,29 @@ const RESEND_COOLDOWN_MS = 60 * 1000;
  * connecting WhatsApp would otherwise close its own front door — nobody could
  * register, and the reason would be invisible from the app.
  */
+/** Whether a real code can actually be put on somebody's phone. */
+function canSend(settings) {
+  return Boolean(whatsappConfigured() && settings.verification?.templateName);
+}
+
+/** The number that is answered without messaging anybody, if the shop set one. */
+function testNumber(settings) {
+  const v = settings.verification;
+  return v?.testPhone && v?.testCode ? toWhatsAppNumber(v.testPhone) : null;
+}
+
+/**
+ * Whether a new account has to prove its number at all.
+ *
+ * On only when the shop asks *and* there is some way to answer — a live
+ * template, or a test number that answers itself. A shop that turned this on
+ * with neither would close its own front door: nobody could register, and from
+ * the app the reason would be invisible.
+ */
 export async function verificationRequired() {
-  if (!whatsappConfigured()) return false;
   const settings = await getSettings();
-  return Boolean(settings.verification?.required && settings.verification?.templateName);
+  if (!settings.verification?.required) return false;
+  return canSend(settings) || Boolean(testNumber(settings));
 }
 
 /**
@@ -96,18 +115,31 @@ verificationRouter.post(
       }
     }
 
-    const code = generateCode();
-    const sent = await sendTemplate(number, {
-      name: settings.verification.templateName,
-      language: settings.verification.templateLanguage,
-      variables: [code],
-    });
+    /* The test number is answered rather than messaged. Everything after this
+       is identical — it still expires, still counts wrong guesses, is still
+       spent when used — so what is being tested is the real flow and not a
+       path that only exists in testing. */
+    const isTest = testNumber(settings) === number;
+    const code = isTest ? String(settings.verification.testCode) : generateCode();
 
-    /* Stored only once it has actually gone. Writing first would leave a live
-       code against a number that was never told what it is — and the person
-       would be locked into a cooldown for a message they never received. */
-    if (!sent.ok) {
-      throw new ApiError(502, 'Could not send the code right now. Please try again.');
+    if (!isTest) {
+      if (!canSend(settings)) {
+        throw new ApiError(
+          503,
+          'Sign-up verification is not available right now. Please try again later.',
+        );
+      }
+      const sent = await sendTemplate(number, {
+        name: settings.verification.templateName,
+        language: settings.verification.templateLanguage,
+        variables: [code],
+      });
+      /* Stored only once it has actually gone. Writing first would leave a live
+         code against a number that was never told what it is — and the person
+         would be locked into a cooldown for a message they never received. */
+      if (!sent.ok) {
+        throw new ApiError(502, 'Could not send the code right now. Please try again.');
+      }
     }
 
     await Verification.findOneAndUpdate(

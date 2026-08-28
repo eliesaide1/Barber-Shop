@@ -37,6 +37,8 @@ export default function Settings() {
     templateName: '',
     templateLanguage: 'en',
     ttlMinutes: 10,
+    testPhone: '',
+    testCode: '',
   });
   const [loyalty, setLoyalty] = useState({ goal: 8, freeCutValue: 25 });
   const [whatsapp, setWhatsapp] = useState({ configured: false });
@@ -275,7 +277,7 @@ export default function Settings() {
             <input
               type="checkbox"
               checked={verification.required}
-              disabled={!whatsapp.configured}
+              disabled={!whatsapp.configured && !(verification.testPhone && verification.testCode)}
               onChange={(e) => setVerification((v) => ({ ...v, required: e.target.checked }))}
             />
             <span className="hint">{verification.required ? 'Code required' : 'Off'}</span>
@@ -286,8 +288,8 @@ export default function Settings() {
           {!whatsapp.configured && (
             <>
               {' '}
-              <b>WhatsApp is not connected</b>, so this cannot be switched on — and while it is
-              disconnected nobody is asked for a code, whatever this says.
+              <b>WhatsApp is not connected</b>, so no real code can be sent. Set a test number below
+              to try the flow, or connect WhatsApp before switching this on for customers.
             </>
           )}
           {verification.required && (
@@ -335,6 +337,35 @@ export default function Settings() {
             </div>
           </div>
         )}
+
+        <div className="row" style={{ gap: 10, marginTop: 14, alignItems: 'flex-start' }}>
+          <div style={{ flex: 2 }}>
+            <label className="hint" htmlFor="testPhone">Test number (never messaged)</label>
+            <input
+              id="testPhone"
+              className={`input ${fields['verification.testPhone'] ? 'err' : ''}`}
+              value={verification.testPhone}
+              placeholder="+961 …"
+              onChange={(e) => setVerification((v) => ({ ...v, testPhone: e.target.value }))}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label className="hint" htmlFor="testCode">Its code</label>
+            <input
+              id="testCode"
+              className={`input ${fields['verification.testCode'] ? 'err' : ''}`}
+              value={verification.testCode}
+              placeholder="123456"
+              onChange={(e) => setVerification((v) => ({ ...v, testCode: e.target.value }))}
+            />
+          </div>
+        </div>
+        <div className="hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
+          This one number is never sent anything and always accepts the code beside it — for
+          testing before Meta approves your template, and for an App Store reviewer, who cannot
+          receive a WhatsApp on a number nobody knows. <b>It is a back door.</b> Set both fields or
+          neither, and clear them once you no longer need it.
+        </div>
       </div>
 
       <div className="card" style={{ marginTop: 14 }}>
