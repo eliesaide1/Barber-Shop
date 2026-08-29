@@ -4,7 +4,6 @@ import Layout from './components/Layout.jsx';
 import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Products from './pages/Products.jsx';
-import Orders from './pages/Orders.jsx';
 import Artists from './pages/Artists.jsx';
 import Notifications from './pages/Notifications.jsx';
 import CheckIns from './pages/CheckIns.jsx';
@@ -33,7 +32,6 @@ export default function App() {
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/check-ins" element={<CheckIns />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/orders" element={<Orders />} />
         <Route path="/lookbook" element={<Styles />} />
         <Route path="/notifications" element={<Notifications />} />
         {/* Artist management is an admin-only surface. */}

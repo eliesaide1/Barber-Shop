@@ -31,7 +31,6 @@ export default function Layout({ children }) {
   const { user, artist, isAdmin, signOut } = useAuth();
   const connected = useConnection();
   const location = useLocation();
-  const [openOrders, setOpenOrders] = useState(0);
   const [pendingLooks, setPendingLooks] = useState(0);
   const [requests, setRequests] = useState(0);
   const [navOpen, setNavOpen] = useState(false);
@@ -46,16 +45,10 @@ export default function Layout({ children }) {
 
   const refreshBadge = async () => {
     try {
-      const list = await get('/orders/manage/list?open=true');
-      setOpenOrders(list.length);
-    } catch {
-      /* the badge is decoration — never break the shell over it */
-    }
-    try {
       const looks = await get('/styles/mine');
       setPendingLooks(looks.filter((l) => l.status === 'pending').length);
     } catch {
-      /* same */
+      /* the badge is decoration — never break the shell over it */
     }
     try {
       setRequests((await get('/appointments/requests')).length);
@@ -128,7 +121,6 @@ export default function Layout({ children }) {
 
         <div className="navgroup">SHOP</div>
         <Nav to="/products" icon="box" label="Products" onNavigate={closeNav} />
-        <Nav to="/orders" icon="bag" label="Orders" count={openOrders} onNavigate={closeNav} />
         <Nav to="/lookbook" icon="image" label="Lookbook" count={pendingLooks} onNavigate={closeNav} />
         <Nav to="/notifications" icon="bell" label="Notifications" onNavigate={closeNav} />
         {isAdmin && <Nav to="/artists" icon="users" label="Artists" onNavigate={closeNav} />}

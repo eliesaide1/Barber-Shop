@@ -173,14 +173,8 @@ export function ProfileScreen() {
 
       <Heading style={{ marginTop: space.xl }}>{t('profile.shop', 'Shop')}</Heading>
       <Card style={{ marginTop: space.sm }}>
-        <Pressable onPress={() => nav.navigate('Orders')}>
-          <Between style={{ paddingVertical: space.sm }}>
-            <Muted>{t('profile.myOrders', 'My orders')}</Muted>
-            <Body>{orders?.length ?? 0} ›</Body>
-          </Between>
-        </Pressable>
         <Pressable onPress={() => nav.navigate('Cart')}>
-          <Between style={{ paddingVertical: space.sm, borderTopWidth: 1, borderTopColor: c.line }}>
+          <Between style={{ paddingVertical: space.sm }}>
             <Muted>{t('profile.cart', 'Cart')}</Muted>
             <Body>{cart.count} item{cart.count === 1 ? '' : 's'} ›</Body>
           </Between>

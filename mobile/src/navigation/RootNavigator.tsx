@@ -22,7 +22,6 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { BookScreen } from '../screens/BookScreen';
 import { ScanScreen } from '../screens/ScanScreen';
 import { ShopScreen, ProductScreen, CartScreen } from '../screens/ShopScreens';
-import { OrdersScreen, OrderDetailScreen } from '../screens/OrderScreens';
 import { LoyaltyScreen } from '../screens/LoyaltyScreen';
 import { LookbookScreen } from '../screens/LookbookScreen';
 import {
@@ -35,7 +34,6 @@ import {
 import { ArtistScheduleScreen } from '../screens/artist/ScheduleScreen';
 import { ArtistClientsScreen } from '../screens/artist/ClientsScreen';
 import { ArtistCheckInScreen } from '../screens/artist/CheckInScreen';
-import { ArtistOrdersScreen } from '../screens/artist/OrdersScreen';
 import { ArtistMoreScreen, ArtistBroadcastScreen } from '../screens/artist/MoreScreen';
 import { ArtistPortfolioScreen } from '../screens/artist/PortfolioScreen';
 import { ArtistClientHistoryScreen } from '../screens/artist/ClientHistoryScreen';
@@ -76,7 +74,6 @@ const ARTIST_ICONS: Record<keyof ArtistTabParamList, IconName> = {
   Today: 'calendar',
   Clients: 'users',
   CheckIn: 'qr',
-  Orders: 'bag',
   More: 'more',
 };
 
@@ -197,7 +194,6 @@ function ArtistMainTabs() {
       <ArtistTabs.Screen name="Today" component={ArtistScheduleScreen} options={{ tabBarLabel: t('artistTabs.today', 'Today') }} />
       <ArtistTabs.Screen name="Clients" component={ArtistClientsScreen} options={{ tabBarLabel: t('artistTabs.clients', 'Clients') }} />
       <ArtistTabs.Screen name="CheckIn" component={ArtistCheckInScreen} options={{ tabBarLabel: t('artistTabs.checkIn', 'Check-in') }} />
-      <ArtistTabs.Screen name="Orders" component={ArtistOrdersScreen} options={{ tabBarLabel: t('artistTabs.orders', 'Orders') }} />
       <ArtistTabs.Screen name="More" component={ArtistMoreScreen} options={{ tabBarLabel: t('artistTabs.more', 'More') }} />
     </ArtistTabs.Navigator>
   );
@@ -338,8 +334,6 @@ export function RootNavigator() {
           <RootStack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
           <RootStack.Screen name="Product" component={ProductScreen} options={{ title: t('screens.product', 'Product') }} />
           <RootStack.Screen name="Cart" component={CartScreen} options={{ title: t('screens.cart', 'Cart') }} />
-          <RootStack.Screen name="Orders" component={OrdersScreen} options={{ title: t('screens.orders', 'My orders') }} />
-          <RootStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: t('screens.order', 'Order') }} />
           <RootStack.Screen name="Loyalty" component={LoyaltyScreen} options={{ title: t('screens.loyalty', 'Loyalty card') }} />
           <RootStack.Screen name="Appointments" component={AppointmentsScreen} options={{ title: t('screens.appointments', 'Appointments') }} />
           <RootStack.Screen name="Notifications" component={NotificationsScreen} options={{ title: t('screens.notifications', 'Notifications') }} />

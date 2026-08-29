@@ -19,14 +19,14 @@ export function navigate(name: string, params?: object) {
 }
 
 /* A tab has to be reached through its navigator; a stack screen is named
-   directly. `Orders` sits in both trees and means different things in each,
-   which is why the portal has to be passed in rather than guessed. */
+   directly. `Notifications` sits in both trees, which is why the portal has to
+   be passed in rather than guessed from the name. */
 const CLIENT_TABS = ['Home', 'Book', 'Scan', 'Shop', 'Profile'];
 const CLIENT_SCREENS = [
-  'Product', 'Cart', 'Orders', 'OrderDetail',
+  'Product', 'Cart',
   'Loyalty', 'Appointments', 'Notifications', 'Preferences', 'Lookbook', 'Haircuts',
 ];
-const ARTIST_TABS = ['Today', 'Clients', 'CheckIn', 'Orders', 'More'];
+const ARTIST_TABS = ['Today', 'Clients', 'CheckIn', 'More'];
 const ARTIST_SCREENS = ['Broadcast', 'Portfolio', 'Notifications', 'ClientHistory'];
 
 /**

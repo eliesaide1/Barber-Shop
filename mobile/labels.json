@@ -266,41 +266,6 @@
       "where": "src/screens/artist/MoreScreen.tsx"
     },
     {
-      "key": "artistOrders.find",
-      "defaultText": "Find",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
-      "key": "artistOrders.findByPickupCode",
-      "defaultText": "Find by pickup code",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
-      "key": "artistOrders.handOverAtTheir",
-      "defaultText": "Hand over at their next cut",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
-      "key": "artistOrders.loadingOrders",
-      "defaultText": "Loading orders…",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
-      "key": "artistOrders.orders",
-      "defaultText": "Orders",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
-      "key": "artistOrders.pickupCode",
-      "defaultText": "PICKUP CODE",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
-      "key": "artistOrders.the6CharactersOn",
-      "defaultText": "The 6 characters on the client’s screen.",
-      "where": "src/screens/artist/OrdersScreen.tsx"
-    },
-    {
       "key": "artistPortfolio.addACut",
       "defaultText": "Add a cut",
       "where": "src/screens/artist/PortfolioScreen.tsx"
@@ -453,11 +418,6 @@
     {
       "key": "artistTabs.more",
       "defaultText": "More",
-      "where": "src/navigation/RootNavigator.tsx"
-    },
-    {
-      "key": "artistTabs.orders",
-      "defaultText": "Orders",
       "where": "src/navigation/RootNavigator.tsx"
     },
     {
@@ -921,76 +881,6 @@
       "where": "src/navigation/RootNavigator.tsx"
     },
     {
-      "key": "orders.address",
-      "defaultText": "Address",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.backToMyOrders",
-      "defaultText": "Back to my orders",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.browseTheShop",
-      "defaultText": "Browse the shop",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.deliverTo",
-      "defaultText": "Deliver to",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.items",
-      "defaultText": "Items",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.myOrders",
-      "defaultText": "My orders",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.noOrdersYet",
-      "defaultText": "No orders yet",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.orderNotFound",
-      "defaultText": "Order not found",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.orderPlaced",
-      "defaultText": "Order placed",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.productOrdersYourCuts",
-      "defaultText": "Product orders · your cuts live under Appointments",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.productsYouBuyWill",
-      "defaultText": "Products you buy will show up here.",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.showThisAtThe",
-      "defaultText": "Show this at the chair",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.subtotal",
-      "defaultText": "Subtotal",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
-      "key": "orders.total",
-      "defaultText": "Total",
-      "where": "src/screens/OrderScreens.tsx"
-    },
-    {
       "key": "profile.about",
       "defaultText": "About",
       "where": "src/screens/ProfileScreens.tsx"
@@ -1148,11 +1038,6 @@
     {
       "key": "profile.myHaircuts",
       "defaultText": "My haircuts",
-      "where": "src/screens/ProfileScreens.tsx"
-    },
-    {
-      "key": "profile.myOrders",
-      "defaultText": "My orders",
       "where": "src/screens/ProfileScreens.tsx"
     },
     {
@@ -1378,16 +1263,6 @@
     {
       "key": "screens.notifications",
       "defaultText": "Notifications",
-      "where": "src/navigation/RootNavigator.tsx"
-    },
-    {
-      "key": "screens.order",
-      "defaultText": "Order",
-      "where": "src/navigation/RootNavigator.tsx"
-    },
-    {
-      "key": "screens.orders",
-      "defaultText": "My orders",
       "where": "src/navigation/RootNavigator.tsx"
     },
     {

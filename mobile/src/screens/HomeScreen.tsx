@@ -57,11 +57,9 @@ export function HomeScreen() {
   const { data: card, reload: reloadCard } = useApi<LoyaltyCard>('/loyalty/card');
   const { data: artists, reload: reloadArtists } = useApi<Artist[]>('/artists');
   const { data: products, reload: reloadProducts } = useApi<Product[]>('/products?limit=6');
-  const { data: orders, reload: reloadOrders } = useApi<Order[]>('/orders');
   const { data: looks, reload: reloadLooks } = useApi<StyleLook[]>('/styles');
 
   useSocketEvent('loyalty:updated', () => reloadCard(true));
-  useSocketEvent('order:status', () => reloadOrders(true));
   useSocketEvent('appointment:status', () => reloadAppointments(true));
   /* The shop editing itself. Home is the screen most likely to be open and
      left open, so it is the one where a chair added in the back office should
@@ -73,7 +71,6 @@ export function HomeScreen() {
   const next = appointments?.find(
     (a) => ['confirmed', 'pending'].includes(a.status) && new Date(a.startsAt).getTime() > Date.now(),
   );
-  const openOrders = orders?.filter((o) => o.isOpen) ?? [];
   const reward = nextRewardToUse(card?.rewards);
   const stamps = card?.stamps ?? 0;
   const goal = card?.goal ?? 5;
@@ -211,26 +208,6 @@ export function HomeScreen() {
         </View>
       )}
 
-      {openOrders.map((o) => (
-        <Card
-          key={o.id}
-          style={{ marginTop: space.lg, borderColor: c.accent }}
-          onPress={() => nav.navigate('OrderDetail', { id: o.id })}
-        >
-          <Row>
-            <Text style={{ fontSize: 26 }}>{o.fulfilment === 'pickup' ? '🛍️' : '🛵'}</Text>
-            <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '800' }}>
-                {o.fulfilment === 'pickup' ? 'Ready at the shop' : 'On its way'}
-              </Body>
-              <Muted style={{ marginTop: 4 }}>
-                {o.items.reduce((t, i) => t + i.qty, 0)} items · ${o.total} · order {o.code}
-              </Muted>
-            </View>
-            <Text style={{ color: c.muted }}>›</Text>
-          </Row>
-        </Card>
-      ))}
 
       <Between style={{ marginTop: space.xl }}>
         <Heading style={{ fontSize: 17 }}>{t('home.ourArtists', 'Our artists')}</Heading>

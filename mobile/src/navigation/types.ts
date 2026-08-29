@@ -4,9 +4,6 @@ export type RootStackParamList = {
   Tabs: undefined;
   Product: { id: string };
   Cart: undefined;
-  Orders: undefined;
-  /* `justPlaced` swaps the header for a confirmation panel. */
-  OrderDetail: { id: string; justPlaced?: boolean };
   Loyalty: undefined;
   Appointments: undefined;
   Notifications: undefined;
@@ -54,6 +51,5 @@ export type ArtistTabParamList = {
   Today: undefined;
   Clients: undefined;
   CheckIn: undefined;
-  Orders: undefined;
   More: undefined;
 };
