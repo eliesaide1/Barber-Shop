@@ -49,7 +49,8 @@ export type ArtistStackParamList = {
 
 export type ArtistTabParamList = {
   Today: undefined;
-  Clients: undefined;
+  Requests: undefined;
   CheckIn: undefined;
+  Clients: undefined;
   More: undefined;
 };

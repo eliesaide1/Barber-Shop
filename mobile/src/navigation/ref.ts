@@ -26,7 +26,7 @@ const CLIENT_SCREENS = [
   'Product', 'Cart',
   'Loyalty', 'Appointments', 'Notifications', 'Preferences', 'Lookbook', 'Haircuts',
 ];
-const ARTIST_TABS = ['Today', 'Clients', 'CheckIn', 'More'];
+const ARTIST_TABS = ['Today', 'Requests', 'CheckIn', 'Clients', 'More'];
 const ARTIST_SCREENS = ['Broadcast', 'Portfolio', 'Notifications', 'ClientHistory'];
 
 /**

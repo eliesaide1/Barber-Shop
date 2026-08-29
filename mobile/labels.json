@@ -311,6 +311,31 @@
       "where": "src/screens/artist/PortfolioScreen.tsx"
     },
     {
+      "key": "artistRequests.loading",
+      "defaultText": "Looking for requests…",
+      "where": "src/screens/artist/RequestsScreen.tsx"
+    },
+    {
+      "key": "artistRequests.noneHint",
+      "defaultText": "New requests land here the moment they are sent.",
+      "where": "src/screens/artist/RequestsScreen.tsx"
+    },
+    {
+      "key": "artistRequests.noneTitle",
+      "defaultText": "Nobody waiting",
+      "where": "src/screens/artist/RequestsScreen.tsx"
+    },
+    {
+      "key": "artistRequests.subtitle",
+      "defaultText": "Nothing is held until you accept. Two people can ask for the same time — whoever you take gets it, and the rest are told.",
+      "where": "src/screens/artist/RequestsScreen.tsx"
+    },
+    {
+      "key": "artistRequests.title",
+      "defaultText": "Requests",
+      "where": "src/screens/artist/RequestsScreen.tsx"
+    },
+    {
       "key": "artistSchedule.answerThisOneUnder",
       "defaultText": "Answer this one under “Waiting on you”.",
       "where": "src/screens/artist/ScheduleScreen.tsx"
@@ -323,12 +348,12 @@
     {
       "key": "artistSchedule.decline",
       "defaultText": "Decline",
-      "where": "src/screens/artist/ScheduleScreen.tsx"
+      "where": "src/components/RequestCard.tsx"
     },
     {
       "key": "artistSchedule.howLongWillYou",
       "defaultText": "How long will you give it?",
-      "where": "src/screens/artist/ScheduleScreen.tsx"
+      "where": "src/components/RequestCard.tsx"
     },
     {
       "key": "artistSchedule.loadingTheChair",
@@ -353,21 +378,16 @@
     {
       "key": "artistSchedule.requested",
       "defaultText": "REQUESTED",
-      "where": "src/screens/artist/ScheduleScreen.tsx"
+      "where": "src/components/RequestCard.tsx"
     },
     {
       "key": "artistSchedule.start",
       "defaultText": "Start",
-      "where": "src/screens/artist/ScheduleScreen.tsx"
+      "where": "src/components/RequestCard.tsx"
     },
     {
       "key": "artistSchedule.theDay",
       "defaultText": "The day",
-      "where": "src/screens/artist/ScheduleScreen.tsx"
-    },
-    {
-      "key": "artistSchedule.waitingOnYou",
-      "defaultText": "Waiting on you",
       "where": "src/screens/artist/ScheduleScreen.tsx"
     },
     {
@@ -388,6 +408,11 @@
     {
       "key": "artistTabs.more",
       "defaultText": "More",
+      "where": "src/navigation/RootNavigator.tsx"
+    },
+    {
+      "key": "artistTabs.requests",
+      "defaultText": "Requests",
       "where": "src/navigation/RootNavigator.tsx"
     },
     {
@@ -1206,11 +1231,6 @@
       "where": "src/navigation/RootNavigator.tsx"
     },
     {
-      "key": "screens.checkout",
-      "defaultText": "Checkout",
-      "where": "src/navigation/RootNavigator.tsx"
-    },
-    {
       "key": "screens.client",
       "defaultText": "Client",
       "where": "src/navigation/RootNavigator.tsx"
@@ -1261,18 +1281,8 @@
       "where": "src/navigation/RootNavigator.tsx"
     },
     {
-      "key": "shop.address",
-      "defaultText": "Address",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
       "key": "shop.askInTheShop",
       "defaultText": "Ask in the shop",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.backToCart",
-      "defaultText": "Back to cart",
       "where": "src/screens/ShopScreens.tsx"
     },
     {
@@ -1286,18 +1296,8 @@
       "where": "src/screens/ShopScreens.tsx"
     },
     {
-      "key": "shop.checkout",
-      "defaultText": "Checkout",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.collectFrom",
-      "defaultText": "Collect from",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.eGRingThe",
-      "defaultText": "e.g. ring the top bell",
+      "key": "shop.collectHint",
+      "defaultText": "💈  Ask on WhatsApp and collect at the shop.",
       "where": "src/screens/ShopScreens.tsx"
     },
     {
@@ -1306,28 +1306,18 @@
       "where": "src/screens/ShopScreens.tsx"
     },
     {
-      "key": "shop.fulfilment",
-      "defaultText": "Fulfilment",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.fullName",
-      "defaultText": "Full name",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.handItToMe",
-      "defaultText": "Hand it to me at my next cut",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.hours",
-      "defaultText": "Hours",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
       "key": "shop.howToUseIt",
       "defaultText": "How to use it",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.item",
+      "defaultText": "item",
+      "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "shop.items",
+      "defaultText": "items",
       "where": "src/screens/ShopScreens.tsx"
     },
     {
@@ -1351,28 +1341,8 @@
       "where": "src/screens/ShopScreens.tsx"
     },
     {
-      "key": "shop.payment",
-      "defaultText": "Payment",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.phone",
-      "defaultText": "Phone",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
       "key": "shop.quantity",
       "defaultText": "Quantity",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.ready",
-      "defaultText": "Ready",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.riderNotesOptional",
-      "defaultText": "Rider notes (optional)",
       "where": "src/screens/ShopScreens.tsx"
     },
     {
@@ -1391,16 +1361,6 @@
       "where": "src/screens/ShopScreens.tsx"
     },
     {
-      "key": "shop.streetBuildingFloor",
-      "defaultText": "Street, building, floor",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.subtotal",
-      "defaultText": "Subtotal",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
       "key": "shop.thatProductIsNo",
       "defaultText": "That product is no longer listed",
       "where": "src/screens/ShopScreens.tsx"
@@ -1411,11 +1371,6 @@
       "where": "src/screens/ShopScreens.tsx"
     },
     {
-      "key": "shop.total",
-      "defaultText": "Total",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
       "key": "shop.tryAnotherCategoryOr",
       "defaultText": "Try another category or search.",
       "where": "src/screens/ShopScreens.tsx"
@@ -1423,11 +1378,6 @@
     {
       "key": "shop.viaBarberHouseLabel",
       "defaultText": "VIA Barber House label",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.weLlHaveIt",
-      "defaultText": "We’ll have it bagged and waiting at the chair",
       "where": "src/screens/ShopScreens.tsx"
     },
     {
@@ -1443,11 +1393,6 @@
     {
       "key": "shop.yourCartIsEmpty",
       "defaultText": "Your cart is empty",
-      "where": "src/screens/ShopScreens.tsx"
-    },
-    {
-      "key": "shop.yourOrder",
-      "defaultText": "Your order",
       "where": "src/screens/ShopScreens.tsx"
     },
     {

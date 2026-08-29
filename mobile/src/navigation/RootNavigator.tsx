@@ -32,16 +32,19 @@ import {
 } from '../screens/ProfileScreens';
 
 import { ArtistScheduleScreen } from '../screens/artist/ScheduleScreen';
+import { ArtistRequestsScreen } from '../screens/artist/RequestsScreen';
 import { ArtistClientsScreen } from '../screens/artist/ClientsScreen';
 import { ArtistCheckInScreen } from '../screens/artist/CheckInScreen';
 import { ArtistMoreScreen, ArtistBroadcastScreen } from '../screens/artist/MoreScreen';
 import { ArtistPortfolioScreen } from '../screens/artist/PortfolioScreen';
 import { ArtistClientHistoryScreen } from '../screens/artist/ClientHistoryScreen';
 
+import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useFirstLaunch } from '../lib/firstLaunch';
 import { useT } from '../store/CopyContext';
 import { navigationRef } from './ref';
 
+import type { AgendaEntry } from '../types';
 import type {
   ArtistStackParamList,
   ArtistTabParamList,
@@ -72,6 +75,7 @@ const ICONS: Record<keyof TabParamList, IconName> = {
    it's showing the code to scan. */
 const ARTIST_ICONS: Record<keyof ArtistTabParamList, IconName> = {
   Today: 'calendar',
+  Requests: 'bell',
   Clients: 'users',
   CheckIn: 'qr',
   More: 'more',
@@ -174,6 +178,14 @@ function ArtistTabIcon({ name, focused }: { name: keyof ArtistTabParamList; focu
 function ArtistMainTabs() {
   const c = useColors();
   const t = useT();
+
+  /* The count lives on the bar rather than inside the screen, because the whole
+     reason requests moved out of Today is so an artist can see there is
+     somebody to answer without opening anything. */
+  const { data: requests, reload: reloadRequests } = useApi<AgendaEntry[]>('/appointments/requests');
+  useSocketEvent('appointment:created', () => reloadRequests(true));
+  useSocketEvent('appointment:status', () => reloadRequests(true));
+  const waiting = requests?.length ?? 0;
   return (
     <ArtistTabs.Navigator
       screenOptions={({ route }) => ({
@@ -192,8 +204,19 @@ function ArtistMainTabs() {
       })}
     >
       <ArtistTabs.Screen name="Today" component={ArtistScheduleScreen} options={{ tabBarLabel: t('artistTabs.today', 'Today') }} />
-      <ArtistTabs.Screen name="Clients" component={ArtistClientsScreen} options={{ tabBarLabel: t('artistTabs.clients', 'Clients') }} />
+      <ArtistTabs.Screen
+        name="Requests"
+        component={ArtistRequestsScreen}
+        options={{
+          tabBarLabel: t('artistTabs.requests', 'Requests'),
+          tabBarBadge: waiting || undefined,
+          tabBarBadgeStyle: { backgroundColor: c.danger, fontSize: 11 },
+        }}
+      />
+      {/* Check-in sits third of five on purpose: it is the raised button, and a
+          raised button that is not in the middle looks like a mistake. */}
       <ArtistTabs.Screen name="CheckIn" component={ArtistCheckInScreen} options={{ tabBarLabel: t('artistTabs.checkIn', 'Check-in') }} />
+      <ArtistTabs.Screen name="Clients" component={ArtistClientsScreen} options={{ tabBarLabel: t('artistTabs.clients', 'Clients') }} />
       <ArtistTabs.Screen name="More" component={ArtistMoreScreen} options={{ tabBarLabel: t('artistTabs.more', 'More') }} />
     </ArtistTabs.Navigator>
   );
