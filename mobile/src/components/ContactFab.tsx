@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Linking, Pressable, View } from 'react-native';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { AccessibilityInfo, Animated, Easing, Linking, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApi } from '../hooks/useApi';
 import { useAuth } from '../store/AuthContext';
@@ -43,6 +43,47 @@ export function ContactFab() {
      than a request in the common case. */
   const { data: appointments } = useApi<Appointment[]>(user ? '/appointments' : null);
   const { data: artists } = useApi<Artist[]>(user ? '/artists' : null);
+
+  /**
+   * A ring that swells out of the button and fades, twice a cycle, with a long
+   * pause between.
+   *
+   * Long, because a button that pulses without stopping is one people learn to
+   * ignore in a day and find irritating by the end of the week — the point is
+   * to be noticed once by somebody who has not spotted it yet, not to keep
+   * asking. Native-driven, so it costs nothing on the JS thread while somebody
+   * scrolls the shelf past it.
+   */
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    let cancelled = false;
+    let loop: Animated.CompositeAnimation | null = null;
+
+    /* Somebody who has asked their phone to calm down is not asking this
+       button for an exception. */
+    AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
+      if (cancelled || reduced) return;
+      loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulse, {
+            toValue: 1,
+            duration: 1500,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulse, { toValue: 0, duration: 0, useNativeDriver: true }),
+          Animated.delay(2600),
+        ]),
+      );
+      loop.start();
+    });
+
+    return () => {
+      cancelled = true;
+      loop?.stop();
+    };
+  }, [pulse]);
 
   const target = useMemo(() => {
     const byId = new Map((artists ?? []).map((a) => [a.id, a]));
@@ -99,6 +140,23 @@ export function ContactFab() {
         zIndex: 800,
       }}
     >
+      {/* Behind the button and untouchable, so the ring never eats the tap it
+          exists to attract. */}
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          width: SIZE,
+          height: SIZE,
+          borderRadius: SIZE / 2,
+          backgroundColor: '#25D366',
+          opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] }),
+          transform: [
+            { scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) },
+          ],
+        }}
+      />
+
       <Pressable
         onPress={open}
         accessibilityRole="button"
