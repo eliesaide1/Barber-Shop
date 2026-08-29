@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
-import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
+import { requireAuth, requireRole, attachArtist, maybeAuth } from '../middleware/auth.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
 import { priceSafe } from '../lib/prices.js';
 
@@ -19,6 +19,10 @@ const serviceBody = z.object({
 
 servicesRouter.get(
   '/',
+  /* Not required, but read when present: without it `req.user` is undefined
+     even for a signed-in artist, and the price rules below would treat the
+     whole shop — staff included — as a client who may not see prices. */
+  maybeAuth,
   asyncHandler(async (req, res) => {
     const filter = req.query.all === 'true' ? {} : { active: true };
     if (req.query.artist) filter.$or = [{ artist: req.query.artist }, { artist: null }];
