@@ -4,6 +4,7 @@ import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
+import { priceSafe } from '../lib/prices.js';
 
 export const servicesRouter = Router();
 
@@ -21,7 +22,8 @@ servicesRouter.get(
   asyncHandler(async (req, res) => {
     const filter = req.query.all === 'true' ? {} : { active: true };
     if (req.query.artist) filter.$or = [{ artist: req.query.artist }, { artist: null }];
-    res.json(await Service.find(filter).sort({ price: 1 }));
+    const services = await Service.find(filter).sort({ price: 1 });
+    res.json(await priceSafe(req.user, services.map((x) => x.toJSON()), ['price']));
   }),
 );
 
@@ -59,7 +61,7 @@ servicesRouter.patch(
 
     emitTo(rooms.staff(), 'service:changed', service.toJSON());
     broadcast('services:changed', { id: service.id });
-    res.json(service);
+    res.json(await priceSafe(req.user, service.toJSON(), ['price']));
   }),
 );
 

@@ -6,6 +6,7 @@ import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
+import { priceSafe } from '../lib/prices.js';
 import { toWhatsAppNumber } from '../lib/whatsapp.js';
 
 export const artistsRouter = Router();
@@ -43,7 +44,7 @@ artistsRouter.get(
   asyncHandler(async (req, res) => {
     const filter = req.query.all === 'true' ? {} : { active: true };
     const artists = await Artist.find(filter).populate('user', 'name email phone').sort({ createdAt: 1 });
-    res.json(artists);
+    res.json(await priceSafe(req.user, artists.map((a) => a.toJSON()), ['priceFrom']));
   }),
 );
 
@@ -56,7 +57,10 @@ artistsRouter.get(
       active: true,
       $or: [{ artist: artist._id }, { artist: null }],
     });
-    res.json({ ...artist.toJSON(), services });
+    res.json({
+      ...(await priceSafe(req.user, artist.toJSON(), ['priceFrom'])),
+      services: await priceSafe(req.user, services.map((x) => x.toJSON()), ['price']),
+    });
   }),
 );
 

@@ -178,7 +178,8 @@ export function LookbookScreen() {
                       {look.title}
                     </Body>
                     <Muted style={{ fontSize: 11, marginTop: 3 }}>
-                      {look.category} · from ${look.price}
+                      {look.category}
+                      {look.price != null ? ` · from $${look.price}` : ''}
                     </Muted>
                     {!!look.artist?.displayName && (
                       <Muted style={{ fontSize: 11, marginTop: 2 }}>{look.artist.displayName}</Muted>

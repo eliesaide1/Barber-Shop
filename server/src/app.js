@@ -9,6 +9,7 @@ import { UPLOAD_DIR } from './lib/upload.js';
 import { errorHandler, notFound, asyncHandler } from './middleware/error.js';
 import { getSettings, fillTokens } from './models/ShopSettings.js';
 import { toWhatsAppNumber } from './lib/whatsapp.js';
+import { pricesVisibleTo } from './lib/prices.js';
 
 import { authRouter } from './routes/auth.routes.js';
 import { artistsRouter } from './routes/artists.routes.js';
@@ -76,11 +77,21 @@ export function createApp() {
         hours: 'Tue–Sun · 10:00–20:00',
       };
 
+      /* `/config` is unauthenticated, so it is read as a client would read it:
+         if the shop publishes no prices, what a free cut is worth is one of
+         them. The delivery fees go with it — nothing charges for delivery any
+         more, and a fee the app cannot act on is a number that only confuses. */
+      const showPrices = await pricesVisibleTo(null);
+
       res.json({
         loyaltyGoal: settings.loyalty.goal,
-        freeCutValue: settings.loyalty.freeCutValue,
-        deliveryFee: env.deliveryFee,
-        freeDeliveryOver: env.freeDeliveryOver,
+        ...(showPrices
+          ? {
+              freeCutValue: settings.loyalty.freeCutValue,
+              deliveryFee: env.deliveryFee,
+              freeDeliveryOver: env.freeDeliveryOver,
+            }
+          : {}),
         checkinWindowMs: env.checkinWindowMs,
         maxOpenRequests: env.maxOpenRequests,
         shop,
