@@ -17,7 +17,6 @@ import {
   readCode,
 } from '../lib/codes.js';
 import { emitTo, rooms } from '../lib/realtime.js';
-import { pricesVisibleTo } from '../lib/prices.js';
 import { notify } from '../lib/notify.js';
 import { rewardLabel, rewardValue, dateLabel } from '../lib/rewards.js';
 import { getSettings } from '../models/ShopSettings.js';
@@ -30,24 +29,14 @@ const cardFor = async (userId) => {
   return card || Loyalty.create({ user: userId });
 };
 
-/**
- * `showPrices` false drops what the free cut is worth, and the value on each
- * reward — a shop that publishes no prices should not publish this one either,
- * and it is the same number a haircut costs.
- */
-const cardJson = (card, loyalty, showPrices = true) => ({
+const cardJson = (card, loyalty) => ({
   stamps: card.stamps.length,
   goal: loyalty.goal,
   totalCheckIns: card.totalCheckIns,
   lastCheckInAt: card.lastCheckInAt,
   history: card.stamps,
-  rewards: showPrices
-    ? card.rewards
-    : card.rewards.map((r) => {
-        const { value, ...rest } = r.toJSON ? r.toJSON() : r;
-        return rest;
-      }),
-  ...(showPrices ? { freeCutValue: loyalty.freeCutValue } : {}),
+  rewards: card.rewards,
+  freeCutValue: loyalty.freeCutValue,
 });
 
 /* ---------------- client ---------------- */
@@ -57,7 +46,7 @@ loyaltyRouter.get(
   requireAuth,
   asyncHandler(async (req, res) => {
     const { loyalty } = await getSettings();
-    res.json(cardJson(await cardFor(req.user._id), loyalty, await pricesVisibleTo(req.user)));
+    res.json(cardJson(await cardFor(req.user._id), loyalty));
   }),
 );
 
@@ -133,8 +122,7 @@ loyaltyRouter.post(
       emitTo(rooms.artist(artist._id), 'checkin:new', event.toJSON());
       emitTo(rooms.staff(), 'checkin:new', event.toJSON());
     }
-    const showPrices = await pricesVisibleTo(null);
-    emitTo(rooms.user(req.user._id), 'loyalty:updated', cardJson(card, loyalty, showPrices));
+    emitTo(rooms.user(req.user._id), 'loyalty:updated', cardJson(card, loyalty));
 
     /* The stamp itself says nothing — the client watched it land. Earning the
        free cut is worth a notification, because the claim code is a thing they
@@ -153,7 +141,7 @@ loyaltyRouter.post(
       goal: loyalty.goal,
       artist: { id: artist._id, displayName: artist.displayName },
       reward,
-      card: cardJson(card, loyalty, showPrices),
+      card: cardJson(card, loyalty),
     });
   }),
 );
@@ -290,11 +278,7 @@ loyaltyRouter.post(
 
     emitTo(rooms.staff(), 'checkin:new', event.toJSON());
     const { loyalty } = await getSettings();
-    emitTo(
-      rooms.user(card.user._id),
-      'loyalty:updated',
-      cardJson(card, loyalty, await pricesVisibleTo(null)),
-    );
+    emitTo(rooms.user(card.user._id), 'loyalty:updated', cardJson(card, loyalty));
 
     /* The reward's own worth when it has one — a birthday gift need not be the
        price of a standard cut. */

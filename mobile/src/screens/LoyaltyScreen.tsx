@@ -191,14 +191,7 @@ export function LoyaltyScreen() {
           ['🔄', 'The QR changes every minute, so it only works while you’re at the chair — a screenshot won’t.'],
           ['1️⃣', 'One stamp per visit. Scanning again in the same session won’t add another.'],
           ['🎁', <>The {card.goal}th stamp turns into a <Text style={{ fontWeight: '700' }}>free haircut</Text> and your card starts over at 0.</>],
-          [
-            '✅',
-            <>
-              Show your claim code at the chair — <Text style={{ fontWeight: '700' }}>your artist</Text>{' '}
-              confirms it. Free cut = a standard haircut
-              {card.freeCutValue != null ? ` ($${card.freeCutValue})` : ''}; add-ons are still charged.
-            </>,
-          ],
+          ['✅', <>Show your claim code at the chair — <Text style={{ fontWeight: '700' }}>your artist</Text> confirms it. Free cut = a standard haircut (${card.freeCutValue}); add-ons are still charged.</>],
         ].map(([icon, text], i) => (
           <Row key={i} style={{ alignItems: 'flex-start', paddingVertical: 9 }}>
             <Text style={{ fontSize: 15, width: 22, textAlign: 'center' }}>{icon as string}</Text>

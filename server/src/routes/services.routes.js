@@ -2,9 +2,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
-import { requireAuth, requireRole, attachArtist, maybeAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
-import { priceSafe } from '../lib/prices.js';
 
 export const servicesRouter = Router();
 
@@ -19,15 +18,10 @@ const serviceBody = z.object({
 
 servicesRouter.get(
   '/',
-  /* Not required, but read when present: without it `req.user` is undefined
-     even for a signed-in artist, and the price rules below would treat the
-     whole shop — staff included — as a client who may not see prices. */
-  maybeAuth,
   asyncHandler(async (req, res) => {
     const filter = req.query.all === 'true' ? {} : { active: true };
     if (req.query.artist) filter.$or = [{ artist: req.query.artist }, { artist: null }];
-    const services = await Service.find(filter).sort({ price: 1 });
-    res.json(await priceSafe(req.user, services.map((x) => x.toJSON()), ['price']));
+    res.json(await Service.find(filter).sort({ price: 1 }));
   }),
 );
 
@@ -65,7 +59,7 @@ servicesRouter.patch(
 
     emitTo(rooms.staff(), 'service:changed', service.toJSON());
     broadcast('services:changed', { id: service.id });
-    res.json(await priceSafe(req.user, service.toJSON(), ['price']));
+    res.json(service);
   }),
 );
 

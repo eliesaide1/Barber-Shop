@@ -30,8 +30,7 @@ export interface Artist {
   chair: string;
   rating: number;
   reviewsCount: number;
-  /** Absent when the shop publishes no prices. */
-  priceFrom?: number;
+  priceFrom: number;
   /** Turnaround between clients, in minutes — the artist's own setting. */
   gapMin: number;
   /** Dialled form of their own WhatsApp number, or null when they have not given one. */
@@ -46,8 +45,7 @@ export interface Service {
   name: string;
   description: string;
   durationMin: number;
-  /** Absent when the shop publishes no prices. */
-  price?: number;
+  price: number;
 }
 
 export interface Product {
@@ -128,8 +126,7 @@ export interface Appointment {
   requestedStartsAt?: string | null;
   /** The service's estimate while pending; the artist's own length once confirmed. */
   durationMin: number;
-  /** Absent when the shop publishes no prices. */
-  price?: number;
+  price: number;
   status: AppointmentStatus;
   notes: string;
   free: boolean;
@@ -178,8 +175,7 @@ export interface LoyaltyCard {
   lastCheckInAt: string | null;
   history: { at: string; artist: string }[];
   rewards: Reward[];
-  /** Absent when the shop publishes no prices. */
-  freeCutValue?: number;
+  freeCutValue: number;
 }
 
 /** What raised a notification — drives its icon and where tapping it goes. */
@@ -209,10 +205,9 @@ export interface Slot {
 
 export interface ShopConfig {
   loyaltyGoal: number;
-  /** Absent when the shop publishes no prices. */
-  freeCutValue?: number;
-  deliveryFee?: number;
-  freeDeliveryOver?: number;
+  freeCutValue: number;
+  deliveryFee: number;
+  freeDeliveryOver: number;
   checkinWindowMs: number;
   /** How many booking requests one client may have waiting at once. */
   maxOpenRequests: number;
@@ -315,8 +310,7 @@ export interface StyleLook {
   title: string;
   category: StyleCategory;
   durationMin: number;
-  /** Absent when the shop publishes no prices. */
-  price?: number;
+  price: number;
   images: string[];
   artist: { id: string; displayName: string; rating?: number } | null;
   status: 'pending' | 'published' | 'rejected';

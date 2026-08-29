@@ -8,7 +8,6 @@ import { HaircutRecord } from '../models/HaircutRecord.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { emitTo, rooms } from '../lib/realtime.js';
-import { priceSafe } from '../lib/prices.js';
 import { notify, whenLabel, timeLabel } from '../lib/notify.js';
 import { lapsedLeads } from '../lib/reminders.js';
 import { env } from '../config/env.js';
@@ -257,7 +256,7 @@ appointmentsRouter.get(
       .populate('reference', 'images notes serviceName takenAt')
       .sort({ startsAt: -1 })
       .limit(50);
-    res.json(await priceSafe(req.user, appointments.map((a) => a.toJSON()), ['price']));
+    res.json(appointments);
   }),
 );
 
@@ -550,9 +549,7 @@ appointmentsRouter.post(
     announce(appointment);
     /* Staff cancelling somebody else's booking must not learn from the reply
        what the board is careful not to show them. */
-    res.json(
-      isStaff ? forChair(appointment) : await priceSafe(req.user, appointment.toJSON(), ['price']),
-    );
+    res.json(isStaff ? forChair(appointment) : appointment.toJSON());
   }),
 );
 

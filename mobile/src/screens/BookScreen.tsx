@@ -229,11 +229,7 @@ export function BookScreen() {
                 <Body style={{ fontWeight: '600' }}>{s.name}</Body>
                 <Muted style={{ marginTop: 2 }}>{s.description} · {s.durationMin} min</Muted>
               </View>
-              {/* Absent when the shop publishes no prices — the server does not
-                  send the field at all, so there is nothing to paint over. */}
-              {s.price != null && (
-                <Text style={{ color: c.text, fontWeight: '800' }}>${s.price}</Text>
-              )}
+              <Text style={{ color: c.text, fontWeight: '800' }}>${s.price}</Text>
             </Pressable>
           );
         })}
@@ -469,31 +465,18 @@ export function BookScreen() {
             </Row>
           </Between>
         )}
-        {/* The whole row goes when the shop publishes no prices: a "Total"
-            with nothing beside it reads as something that failed to load, and
-            a free cut is still worth announcing without naming what it saved. */}
-        {(service?.price != null || (useReward && freeCut)) && (
-          <>
-            <Divider />
-            <Between>
-              <Body style={{ fontWeight: '700' }}>{t('book.total', 'Total')}</Body>
-              {useReward && freeCut ? (
-                <Row style={{ gap: 8 }}>
-                  {service?.price != null && (
-                    <Text style={{ color: c.muted, textDecorationLine: 'line-through' }}>
-                      ${service.price}
-                    </Text>
-                  )}
-                  <Badge label={t('book.free', 'FREE 🎁')} tone="gold" />
-                </Row>
-              ) : (
-                <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 18 }}>
-                  ${service?.price}
-                </Text>
-              )}
-            </Between>
-          </>
-        )}
+        <Divider />
+        <Between>
+          <Body style={{ fontWeight: '700' }}>{t('book.total', 'Total')}</Body>
+          {useReward && freeCut ? (
+            <Row style={{ gap: 8 }}>
+              <Text style={{ color: c.muted, textDecorationLine: 'line-through' }}>${service?.price}</Text>
+              <Badge label={t('book.free', 'FREE 🎁')} tone="gold" />
+            </Row>
+          ) : (
+            <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 18 }}>${service?.price ?? 0}</Text>
+          )}
+        </Between>
       </Card>
 
       <Button

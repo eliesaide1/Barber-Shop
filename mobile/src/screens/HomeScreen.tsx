@@ -247,9 +247,7 @@ export function HomeScreen() {
               <Muted style={{ fontSize: 11, marginTop: 2, height: 30 }} >{a.specialty}</Muted>
               <Between style={{ marginTop: space.sm }}>
                 <Text style={{ color: c.accentInk, fontSize: 12, fontWeight: '700' }}>★ {a.rating}</Text>
-                {a.priceFrom != null && (
-                  <Muted style={{ fontSize: 11 }}>from ${a.priceFrom}</Muted>
-                )}
+                <Muted style={{ fontSize: 11 }}>from ${a.priceFrom}</Muted>
               </Between>
             </Card>
           ))}

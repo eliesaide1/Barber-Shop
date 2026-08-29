@@ -4,9 +4,8 @@ import { Artist } from '../models/Artist.js';
 import { User } from '../models/User.js';
 import { Service } from '../models/Service.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
-import { requireAuth, requireRole, attachArtist, maybeAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
-import { priceSafe } from '../lib/prices.js';
 import { toWhatsAppNumber } from '../lib/whatsapp.js';
 
 export const artistsRouter = Router();
@@ -41,17 +40,15 @@ const artistBody = z.object({
 
 artistsRouter.get(
   '/',
-  maybeAuth,
   asyncHandler(async (req, res) => {
     const filter = req.query.all === 'true' ? {} : { active: true };
     const artists = await Artist.find(filter).populate('user', 'name email phone').sort({ createdAt: 1 });
-    res.json(await priceSafe(req.user, artists.map((a) => a.toJSON()), ['priceFrom']));
+    res.json(artists);
   }),
 );
 
 artistsRouter.get(
   '/:id',
-  maybeAuth,
   asyncHandler(async (req, res) => {
     const artist = await Artist.findById(req.params.id).populate('user', 'name email phone');
     if (!artist) throw new ApiError(404, 'Artist not found');
@@ -59,10 +56,7 @@ artistsRouter.get(
       active: true,
       $or: [{ artist: artist._id }, { artist: null }],
     });
-    res.json({
-      ...(await priceSafe(req.user, artist.toJSON(), ['priceFrom'])),
-      services: await priceSafe(req.user, services.map((x) => x.toJSON()), ['price']),
-    });
+    res.json({ ...artist.toJSON(), services });
   }),
 );
 

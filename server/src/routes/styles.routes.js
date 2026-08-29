@@ -5,7 +5,6 @@ import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist, maybeAuth } from '../middleware/auth.js';
 import { upload, withImageUrls } from '../lib/upload.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
-import { priceSafe } from '../lib/prices.js';
 
 export const stylesRouter = Router();
 
@@ -26,14 +25,10 @@ stylesRouter.get(
       .limit(80);
 
     res.json(
-      await priceSafe(
-        req.user,
-        styles.map((s) => ({
-          ...withImageUrls(s),
-          saved: req.user ? s.savedBy.some((id) => String(id) === String(req.user._id)) : false,
-        })),
-        ['price'],
-      ),
+      styles.map((s) => ({
+        ...withImageUrls(s),
+        saved: req.user ? s.savedBy.some((id) => String(id) === String(req.user._id)) : false,
+      })),
     );
   }),
 );
