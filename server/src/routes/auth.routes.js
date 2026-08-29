@@ -9,14 +9,11 @@ import { HaircutRecord } from '../models/HaircutRecord.js';
 import { Order } from '../models/Order.js';
 import { Notification } from '../models/Notification.js';
 import { Style } from '../models/Style.js';
-import { Product } from '../models/Product.js';
 import { issueTokens, verifyRefreshToken, signAccessToken } from '../lib/tokens.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth } from '../middleware/auth.js';
 import { providerConfigured, verifyIdentityToken } from '../lib/social.js';
 import { env } from '../config/env.js';
-import { notify } from '../lib/notify.js';
-import { broadcast, emitTo, rooms } from '../lib/realtime.js';
 
 export const authRouter = Router();
 
@@ -331,73 +328,19 @@ authRouter.patch(
  * that no longer exists renders as a blank name in the back office, and the
  * loyalty card would survive a deletion it was supposed to be part of.
  *
- * An artist can close their own too, and it takes more with it. A chair is not
- * only a login: it holds bookings other people are relying on, a shelf, and a
- * portfolio. Refusing to let staff leave was the wrong answer to that — the
- * work is in doing it properly, not in making somebody phone the shop.
- *
- * So the clients come first. Every booking still ahead of them is cancelled and
- * each of those clients is told, by name, before anything else is touched;
- * somebody who turns up to an empty chair because a barber quietly deleted
- * themselves is the one outcome worth writing code to prevent.
- *
- * The chair is then closed rather than erased. Appointments that already
- * happened point at it, the loyalty stamps collected there point at it, and the
- * shop's own history should not develop holes because somebody left. It stops
- * taking bookings, its shelf is archived, and the login and the personal
- * details behind it go — which is what deleting an account means.
+ * Staff cannot close their own account here. An artist owns a chair, bookings
+ * other people are relying on, and products on the shelf; deciding what happens
+ * to those is the shop's call, not a button in the client app.
  */
 authRouter.delete(
   '/me',
   requireAuth,
   asyncHandler(async (req, res) => {
-    /* An admin's seat is the one that cannot go this way: there may be exactly
-       one, and an app that lets the last administrator delete themselves leaves
-       a shop nobody can administer. */
-    if (req.user.role === 'admin') {
-      throw new ApiError(403, 'A shop admin account is closed by another admin.');
+    if (req.user.role !== 'client') {
+      throw new ApiError(403, 'Ask the shop to close a staff account.');
     }
 
     const id = req.user._id;
-
-    if (req.user.role === 'artist') {
-      const artist = await Artist.findOne({ user: id });
-
-      if (artist) {
-        const upcoming = await Appointment.find({
-          artist: artist._id,
-          status: { $in: ['pending', 'confirmed'] },
-          startsAt: { $gte: new Date() },
-        });
-
-        /* Told before the chair disappears, so the message can still name it. */
-        for (const appointment of upcoming) {
-          appointment.status = 'cancelled';
-          await appointment.save();
-          await notify(appointment.user, {
-            title: 'Your booking was cancelled',
-            body: `${artist.displayName} is no longer taking bookings. Pick another chair when you're ready.`,
-            kind: 'appointment',
-            data: { screen: 'Appointments' },
-          });
-        }
-
-        artist.active = false;
-        await artist.save();
-
-        /* Off the shelf, not deleted: an order somebody already placed still
-           refers to them. */
-        await Product.updateMany({ owner: artist._id }, { $set: { status: 'archived' } });
-
-        emitTo(rooms.staff(), 'artist:changed', artist.toJSON());
-        broadcast('artists:changed', { id: artist.id });
-      }
-
-      /* The login and the person behind it. The chair keeps its display name,
-         because past bookings are the shop's records and are read by it. */
-      await req.user.deleteOne();
-      return res.status(204).end();
-    }
 
     await Promise.all([
       Appointment.deleteMany({ user: id }),
