@@ -45,6 +45,7 @@ export function ArtistMoreScreen() {
   const { confirm, showError } = useDialog();
   const { toast } = useToast();
   const [savingGap, setSavingGap] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   /**
    * Turnaround is the one scheduling setting that belongs on the phone rather
@@ -72,6 +73,36 @@ export function ArtistMoreScreen() {
   const published = (shelf ?? []).filter((p) => p.status === 'published');
   const pending = (shelf ?? []).filter((p) => p.status === 'pending');
   const lowStock = published.filter((p) => p.stock <= 3);
+
+  /* Deliberately spells out what goes and what does not. An artist closing
+     their chair is cancelling other people's appointments, and the sentence
+     that says so is the only warning they get. */
+  const confirmDeleteAccount = async () => {
+    const ok = await confirm({
+      title: t('artistMore.deleteTitle', 'Close your chair?'),
+      message: t(
+        'artistMore.deleteMessage',
+        'Your upcoming bookings are cancelled and those clients are told. Your shelf is archived and your login is deleted. This cannot be undone.',
+      ),
+      icon: '🗑',
+      tone: 'danger',
+      confirmLabel: t('artistMore.deleteConfirm', 'Yes, close it'),
+      cancelLabel: t('artistMore.deleteCancel', 'Cancel'),
+    });
+    if (!ok) return;
+
+    setDeleting(true);
+    try {
+      await api.del('/auth/me');
+      await signOut();
+    } catch (err) {
+      setDeleting(false);
+      await showError(
+        err instanceof ApiError ? err.message : 'Please try again.',
+        { title: t('artistMore.deleteFailed', 'Chair not closed'), icon: '🗑' },
+      );
+    }
+  };
 
   const confirmSignOut = async () => {
     const ok = await confirm({
@@ -260,6 +291,13 @@ export function ArtistMoreScreen() {
       />
 
       <Button title={t('artistMore.signOut', 'Sign out')} variant="danger" onPress={confirmSignOut} style={{ marginTop: space.xl }} />
+      <Button
+        title={t('artistMore.deleteAccount', 'Delete account')}
+        variant="ghost"
+        onPress={confirmDeleteAccount}
+        loading={deleting}
+        style={{ marginTop: space.sm }}
+      />
     </Screen>
   );
 }
