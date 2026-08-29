@@ -152,49 +152,6 @@ const shopSettingsSchema = new mongoose.Schema(
     key: { type: String, default: 'shop', unique: true, immutable: true },
     birthday: { type: birthdaySchema, default: () => ({}) },
     contact: { type: contactSchema, default: () => ({}) },
-    /**
-     * Proving a new client's mobile number before the account exists.
-     *
-     * Off by default, and inert without an approved template — Meta will not
-     * carry a business-initiated message without one, so a shop that turns this
-     * on with nothing named would block sign-up entirely rather than verify
-     * anything.
-     */
-    verification: {
-      type: new mongoose.Schema(
-        {
-          required: { type: Boolean, default: false },
-          /* Which of the two the shop asks somebody to prove. Email needs an
-             API key or an inbox; WhatsApp needs a Meta template. */
-          channel: { type: String, enum: ['whatsapp', 'email'], default: 'whatsapp' },
-          templateName: { type: String, default: '', trim: true },
-          templateLanguage: { type: String, default: 'en', trim: true },
-          /* Minutes a code stays good for. Long enough to find the phone, short
-             enough that a screenshot in somebody's chat history is worthless. */
-          ttlMinutes: { type: Number, default: 10, min: 2, max: 60 },
-
-          /**
-           * One number that is never messaged and always accepts `testCode`.
-           *
-           * For the two people who have to get through sign-up without a phone
-           * that can receive the message: whoever is testing the flow before
-           * Meta has approved the template, and an App Store reviewer, who
-           * cannot be sent a WhatsApp on a number nobody knows.
-           *
-           * It is a back door and it is meant to look like one — the back
-           * office says so next to the field. It opens exactly one number, and
-           * only somebody who knows both halves can walk through it.
-           */
-          /* Named for the channel it was born on; it holds an email just as
-             happily, and is normalised the same way the real one is. */
-          testPhone: { type: String, default: '', trim: true },
-          testCode: { type: String, default: '', trim: true },
-        },
-        { _id: false },
-      ),
-      default: () => ({}),
-    },
-
     marketplace: { type: marketplaceSchema, default: () => ({}) },
     loyalty: { type: loyaltySchema, default: () => ({}) },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },

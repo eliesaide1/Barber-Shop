@@ -22,11 +22,6 @@ import { stylesRouter } from './routes/styles.routes.js';
 import { settingsRouter } from './routes/settings.routes.js';
 import { haircutsRouter } from './routes/haircuts.routes.js';
 import { labelsRouter } from './routes/labels.routes.js';
-import {
-  verificationRouter,
-  verificationRequired,
-  verificationChannel,
-} from './routes/verification.routes.js';
 
 export function createApp() {
   const app = express();
@@ -106,19 +101,6 @@ export function createApp() {
             product: '{product}',
           }),
         },
-        /* Whether sign-up will ask for a code. Public, because the app needs to
-           know before it has an account — and it is not a secret: anybody can
-           discover it by trying to register once.
-           
-           Asked of the same function `/auth/register` enforces with, rather
-           than worked out again here. Two copies of this rule disagreed the
-           moment a test number became a way through: the app was told no code
-           was needed and registration then refused it for not having one. */
-        verification: {
-          required: await verificationRequired(),
-          /* Which field the sign-up form has to prove. */
-          channel: await verificationChannel(),
-        },
       });
     }),
   );
@@ -133,9 +115,6 @@ export function createApp() {
   app.use('/api/notifications', notificationsRouter);
   app.use('/api/styles', stylesRouter);
   app.use('/api/labels', labelsRouter);
-  /* Under /auth because it is part of getting an account, and because the app
-     reaches for it before it has any credentials at all. */
-  app.use('/api/auth/verify', verificationRouter);
   app.use('/api/settings', settingsRouter);
   app.use('/api/haircuts', haircutsRouter);
 

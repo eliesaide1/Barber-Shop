@@ -86,18 +86,6 @@ export const env = {
      which is what a developer wants and what the tests assume. */
   uploadDir: process.env.UPLOAD_DIR || path.resolve('uploads'),
 
-  /* Sending email. `resend` needs a key and a verified domain; `smtp` needs an
-     inbox somebody already owns. Empty provider means the shop cannot send
-     email at all, which switches email verification off rather than failing
-     invisibly at sign-up. */
-  emailProvider: (process.env.EMAIL_PROVIDER || '').toLowerCase(),
-  emailFrom: process.env.EMAIL_FROM || '',
-  resendApiKey: process.env.RESEND_API_KEY || '',
-  smtpHost: process.env.SMTP_HOST || '',
-  smtpPort: num(process.env.SMTP_PORT, 587),
-  smtpUser: process.env.SMTP_USER || '',
-  smtpPassword: process.env.SMTP_PASSWORD || '',
-
   corsOrigins: list(process.env.CORS_ORIGINS, ['http://localhost:5173', 'http://localhost:4173']),
   publicUrl: (process.env.PUBLIC_URL || 'http://localhost:4000').replace(/\/$/, ''),
 };

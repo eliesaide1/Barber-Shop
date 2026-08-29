@@ -6,7 +6,6 @@ import { asyncHandler, ApiError } from '../middleware/error.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import { broadcast } from '../lib/realtime.js';
 import { sendTemplate, whatsappConfigured, toWhatsAppNumber } from '../lib/whatsapp.js';
-import { emailConfigured } from '../lib/email.js';
 import { sweepBirthdays } from '../lib/birthdays.js';
 
 export const settingsRouter = Router();
@@ -42,24 +41,6 @@ const birthdayBody = z.object({
   inAppTitle: z.string().min(2).max(80).optional(),
   inAppBody: z.string().min(2).max(400).optional(),
   sendHour: z.coerce.number().int().min(0).max(23).optional(),
-});
-
-const verificationBody = z.object({
-  required: z.boolean().optional(),
-  channel: z.enum(['whatsapp', 'email']).optional(),
-  templateName: z.string().max(120).optional(),
-  templateLanguage: z.string().max(10).optional(),
-  ttlMinutes: z.coerce.number().min(2).max(60).optional(),
-  /* Either a number or an email, depending on the channel — checked against
-     the channel being saved rather than the one already stored. */
-  testPhone: z.string().max(200).optional(),
-  /* Four to eight digits, matching what /verify/check will accept — a test code
-     the check would refuse is a door that looks open and is not. */
-  testCode: z
-    .string()
-    .max(8)
-    .refine((v) => v.trim() === '' || /^\d{4,8}$/.test(v.trim()), 'Use 4 to 8 digits')
-    .optional(),
 });
 
 const contactBody = z.object({
@@ -101,7 +82,6 @@ settingsRouter.get(
       birthday: settings.birthday,
       contact: settings.contact,
       marketplace: settings.marketplace,
-      verification: settings.verification,
       loyalty: settings.loyalty,
       /* What the app will actually dial, so the CMS shows the effect of what
          was typed rather than the typing. */
@@ -110,7 +90,6 @@ settingsRouter.get(
          than letting somebody switch it on and wonder why nothing happens. The
          credentials themselves stay in the environment and are never sent. */
       whatsapp: { configured: whatsappConfigured() },
-      email: { configured: emailConfigured() },
     });
   }),
 );
@@ -125,7 +104,6 @@ settingsRouter.patch(
         birthday: birthdayBody.optional(),
         contact: contactBody.optional(),
         marketplace: marketplaceBody.optional(),
-        verification: verificationBody.optional(),
         loyalty: loyaltyBody.optional(),
       })
       .parse(req.body);
@@ -133,54 +111,6 @@ settingsRouter.patch(
     const settings = await getSettings();
     if (body.contact) Object.assign(settings.contact, body.contact);
     if (body.marketplace) Object.assign(settings.marketplace, body.marketplace);
-    if (body.verification) {
-      Object.assign(settings.verification, body.verification);
-      /* Same refusal the birthday greeting makes: switching it on with no
-         template would send nothing and report success — except here the cost
-         is that nobody can register at all. */
-      /* A test number counts as a way through, which is the whole point of
-         having one before the template is approved. Requiring verification with
-         neither is the case that locks everybody out. */
-      const hasTestTarget = Boolean(
-        settings.verification.testPhone && settings.verification.testCode,
-      );
-      const onEmail = settings.verification.channel === 'email';
-
-      if (settings.verification.testPhone) {
-        const ok = onEmail
-          ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.verification.testPhone.trim())
-          : toWhatsAppNumber(settings.verification.testPhone) !== null;
-        if (!ok) {
-          throw new ApiError(422, onEmail ? 'That is not a valid email' : 'That is not a usable number', {
-            fields: { 'verification.testPhone': onEmail ? 'Enter an email' : 'Enter a number' },
-          });
-        }
-      }
-
-      /* WhatsApp needs a template before it can carry anything; email needs a
-         provider, which is set in the environment rather than here — so the
-         only thing this can check for email is the test target. */
-      const wayThrough = onEmail
-        ? emailConfigured() || hasTestTarget
-        : Boolean(settings.verification.templateName) || hasTestTarget;
-
-      if (settings.verification.required && !wayThrough) {
-        throw new ApiError(
-          422,
-          onEmail
-            ? 'Connect an email provider, or set a test address — otherwise nobody can sign up'
-            : 'Name the approved WhatsApp template, or set a test number — otherwise nobody can sign up',
-          { fields: { 'verification.testPhone': 'Needed to switch verification on' } },
-        );
-      }
-      /* Half a test number is worse than none: it looks configured and answers
-         nothing. */
-      if (Boolean(settings.verification.testPhone) !== Boolean(settings.verification.testCode)) {
-        throw new ApiError(422, 'A test number needs both a number and a code', {
-          fields: { 'verification.testCode': 'Set both, or clear both' },
-        });
-      }
-    }
     if (body.loyalty) Object.assign(settings.loyalty, body.loyalty);
     if (body.birthday) {
       Object.assign(settings.birthday, body.birthday);
@@ -209,11 +139,9 @@ settingsRouter.patch(
       birthday: settings.birthday,
       contact: settings.contact,
       marketplace: settings.marketplace,
-      verification: settings.verification,
       loyalty: settings.loyalty,
       contactNumber: toWhatsAppNumber(settings.contact.whatsapp),
       whatsapp: { configured: whatsappConfigured() },
-      email: { configured: emailConfigured() },
     });
   }),
 );

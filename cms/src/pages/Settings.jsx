@@ -32,16 +32,6 @@ export default function Settings() {
   const [contact, setContact] = useState({ enabled: true, whatsapp: '', greeting: '' });
   const [contactNumber, setContactNumber] = useState(null);
   const [marketplace, setMarketplace] = useState({ hideAllPrices: false, priceEnquiry: '' });
-  const [verification, setVerification] = useState({
-    required: false,
-    channel: 'whatsapp',
-    templateName: '',
-    templateLanguage: 'en',
-    ttlMinutes: 10,
-    testPhone: '',
-    testCode: '',
-  });
-  const [email, setEmail] = useState({ configured: false });
   const [loyalty, setLoyalty] = useState({ goal: 8, freeCutValue: 25 });
   const [whatsapp, setWhatsapp] = useState({ configured: false });
   const [upcoming, setUpcoming] = useState([]);
@@ -56,11 +46,8 @@ export default function Settings() {
       setContact(data.contact);
       setContactNumber(data.contactNumber);
       setMarketplace(data.marketplace);
-      if (data.verification) setVerification(data.verification);
-      if (data.verification) setVerification(data.verification);
       setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
-      if (data.email) setEmail(data.email);
     } catch (err) {
       showError(err.message, { title: 'Couldn’t load the settings', icon: '⚙️' });
     }
@@ -79,21 +66,13 @@ export default function Settings() {
     setBusy(true);
     setFields({});
     try {
-      const data = await patch('/settings', {
-        birthday: form,
-        contact,
-        marketplace,
-        verification,
-        loyalty,
-      });
+      const data = await patch('/settings', { birthday: form, contact, marketplace, loyalty });
       setForm(data.birthday);
       setContact(data.contact);
       setContactNumber(data.contactNumber);
       setMarketplace(data.marketplace);
-      if (data.verification) setVerification(data.verification);
       setLoyalty(data.loyalty);
       setWhatsapp(data.whatsapp);
-      if (data.email) setEmail(data.email);
       toast('Saved ✓');
     } catch (err) {
       if (err.fields) setFields(err.fields);
@@ -271,139 +250,6 @@ export default function Settings() {
               Prefilled for them, so nobody has to open with “hi”. <code>{'{shop}'}</code> is filled in.
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginTop: 14 }}>
-        <div className="row between">
-          <h2>Verify new sign-ups</h2>
-          <label className="row" style={{ gap: 8 }}>
-            <input
-              type="checkbox"
-              checked={verification.required}
-              disabled={
-                !(verification.channel === 'email' ? email.configured : whatsapp.configured) &&
-                !(verification.testPhone && verification.testCode)
-              }
-              onChange={(e) => setVerification((v) => ({ ...v, required: e.target.checked }))}
-            />
-            <span className="hint">{verification.required ? 'Code required' : 'Off'}</span>
-          </label>
-        </div>
-        <div className="row" style={{ gap: 8, marginTop: 10 }}>
-          {['whatsapp', 'email'].map((ch) => (
-            <label key={ch} className="row" style={{ gap: 6 }}>
-              <input
-                type="radio"
-                name="verifyChannel"
-                checked={verification.channel === ch}
-                onChange={() => setVerification((v) => ({ ...v, channel: ch }))}
-              />
-              <span className="hint">
-                {ch === 'email' ? 'Email' : 'WhatsApp'}
-                {ch === 'email'
-                  ? email.configured
-                    ? ' · ready'
-                    : ' · no provider'
-                  : whatsapp.configured
-                    ? ' · ready'
-                    : ' · not connected'}
-              </span>
-            </label>
-          ))}
-        </div>
-
-        <div className="hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
-          Sends a six-digit code and refuses to create the account until it comes back.
-          {verification.channel === 'email' && !email.configured && (
-            <>
-              {' '}
-              <b>No email provider is configured</b> — set EMAIL_PROVIDER, EMAIL_FROM and the key
-              for it in the server environment. Until then only the test address below gets through.
-            </>
-          )}
-          {verification.channel !== 'email' && !whatsapp.configured && (
-            <>
-              {' '}
-              <b>WhatsApp is not connected</b>, so no real code can be sent. Set a test number below
-              to try the flow, or connect WhatsApp before switching this on for customers.
-            </>
-          )}
-          {verification.required && (
-            <>
-              {' '}
-              <b>Nobody can create an account without a working number</b> while this is on. Turn it
-              off before a reviewer or a tester needs to sign up on a number you cannot message.
-            </>
-          )}
-        </div>
-        {verification.required && verification.channel !== 'email' && (
-          <div className="row" style={{ gap: 10, marginTop: 10, alignItems: 'flex-start' }}>
-            <div style={{ flex: 2 }}>
-              <label className="hint" htmlFor="verifyTemplate">
-                Approved authentication template
-              </label>
-              <input
-                id="verifyTemplate"
-                className={`input ${fields['verification.templateName'] ? 'err' : ''}`}
-                value={verification.templateName}
-                placeholder="e.g. signup_code"
-                onChange={(e) => setVerification((v) => ({ ...v, templateName: e.target.value }))}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label className="hint" htmlFor="verifyLang">Language</label>
-              <input
-                id="verifyLang"
-                className="input"
-                value={verification.templateLanguage}
-                onChange={(e) => setVerification((v) => ({ ...v, templateLanguage: e.target.value }))}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label className="hint" htmlFor="verifyTtl">Valid for (min)</label>
-              <input
-                id="verifyTtl"
-                className="input"
-                type="number"
-                min="2"
-                max="60"
-                value={verification.ttlMinutes}
-                onChange={(e) => setVerification((v) => ({ ...v, ttlMinutes: e.target.value }))}
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="row" style={{ gap: 10, marginTop: 14, alignItems: 'flex-start' }}>
-          <div style={{ flex: 2 }}>
-            <label className="hint" htmlFor="testPhone">
-              {verification.channel === 'email' ? 'Test address (never emailed)' : 'Test number (never messaged)'}
-            </label>
-            <input
-              id="testPhone"
-              className={`input ${fields['verification.testPhone'] ? 'err' : ''}`}
-              value={verification.testPhone}
-              placeholder={verification.channel === 'email' ? 'tester@example.com' : '+961 …'}
-              onChange={(e) => setVerification((v) => ({ ...v, testPhone: e.target.value }))}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label className="hint" htmlFor="testCode">Its code</label>
-            <input
-              id="testCode"
-              className={`input ${fields['verification.testCode'] ? 'err' : ''}`}
-              value={verification.testCode}
-              placeholder="123456"
-              onChange={(e) => setVerification((v) => ({ ...v, testCode: e.target.value }))}
-            />
-          </div>
-        </div>
-        <div className="hint" style={{ marginTop: 6, lineHeight: 1.6 }}>
-          This one number is never sent anything and always accepts the code beside it — for
-          testing before Meta approves your template, and for an App Store reviewer, who cannot
-          receive a WhatsApp on a number nobody knows. <b>It is a back door.</b> Set both fields or
-          neither, and clear them once you no longer need it.
         </div>
       </div>
 
