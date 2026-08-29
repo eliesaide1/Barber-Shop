@@ -2,12 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
-  Badge,
   Between,
   Body,
   Button,
   Card,
-  Divider,
   Empty,
   Field,
   Heading,
@@ -15,7 +13,6 @@ import {
   Muted,
   Row,
   Screen,
-  Segmented,
   Stepper,
   Title,
 } from '../components/ui';
@@ -27,12 +24,11 @@ import { useAuth } from '../store/AuthContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
 import { useColors } from '../store/ThemeContext';
-import { api, ApiError } from '../api/client';
 import { absoluteUrl } from '../config';
 import { contactForProduct, openWhatsApp, priceEnquiry } from '../lib/whatsapp';
 import { CartBar } from '../components/CartBar';
 import { radius, space } from '../theme';
-import type { Fulfilment, Order, Product } from '../types';
+import type { Product } from '../types';
 import { useT } from '../store/CopyContext';
 
 const CATEGORIES = ['All', 'Hair', 'Beard', 'Shave', 'Tools', 'Aftercare'];
@@ -133,7 +129,9 @@ export function ShopScreen() {
 
       <Card style={{ marginTop: space.lg }}>
         <Muted>🛍️  Free pickup at the shop — we can hand it over at your next cut.</Muted>
-        <Muted style={{ marginTop: 8 }}>🛵  Delivery inside Beirut, free over the threshold.</Muted>
+        <Muted style={{ marginTop: 8 }}>
+          {t('shop.collectHint', '💈  Ask on WhatsApp and collect at the shop.')}
+        </Muted>
         <Muted style={{ marginTop: 8 }}>↩️  Unopened returns within 14 days with your order code.</Muted>
       </Card>
     </Screen>
@@ -421,11 +419,6 @@ export function CartScreen() {
   const nav = useNavigation<any>();
   const cart = useCart();
   const { config } = useAuth();
-  const [fulfilment, setFulfilment] = useState<Fulfilment>('pickup');
-
-  const deliveryFee = config?.deliveryFee ?? 4;
-  const freeOver = config?.freeDeliveryOver ?? 50;
-  const fee = fulfilment === 'delivery' && cart.subtotal < freeOver ? deliveryFee : 0;
 
   if (!cart.lines.length) {
     return (
@@ -447,7 +440,7 @@ export function CartScreen() {
     <Screen footer={<CartBar />}>
       <Title>{t('shop.cart', 'Cart')}</Title>
       <Muted style={{ marginTop: 2 }}>
-        {cart.count} item{cart.count === 1 ? '' : 's'} · ${cart.subtotal}
+        {cart.count} {cart.count === 1 ? t('shop.item', 'item') : t('shop.items', 'items')}
       </Muted>
 
       <Card style={{ marginTop: space.lg, paddingVertical: space.sm }}>
@@ -522,205 +515,6 @@ export function CartScreen() {
         onPress={() => nav.navigate('Tabs', { screen: 'Shop' })}
         style={{ marginTop: space.lg }}
       />
-    </Screen>
-  );
-}
-
-/* ---------------- Checkout ---------------- */
-
-export function CheckoutScreen() {
-  const c = useColors();
-  const t = useT();
-  const nav = useNavigation<any>();
-  const route = useRoute<any>();
-  const cart = useCart();
-  const { user, config } = useAuth();
-  const { toast } = useToast();
-  const { showError } = useDialog();
-
-  const [fulfilment, setFulfilment] = useState<Fulfilment>(route.params?.fulfilment ?? 'pickup');
-  const [payment, setPayment] = useState<'cash' | 'card'>('cash');
-  const [withAppointment, setWithAppointment] = useState(false);
-  const [address, setAddress] = useState({
-    name: user?.name ?? '',
-    phone: user?.phone ?? '',
-    line: '',
-    note: '',
-  });
-  const [fields, setFields] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState(false);
-
-  const deliveryFee = config?.deliveryFee ?? 4;
-  const freeOver = config?.freeDeliveryOver ?? 50;
-  const fee = fulfilment === 'delivery' && cart.subtotal < freeOver ? deliveryFee : 0;
-  const total = cart.subtotal + fee;
-
-  const place = async () => {
-    if (fulfilment === 'delivery') {
-      const next: Record<string, string> = {};
-      if (address.name.trim().length < 2) next.name = 'Please enter your name';
-      if (address.phone.replace(/\D/g, '').length < 7) next.phone = 'Enter a valid phone number';
-      if (address.line.trim().length < 6) next.line = 'We need an address to deliver to';
-      setFields(next);
-      if (Object.keys(next).length) return;
-    }
-
-    setBusy(true);
-    try {
-      const order = await api.post<Order>('/orders', {
-        items: cart.lines.map((l) => ({ product: l.product.id, qty: l.qty })),
-        fulfilment,
-        payment,
-        withAppointment: fulfilment === 'pickup' && withAppointment,
-        address: fulfilment === 'delivery' ? address : undefined,
-      });
-      cart.clear();
-      toast('Order placed');
-      nav.replace('OrderDetail', { id: order.id, justPlaced: true });
-    } catch (err) {
-      showError(err instanceof ApiError ? err.message : 'Could not place the order', {
-        title: 'Order not placed',
-        icon: '🛍️',
-      });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <Screen>
-      <Title>{t('shop.checkout', 'Checkout')}</Title>
-      <Muted style={{ marginTop: 2 }}>
-        {cart.count} item{cart.count === 1 ? '' : 's'} · ${total}
-      </Muted>
-
-      <Heading style={{ marginTop: space.xl }}>{t('shop.fulfilment', 'Fulfilment')}</Heading>
-      <View style={{ marginTop: space.sm }}>
-        <Segmented
-          value={fulfilment}
-          onChange={setFulfilment}
-          options={[
-            { value: 'pickup', label: '💈 Pick up' },
-            { value: 'delivery', label: '🛵 Delivery' },
-          ]}
-        />
-      </View>
-
-      {fulfilment === 'pickup' ? (
-        <>
-          <Card style={{ marginTop: space.md }}>
-            <Between><Muted>{t('shop.collectFrom', 'Collect from')}</Muted><Body>{config?.shop.name} · {config?.shop.area}</Body></Between>
-            <Between style={{ marginTop: space.sm }}><Muted>{t('shop.hours', 'Hours')}</Muted><Body>{config?.shop.hours}</Body></Between>
-            <Between style={{ marginTop: space.sm }}>
-              <Muted>{t('shop.ready', 'Ready')}</Muted>
-              <Text style={{ color: c.accentInk, fontWeight: '600' }}>Today, within the hour</Text>
-            </Between>
-          </Card>
-          <Pressable
-            onPress={() => setWithAppointment((v) => !v)}
-            style={{
-              marginTop: space.md,
-              borderRadius: radius.lg,
-              borderWidth: 1,
-              padding: space.lg,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: space.md,
-              borderColor: withAppointment ? c.accent : c.line,
-              backgroundColor: withAppointment ? c.accentSoft : c.surface,
-            }}
-          >
-            <View
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: 6,
-                borderWidth: 2,
-                borderColor: withAppointment ? c.accent : c.line,
-                backgroundColor: withAppointment ? c.accent : 'transparent',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {withAppointment && <Text style={{ color: c.onAccent, fontWeight: '800', fontSize: 13 }}>✓</Text>}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Body style={{ fontWeight: '700' }}>{t('shop.handItToMe', 'Hand it to me at my next cut')}</Body>
-              <Muted style={{ marginTop: 2 }}>{t('shop.weLlHaveIt', 'We’ll have it bagged and waiting at the chair')}</Muted>
-            </View>
-          </Pressable>
-        </>
-      ) : (
-        <Card style={{ marginTop: space.md }}>
-          <Field
-            label={t('shop.fullName', 'Full name')}
-            value={address.name}
-            onChangeText={(v) => setAddress((a) => ({ ...a, name: v }))}
-            error={fields.name}
-            style={{ marginTop: 0 }}
-          />
-          <Field
-            label={t('shop.phone', 'Phone')}
-            value={address.phone}
-            onChangeText={(v) => setAddress((a) => ({ ...a, phone: v }))}
-            keyboardType="phone-pad"
-            error={fields.phone}
-          />
-          <Field
-            label={t('shop.address', 'Address')}
-            value={address.line}
-            onChangeText={(v) => setAddress((a) => ({ ...a, line: v }))}
-            placeholder={t('shop.streetBuildingFloor', 'Street, building, floor')}
-            multiline
-            style={{ minHeight: 74, textAlignVertical: 'top' }}
-            error={fields.line}
-          />
-          <Field
-            label={t('shop.riderNotesOptional', 'Rider notes (optional)')}
-            value={address.note}
-            onChangeText={(v) => setAddress((a) => ({ ...a, note: v }))}
-            placeholder={t('shop.eGRingThe', 'e.g. ring the top bell')}
-          />
-        </Card>
-      )}
-
-      <Heading style={{ marginTop: space.xl }}>{t('shop.payment', 'Payment')}</Heading>
-      <View style={{ marginTop: space.sm }}>
-        <Segmented
-          value={payment}
-          onChange={setPayment}
-          options={[
-            { value: 'cash', label: 'Cash' },
-            { value: 'card', label: 'Card' },
-          ]}
-        />
-      </View>
-      <Muted style={{ marginTop: space.sm }}>
-        Paid on {fulfilment === 'pickup' ? 'collection at the shop' : 'delivery, to the rider'} — no card is stored.
-      </Muted>
-
-      <Heading style={{ marginTop: space.xl }}>{t('shop.yourOrder', 'Your order')}</Heading>
-      <Card style={{ marginTop: space.sm }}>
-        {cart.lines.map((l) => (
-          <Between key={l.product.id} style={{ paddingVertical: 6 }}>
-            <Muted>{l.qty} × {l.product.name}</Muted>
-            <Body>${(l.product.price ?? 0) * l.qty}</Body>
-          </Between>
-        ))}
-        <Divider />
-        <Between><Muted>{t('shop.subtotal', 'Subtotal')}</Muted><Body>${cart.subtotal}</Body></Between>
-        <Between style={{ marginTop: space.sm }}>
-          <Muted>{fulfilment === 'pickup' ? 'Pickup' : 'Delivery'}</Muted>
-          <Body>{fee ? `$${fee}` : 'Free'}</Body>
-        </Between>
-        <Between style={{ marginTop: space.md }}>
-          <Body style={{ fontWeight: '700' }}>{t('shop.total', 'Total')}</Body>
-          <Text style={{ color: c.accentInk, fontWeight: '800', fontSize: 20 }}>${total}</Text>
-        </Between>
-      </Card>
-
-      <Button title={`Place order · $${total}`} onPress={place} loading={busy} style={{ marginTop: space.lg }} />
-      <Button title={t('shop.backToCart', 'Back to cart')} variant="ghost" onPress={() => nav.goBack()} style={{ marginTop: space.md }} />
     </Screen>
   );
 }

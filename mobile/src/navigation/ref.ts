@@ -23,7 +23,7 @@ export function navigate(name: string, params?: object) {
    which is why the portal has to be passed in rather than guessed. */
 const CLIENT_TABS = ['Home', 'Book', 'Scan', 'Shop', 'Profile'];
 const CLIENT_SCREENS = [
-  'Product', 'Cart', 'Checkout', 'Orders', 'OrderDetail',
+  'Product', 'Cart', 'Orders', 'OrderDetail',
   'Loyalty', 'Appointments', 'Notifications', 'Preferences', 'Lookbook', 'Haircuts',
 ];
 const ARTIST_TABS = ['Today', 'Clients', 'CheckIn', 'Orders', 'More'];

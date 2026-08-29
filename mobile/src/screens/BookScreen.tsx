@@ -294,7 +294,14 @@ export function BookScreen() {
             return (
               <Pressable
                 key={s.startsAt}
-                onPress={s.available ? () => setSlot(s) : undefined}
+                /* Tapping the chosen one again clears it. Without this the only
+                   way to change your mind is to pick a different time, and
+                   there is no way at all to pick none. */
+                onPress={
+                  s.available
+                    ? () => setSlot((current) => (current?.startsAt === s.startsAt ? null : s))
+                    : undefined
+                }
                 style={{
                   width: '31.5%',
                   paddingVertical: 12,

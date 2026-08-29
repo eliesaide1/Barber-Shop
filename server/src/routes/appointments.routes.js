@@ -318,6 +318,59 @@ appointmentsRouter.post(
     });
     if (duplicate) throw new ApiError(409, 'You have already asked for that time');
 
+    /* One a day, asked or held.
+    
+       The open-request cap below bounds how many can be outstanding at once,
+       but three requests spread across one morning is still one client sitting
+       on a chair's whole day while the artist works out which they meant. A
+       person gets one cut a day; the book should say so. */
+    const dayStart = startOfDay(startsAt);
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+    const sameDay = await Appointment.findOne({
+      user: req.user._id,
+      status: { $in: [...HOLDS_SLOT, 'pending'] },
+      startsAt: { $gte: dayStart, $lt: dayEnd },
+    });
+    if (sameDay) {
+      throw new ApiError(
+        409,
+        sameDay.status === 'pending'
+          ? 'You have already asked for a time that day — cancel it first to ask for another'
+          : 'You already have a booking that day',
+      );
+    }
+
+    /* And not sooner than they said they cut.
+    
+       `visitFrequencyWeeks` is what the client told the shop about themselves at
+       sign-up, and it is the shop's rule that they are held to it: a chair that
+       one person books every few days is a chair nobody else can reach. Measured
+       from the nearest appointment on either side, so it cannot be walked around
+       by booking backwards from a date far in the future. */
+    if (req.user.visitFrequencyWeeks) {
+      const windowMs = req.user.visitFrequencyWeeks * 7 * 24 * 60 * 60 * 1000;
+      const near = await Appointment.findOne({
+        user: req.user._id,
+        status: { $in: [...HOLDS_SLOT, 'pending'] },
+        startsAt: {
+          $gt: new Date(startsAt.getTime() - windowMs),
+          $lt: new Date(startsAt.getTime() + windowMs),
+        },
+      }).sort({ startsAt: -1 });
+
+      if (near) {
+        const when = new Intl.DateTimeFormat('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          timeZone: env.shopTimezone,
+        }).format(near.startsAt);
+        throw new ApiError(
+          409,
+          `You cut every ${req.user.visitFrequencyWeeks} weeks and already have ${near.startsAt > new Date() ? 'a booking' : 'a visit'} on ${when}. Change how often you cut in your profile if that has changed.`,
+        );
+      }
+    }
+
     /* A request costs nothing to make, so the number that can be open at once
        is capped. Without it, the thing a holding request used to prevent —
        one client papering the whole week — just moves into the inbox. */

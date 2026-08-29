@@ -21,7 +21,7 @@ import { ContactFab } from '../components/ContactFab';
 import { HomeScreen } from '../screens/HomeScreen';
 import { BookScreen } from '../screens/BookScreen';
 import { ScanScreen } from '../screens/ScanScreen';
-import { ShopScreen, ProductScreen, CartScreen, CheckoutScreen } from '../screens/ShopScreens';
+import { ShopScreen, ProductScreen, CartScreen } from '../screens/ShopScreens';
 import { OrdersScreen, OrderDetailScreen } from '../screens/OrderScreens';
 import { LoyaltyScreen } from '../screens/LoyaltyScreen';
 import { LookbookScreen } from '../screens/LookbookScreen';
@@ -338,7 +338,6 @@ export function RootNavigator() {
           <RootStack.Screen name="Tabs" component={MainTabs} options={{ headerShown: false }} />
           <RootStack.Screen name="Product" component={ProductScreen} options={{ title: t('screens.product', 'Product') }} />
           <RootStack.Screen name="Cart" component={CartScreen} options={{ title: t('screens.cart', 'Cart') }} />
-          <RootStack.Screen name="Checkout" component={CheckoutScreen} options={{ title: t('screens.checkout', 'Checkout') }} />
           <RootStack.Screen name="Orders" component={OrdersScreen} options={{ title: t('screens.orders', 'My orders') }} />
           <RootStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: t('screens.order', 'Order') }} />
           <RootStack.Screen name="Loyalty" component={LoyaltyScreen} options={{ title: t('screens.loyalty', 'Loyalty card') }} />

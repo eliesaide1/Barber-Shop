@@ -4,8 +4,6 @@ export type RootStackParamList = {
   Tabs: undefined;
   Product: { id: string };
   Cart: undefined;
-  /* Carried over from the cart so the choice survives the hop. */
-  Checkout: { fulfilment?: Fulfilment } | undefined;
   Orders: undefined;
   /* `justPlaced` swaps the header for a confirmation panel. */
   OrderDetail: { id: string; justPlaced?: boolean };
