@@ -54,7 +54,9 @@ export function ContactFab() {
    * asking. Native-driven, so it costs nothing on the JS thread while somebody
    * scrolls the shelf past it.
    */
-  const pulse = useRef(new Animated.Value(0)).current;
+  const ring1 = useRef(new Animated.Value(0)).current;
+  const ring2 = useRef(new Animated.Value(0)).current;
+  const breathe = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     let cancelled = false;
@@ -64,16 +66,44 @@ export function ContactFab() {
        button for an exception. */
     AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
       if (cancelled || reduced) return;
-      loop = Animated.loop(
+
+      const ripple = (v: Animated.Value, delay: number) =>
         Animated.sequence([
-          Animated.timing(pulse, {
+          Animated.delay(delay),
+          Animated.timing(v, {
             toValue: 1,
-            duration: 1500,
+            duration: 1600,
             easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
-          Animated.timing(pulse, { toValue: 0, duration: 0, useNativeDriver: true }),
-          Animated.delay(2600),
+          Animated.timing(v, { toValue: 0, duration: 0, useNativeDriver: true }),
+          Animated.delay(1200 - delay),
+        ]);
+
+      /* Two rings rather than one, the second half a beat behind: a single ring
+         is a flicker somebody catches only if they happen to be looking at it,
+         and the whole point is to be seen by somebody who is not. The button
+         swells slightly with them, because a still button inside a moving halo
+         reads as a graphic rather than as something to press. */
+      loop = Animated.loop(
+        Animated.parallel([
+          ripple(ring1, 0),
+          ripple(ring2, 600),
+          Animated.sequence([
+            Animated.timing(breathe, {
+              toValue: 1,
+              duration: 800,
+              easing: Easing.inOut(Easing.quad),
+              useNativeDriver: true,
+            }),
+            Animated.timing(breathe, {
+              toValue: 0,
+              duration: 800,
+              easing: Easing.inOut(Easing.quad),
+              useNativeDriver: true,
+            }),
+            Animated.delay(1200),
+          ]),
         ]),
       );
       loop.start();
@@ -83,7 +113,21 @@ export function ContactFab() {
       cancelled = true;
       loop?.stop();
     };
-  }, [pulse]);
+  }, [ring1, ring2, breathe]);
+
+  /* Drawn as an outline rather than a filled disc. A solid circle expanding
+     behind a solid button of the same colour is a soft blur nobody registers;
+     an edge travelling outwards is a thing the eye follows. */
+  const ringStyle = (v: Animated.Value) => ({
+    position: 'absolute' as const,
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    borderWidth: 2.5,
+    borderColor: '#25D366',
+    opacity: v.interpolate({ inputRange: [0, 0.15, 1], outputRange: [0, 0.75, 0] }),
+    transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 2.3] }) }],
+  });
 
   const target = useMemo(() => {
     const byId = new Map((artists ?? []).map((a) => [a.id, a]));
@@ -140,23 +184,18 @@ export function ContactFab() {
         zIndex: 800,
       }}
     >
-      {/* Behind the button and untouchable, so the ring never eats the tap it
+      {/* Behind the button and untouchable, so a ring never eats the tap it
           exists to attract. */}
+      <Animated.View pointerEvents="none" style={ringStyle(ring1)} />
+      <Animated.View pointerEvents="none" style={ringStyle(ring2)} />
+
       <Animated.View
-        pointerEvents="none"
         style={{
-          position: 'absolute',
-          width: SIZE,
-          height: SIZE,
-          borderRadius: SIZE / 2,
-          backgroundColor: '#25D366',
-          opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] }),
           transform: [
-            { scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.9] }) },
+            { scale: breathe.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] }) },
           ],
         }}
-      />
-
+      >
       <Pressable
         onPress={open}
         accessibilityRole="button"
@@ -182,6 +221,7 @@ export function ContactFab() {
       >
         <WhatsAppIcon size={28} />
       </Pressable>
+      </Animated.View>
     </View>
   );
 }
