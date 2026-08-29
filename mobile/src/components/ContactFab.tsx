@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApi } from '../hooks/useApi';
 import { useAuth } from '../store/AuthContext';
 import { useDialog } from '../store/DialogContext';
 import { useColors } from '../store/ThemeContext';
+import { WhatsAppIcon } from './WhatsAppIcon';
 import { radius } from '../theme';
 import type { Appointment, Artist } from '../types';
 
@@ -121,7 +122,7 @@ export function ContactFab() {
           transform: [{ scale: pressed ? 0.94 : 1 }],
         })}
       >
-        <Text style={{ fontSize: 26, lineHeight: 30 }}>💬</Text>
+        <WhatsAppIcon size={28} />
       </Pressable>
     </View>
   );
