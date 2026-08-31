@@ -12,6 +12,7 @@ import { Style } from '../models/Style.js';
 import { issueTokens, verifyRefreshToken, signAccessToken } from '../lib/tokens.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth } from '../middleware/auth.js';
+import { removeUpload } from '../lib/upload.js';
 import { providerConfigured, verifyIdentityToken } from '../lib/social.js';
 import { env } from '../config/env.js';
 
@@ -341,6 +342,15 @@ authRouter.delete(
     }
 
     const id = req.user._id;
+
+    /* The photographs come off the disk, not just out of the database — the
+       same treatment a refused proposal gets in the haircuts route. Dropping
+       the rows alone would leave images of somebody who asked to be forgotten
+       sitting in a directory that is served without authentication, reachable
+       by anyone who still had the URL. Read before the delete, because after it
+       there is nothing left to say which files were theirs. */
+    const records = await HaircutRecord.find({ user: id }).select('images').lean();
+    records.forEach((record) => record.images.forEach(removeUpload));
 
     await Promise.all([
       Appointment.deleteMany({ user: id }),

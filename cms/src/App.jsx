@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import Login from './pages/Login.jsx';
@@ -11,9 +11,19 @@ import Schedule from './pages/Schedule.jsx';
 import Styles from './pages/Styles.jsx';
 import Settings from './pages/Settings.jsx';
 import Labels from './pages/Labels.jsx';
+import DeleteAccount from './pages/DeleteAccount.jsx';
 
 export default function App() {
   const { user, loading, isAdmin } = useAuth();
+  const { pathname } = useLocation();
+
+  /* The one public page, and it has to be answered before anything else on the
+     way in: Google Play requires an account-deletion URL that works with no app
+     installed and nobody signed in, which means it cannot sit behind the
+     sign-in gate below — nor behind the loading state, which waits on a session
+     lookup that a visitor here has no reason to have. Render already rewrites
+     every unknown path to index.html, so this URL needs nothing on the server. */
+  if (pathname === '/delete-account') return <DeleteAccount />;
 
   if (loading) {
     return (
