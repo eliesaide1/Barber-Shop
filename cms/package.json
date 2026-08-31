@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "FadeRoom CMS — the shop's back office: catalogue, artists, notifications, live orders",
+  "description": "VIA Barber House CMS — the shop's back office: catalogue, artists, notifications, live orders",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

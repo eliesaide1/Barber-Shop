@@ -1,4 +1,4 @@
-/* FadeRoom back office — same palette as the client app.
+/* VIA Barber House back office — same palette as the client app.
  *
  * Laid out for a desk, but it has to survive a phone: an artist works this
  * surface standing at the chair, on whatever they have in their pocket. So the
@@ -79,6 +79,11 @@ img { max-width: 100%; }
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: var(--on-accent); display: grid; place-items: center; font-size: 19px; font-weight: 800;
 }
+/* The app's logo, in place of the gradient tile the scissors glyph sat on.
+   It carries its own black ground and gold artwork, so a background behind it
+   would only draw a rim around the artwork — hence a bare image, sized and
+   rounded to the same 38px the tile occupied so nothing beside it moves. */
+.brandmark { flex: 0 0 auto; display: block; object-fit: contain; background: #000; }
 .brand b { font-size: 15px; letter-spacing: -0.2px; display: block; }
 .brand span { font-size: 11px; color: var(--muted); }
 

@@ -1,4 +1,4 @@
-import Icon from '../components/Icon.jsx';
+import Brand, { SHOP_NAME } from '../components/Brand.jsx';
 
 /**
  * The public account-deletion page.
@@ -27,7 +27,6 @@ import Icon from '../components/Icon.jsx';
  * the others move with it.
  */
 
-const SHOP = 'VIA Barber House';
 const EMAIL = 'admin@apexlb.tech';
 const PHONE = '+961 81 427 439';
 const POLICY_URL = 'https://eliesaide1.github.io/barber-shop-privacyandpolicy/';
@@ -54,16 +53,12 @@ export default function DeleteAccount() {
     <div className="doc-wrap">
       <main className="doc">
         <div className="brand" style={{ padding: 0 }}>
-          <div className="mark"><Icon name="scissors" size={20} strokeWidth={2} /></div>
-          <div>
-            <b style={{ fontSize: 17 }}>FadeRoom</b>
-            <span>{SHOP}</span>
-          </div>
+          <Brand sub="Account deletion" nameSize={17} />
         </div>
 
         <h1>Delete your account</h1>
         <p className="lede">
-          You can delete your FadeRoom account and the personal information held with it. There are
+          You can delete your {SHOP_NAME} account and the personal information held with it. There are
           two ways to do it — the first is immediate, the second is for anyone who no longer has the
           app installed.
         </p>
@@ -72,7 +67,7 @@ export default function DeleteAccount() {
           <h2>1 · In the app</h2>
           <div className="hint">Immediate, and done by you.</div>
           <ol className="steps">
-            <li>Open FadeRoom and sign in.</li>
+            <li>Open the {SHOP_NAME} app and sign in.</li>
             <li>Go to the <b>Profile</b> tab.</li>
             <li>Tap <b>Delete account</b>, at the bottom.</li>
             <li>Confirm. The account is gone as soon as you do — there is nothing to undo it with.</li>
@@ -83,7 +78,7 @@ export default function DeleteAccount() {
           <h2>2 · By request</h2>
           <div className="hint">If you have uninstalled the app or cannot sign in.</div>
           <p>
-            Email <a href={`mailto:${EMAIL}?subject=Delete%20my%20FadeRoom%20account`}>{EMAIL}</a>{' '}
+            Email <a href={`mailto:${EMAIL}?subject=Delete%20my%20account`}>{EMAIL}</a>{' '}
             from the address on the account, with <b>Delete my account</b> as the subject. Say the
             name and mobile number the account was made with, so we can be sure it is yours.
           </p>
@@ -127,7 +122,7 @@ export default function DeleteAccount() {
         <footer className="doc-foot">
           <a href={POLICY_URL} target="_blank" rel="noreferrer">Privacy policy</a>
           <span>·</span>
-          <span>{SHOP} · Beirut, Lebanon</span>
+          <span>{SHOP_NAME} · Beirut, Lebanon</span>
         </footer>
       </main>
     </div>

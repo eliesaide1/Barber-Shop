@@ -18,7 +18,7 @@ const fill = (text, { name, shop, reward, expires }) =>
 
 const SAMPLE = {
   name: 'Elie',
-  shop: 'FadeRoom',
+  shop: 'VIA Barber House',
   reward: 'K4M2XQ',
   expires: '12 Sep',
 };

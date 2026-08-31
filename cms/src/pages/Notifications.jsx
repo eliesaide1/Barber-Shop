@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { get, postForm } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { BrandMark, SHOP_NAME } from '../components/Brand.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useDialog } from '../context/DialogContext.jsx';
 import { useSocketEvent } from '../hooks/useRealtime.js';
@@ -159,10 +160,10 @@ export default function Notifications() {
               style={{ background: 'var(--surface-2)', marginTop: 10, borderRadius: 16 }}
             >
               <div className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
-                <div className="avatar" style={{ borderRadius: 10 }}>✂</div>
+                <BrandMark size={38} radius={10} />
                 <div className="grow">
                   <div className="row between">
-                    <b style={{ fontSize: 12.5 }}>FadeRoom</b>
+                    <b style={{ fontSize: 12.5 }}>{SHOP_NAME}</b>
                     <span className="hint">now</span>
                   </div>
                   <div style={{ fontWeight: 700, marginTop: 3, fontSize: 13.5 }}>

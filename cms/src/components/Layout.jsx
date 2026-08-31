@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useConnection, useSocketEvent } from '../hooks/useRealtime.js';
 import { get } from '../lib/api.js';
 import Icon from './Icon.jsx';
+import Brand, { SHOP_NAME } from './Brand.jsx';
 
 /* Below this the sidebar is an off-canvas drawer rather than a column. Kept in
    step with the 1024px breakpoint in styles.css. */
@@ -99,11 +100,7 @@ export default function Layout({ children }) {
     <div className={`shell ${navOpen ? 'nav-open' : ''}`}>
       <aside className="sidebar" id="cms-nav">
         <div className="brand">
-          <div className="mark"><Icon name="scissors" size={20} strokeWidth={2} /></div>
-          <div className="grow">
-            <b>FadeRoom</b>
-            <span>{isAdmin ? 'Shop admin' : artist?.chair || 'Artist'}</span>
-          </div>
+          <Brand sub={isAdmin ? 'Shop admin' : artist?.chair || 'Artist'} />
           <button
             type="button"
             className="iconbtn drawer-close"
@@ -165,7 +162,7 @@ export default function Layout({ children }) {
           >
             <Icon name="menu" size={19} />
           </button>
-          <b className="appbar-brand">FadeRoom</b>
+          <b className="appbar-brand">{SHOP_NAME}</b>
           <div className="grow" />
           <div className={`live ${connected ? 'on' : ''}`}>
             <i />

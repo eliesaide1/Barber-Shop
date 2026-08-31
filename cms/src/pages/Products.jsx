@@ -274,7 +274,7 @@ function Editor({ product, artists, isAdmin, onClose, onSaved, onArchived }) {
               <div className="field">
                 <label>Sold by</label>
                 <select className="input" value={form.owner} onChange={set('owner')}>
-                  <option value="">FadeRoom house label</option>
+                  <option value="">VIA Barber House (house label)</option>
                   {artists.map((a) => <option key={a.id} value={a.id}>{a.displayName}</option>)}
                 </select>
               </div>

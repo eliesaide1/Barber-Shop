@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
-import Icon from '../components/Icon.jsx';
+import Brand from '../components/Brand.jsx';
 
 export default function Login() {
   const { signIn } = useAuth();
-  const [email, setEmail] = useState('admin@faderoom.app');
-  const [password, setPassword] = useState('password1');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -27,11 +27,7 @@ export default function Login() {
       <form className="login" onSubmit={submit}>
         <div className="row" style={{ marginBottom: 22 }}>
           <div className="brand" style={{ padding: 0 }}>
-            <div className="mark"><Icon name="scissors" size={20} strokeWidth={2} /></div>
-            <div>
-              <b style={{ fontSize: 17 }}>FadeRoom</b>
-              <span>Back office</span>
-            </div>
+            <Brand sub="Back office" nameSize={17} />
           </div>
         </div>
 
@@ -65,12 +61,6 @@ export default function Login() {
           <button className="btn block" style={{ marginTop: 18 }} disabled={busy} type="submit">
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
-        </div>
-
-        <div className="hint" style={{ textAlign: 'center', marginTop: 14, lineHeight: 1.7 }}>
-          Seeded logins — admin@faderoom.app · karim@faderoom.app
-          <br />
-          password1
         </div>
       </form>
     </div>
