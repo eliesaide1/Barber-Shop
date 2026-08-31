@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">VIA Barber House</string>
+
+    <!-- The channel every push lands in. Named to Firebase in firebase.json as
+         messaging_android_notification_channel_id, and created for real in
+         MainApplication - the library declares the manifest meta-data itself, so
+         declaring it here as well fails the manifest merge. Both spellings of the
+         id have to agree or the notification goes back on the fallback channel. -->
+    <string name="default_notification_channel_id">shop_updates</string>
+    <string name="default_notification_channel_name">Bookings and shop news</string>
 </resources>
