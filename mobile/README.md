@@ -99,22 +99,33 @@ swipe-up to dismiss, auto-hiding after five seconds. Tapping navigates through
 `navigation/ref.ts`, because the provider wraps the navigator and so cannot use
 `useNavigation`.
 
-### Adding Firebase later
+### Firebase
 
-`api/push.ts` is the seam, and it is the only file that has to change. Every
-message — socket or push — is handed to the same `deliver()`, which drops
-anything whose id it has already seen, so the two transports can overlap
-safely.
+`api/push.ts` is the seam and `api/pushFirebase.ts` fills it. Every message — socket or push — is
+handed to the same `deliver()`, which drops anything whose id it has already seen, so the two
+transports overlap safely.
 
 ```ts
-setPushAdapter({ requestPermission, getToken, onMessage });  // from @react-native-firebase/messaging
+if (firebaseAvailable()) setPushAdapter(firebaseAdapter);   // index.js, before the component registers
 ```
 
-The server half is already built: `POST /api/auth/devices` stores up to five
-device tokens per user, and `resolveTargets()` in the notifications route
-already works out who a message is for. What is missing is the Firebase
-credentials and the sending call — see the walkthrough at the top of
-`api/push.ts`.
+That guard is the whole design: `getApp()` throws when there is no `google-services.json`, the
+adapter is never installed, and the app runs on the socket alone. A checkout without credentials
+behaves exactly as it always did.
+
+Two things are easy to get wrong, and neither announces itself:
+
+- **The package name in `google-services.json` must equal `applicationId`.** FCM compares them and
+  drops the message otherwise, with no error anywhere.
+- **The notification channel decides whether a push is seen.** `firebase.json` names
+  `shop_updates`; `MainApplication.kt` creates it at `IMPORTANCE_HIGH`. Name it without creating
+  it and Firebase substitutes its own channel at default importance — the notification arrives, in
+  the shade, silent, never as a banner.
+
+The server half stores up to five device tokens per user at `POST /api/auth/devices`, and
+`resolveTargets()` in the notifications route works out who a message is for. Note that
+`NotificationsContext` only registers a token once somebody is signed in — there is nothing to
+register a device *against* before that.
 
 ## Dialogs
 

@@ -644,26 +644,52 @@ is most of them — nobody sits with the app open waiting to hear whether five o
 arrives second. This is the one invariant that matters: a push assembled separately from the stored
 record would show every message twice, and only to users who happened to be online.
 
-Everything is written and wired. What is left needs a Firebase project, which only the shop's owner
-can create:
+Both halves are live. The shop's Firebase project exists, the server holds a service account, and
+a push has been delivered to a real handset on each platform — Android last on an SM-A035F running
+Android 13.
+
+A fresh clone still needs the credential files, because all of them are gitignored:
 
 ```bash
-# 1. Firebase Console → add an Android app with package name `com.apex.viabarberhouse`.
-#    Download google-services.json → mobile/android/app/google-services.json
+# 1. Android: Firebase Console → the shop's project → its Android app, package
+#    name `com.apex.viabarberhouse`. Download google-services.json →
+#    mobile/android/app/google-services.json
 #
-# 2. Project settings → Service accounts → Generate new private key.
-#    Put it in server/.env as FIREBASE_SERVICE_ACCOUNT (whole JSON, one line)
-#    or FIREBASE_SERVICE_ACCOUNT_FILE (a path).
+# 2. iOS: the same project's iOS app, bundle id `com.apex.viabarberhouse`.
+#    GoogleService-Info.plist → mobile/ios/VIABarberHouse/, added to the
+#    target's resources rather than merely sitting in the folder.
 #
-# 3. Install the two native packages and rebuild:
-npm --prefix mobile install @react-native-firebase/app @react-native-firebase/messaging
-npm run android
+# 3. Server: Project settings → Service accounts → Generate new private key.
+#    server/.env as FIREBASE_SERVICE_ACCOUNT (whole JSON, one line) or
+#    FIREBASE_SERVICE_ACCOUNT_FILE (a path).
 ```
+
+The two native packages are already direct dependencies; there is nothing to install.
+
+**The package name is checked, and a mismatch is silent.** google-services.json and the iOS plist
+each carry the identifier they were registered against, and FCM compares it to the running app.
+Getting it wrong does not fail the build or log an error — tokens simply never arrive. That is
+worth knowing twice over here, because the Android package name was `com.faderoom` until well
+after the iOS bundle id had moved.
+
+**Delivered is not the same as noticed.** Android routes every push to a notification channel, and
+it is the *channel's* importance — not the payload's priority — that decides whether anything
+floats over the screen or makes a sound. `android.priority: 'high'` in `lib/push.js` governs only
+whether the device wakes to receive it. `messaging_android_notification_channel_id` in
+`mobile/firebase.json` names `shop_updates`, and `MainApplication.kt` creates it at
+`IMPORTANCE_HIGH` with a sound. Both are needed: Firebase checks the named channel exists and
+quietly falls back to one of its own at `IMPORTANCE_DEFAULT` if it does not, which is how
+notifications spent a while landing in the shade, silently, and never as a banner. iOS has no
+channels, so the same server code was always right there — the gap only ever showed on Android.
+
+Note that Android fixes a channel's importance when it is created and from then on only the user
+may change it. Editing the constant changes nothing on a phone that has already run the app; a
+different importance needs a different channel id.
 
 Both credential files are gitignored. The service account key can push to every user of the app —
 treat it like `JWT_SECRET`.
 
-**Until all three are done, nothing changes.** The Gradle plugin is applied only
+**Without them, nothing breaks.** The Gradle plugin is applied only
 `if (file('google-services.json').exists())`, on the same terms as the release keystore, because it
 fails the build outright when the file is missing — and nobody should have to set up a Firebase
 project to compile an app that works without one. On the app side `pushFirebase.ts` looks the module
@@ -717,10 +743,11 @@ toggle.
   exactly as it does today. What is untried is the round trip: neither provider's console has been
   configured, and Apple additionally needs a paid developer account and an iOS build that has never
   existed.
-- **Push is written but unproven on a device.** Everything is in place on both sides — see
-  *Push notifications* above — but it has never been run against a real Firebase project, because
-  that needs credentials only the shop's owner can create. The socket path it falls back to is
-  tested and works.
+- **Push is proven on a device.** Android has taken a real message from the shop's Firebase
+  project on an SM-A035F — arriving in the tray with the app shut, and as a banner with it open. iOS
+  push is reported working by the shop; it has not been exercised from this checkout. What neither
+  covers is scale: every send so far has been to one device, so the batching in `pushToUsers()` and
+  the dead-token pruning have never met a list long enough to matter.
 - **The reminder sweep runs in-process.** One instance, one `setInterval`. The claim guard means a
   second instance cannot double-send, so scaling out is safe — but if the API is ever scaled to
   zero between requests, nothing sweeps and reminders stop. That is a property of the free hosting
