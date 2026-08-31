@@ -648,7 +648,7 @@ Everything is written and wired. What is left needs a Firebase project, which on
 can create:
 
 ```bash
-# 1. Firebase Console → add an Android app with package name `com.faderoom`.
+# 1. Firebase Console → add an Android app with package name `com.apex.viabarberhouse`.
 #    Download google-services.json → mobile/android/app/google-services.json
 #
 # 2. Project settings → Service accounts → Generate new private key.

@@ -90,9 +90,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.faderoom"
+    namespace "com.apex.viabarberhouse"
     defaultConfig {
-        applicationId "com.faderoom"
+        applicationId "com.apex.viabarberhouse"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

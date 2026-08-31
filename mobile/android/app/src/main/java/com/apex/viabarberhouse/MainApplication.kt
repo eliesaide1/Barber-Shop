@@ -1,4 +1,4 @@
-package com.faderoom
+package com.apex.viabarberhouse
 
 import android.app.Application
 import com.facebook.react.PackageList
