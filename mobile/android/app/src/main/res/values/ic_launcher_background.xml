@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The black the logo is drawn on. Same value as the source artwork's own
+         background, so the adaptive icon's two layers meet invisibly. -->
+    <color name="ic_launcher_background">#000000</color>
+</resources>

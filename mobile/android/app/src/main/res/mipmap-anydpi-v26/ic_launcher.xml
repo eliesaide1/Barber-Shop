@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The launcher icon on Android 8 and up.
+
+  Two layers, each 108dp, of which the launcher shows only the centre 72dp and
+  shifts them against each other as the home screen scrolls. That is why the
+  artwork cannot simply be the 512px square: anything outside the safe zone is
+  cropped by whatever shape the device's launcher happens to use.
+
+  The background is the same black the artwork sits on, so the inset foreground
+  and the layer behind it read as one solid icon rather than a logo floating on
+  a patch of colour.
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>
