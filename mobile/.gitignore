@@ -87,3 +87,7 @@ android/local-maven/
 # build is written to work without them.
 android/app/google-services.json
 ios/GoogleService-Info.plist
+
+# The release signing password, written out so it is findable. Gitignored
+# for the same reason the keystore is: this repository is public.
+android/KEYSTORE-PASSWORD.txt
