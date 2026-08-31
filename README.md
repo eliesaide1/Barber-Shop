@@ -1,4 +1,4 @@
-# FadeRoom
+# VIA Barber House
 
 A barber shop platform in three parts, sharing one MongoDB and one realtime channel.
 

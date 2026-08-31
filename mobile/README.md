@@ -1,4 +1,4 @@
-# FadeRoom — client app
+# VIA Barber House — client app
 
 React Native CLI (TypeScript). See the [root README](../README.md) for the full picture,
 including how this talks to the API and the CMS.
