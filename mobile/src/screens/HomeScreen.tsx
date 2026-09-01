@@ -105,6 +105,10 @@ export function HomeScreen() {
           )}
         </Row>
         <Row style={{ gap: space.sm }}>
+          {/* A personal inbox, so it belongs to somebody. Hidden rather than
+              guarded: an empty bell that asks you to sign in is a worse
+              invitation than no bell. */}
+          {user && (
           <Pressable
             onPress={() => nav.navigate('Notifications')}
             accessibilityRole="button"
@@ -144,6 +148,7 @@ export function HomeScreen() {
               </View>
             )}
           </Pressable>
+          )}
           <CartButton />
         </Row>
       </Between>

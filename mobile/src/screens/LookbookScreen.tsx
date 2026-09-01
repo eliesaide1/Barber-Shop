@@ -14,6 +14,7 @@ import {
   Title,
 } from '../components/ui';
 import { useApi, useSocketEvent } from '../hooks/useApi';
+import { useRequireAuth } from '../lib/requireAuth';
 import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
@@ -29,6 +30,7 @@ const CATEGORIES = ['All', 'Fades', 'Classic', 'Textured', 'Beard', 'Design'] as
 export function LookbookScreen() {
   const c = useColors();
   const t = useT();
+  const requireAuth = useRequireAuth();
   const nav = useNavigation<any>();
   const { toast } = useToast();
   const { showError } = useDialog();
@@ -51,6 +53,11 @@ export function LookbookScreen() {
   useSocketEvent('lookbook:changed', () => reloadLooks(true));
 
   const toggleSave = async (look: StyleLook) => {
+    /* A saved look belongs to somebody, so this is the one thing on an
+       otherwise open screen that needs an account. Asked before the heart
+       flips, or it would fill in and then quietly undo itself. */
+    if (!requireAuth(t('auth.reasonSave', 'Sign in to save looks to your lookbook.'))) return;
+
     /* Flip it locally first — a heart that waits on the network feels broken. */
     setData((looks ?? []).map((l) => (l.id === look.id ? { ...l, saved: !l.saved } : l)));
     try {
