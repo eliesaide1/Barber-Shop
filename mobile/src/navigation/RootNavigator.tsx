@@ -390,16 +390,36 @@ export function RootNavigator() {
           <RootStack.Screen name="Device" component={DeviceScreen} options={{ title: t('screens.device', 'This device') }} />
           <RootStack.Screen name="Privacy" component={PrivacyScreen} options={{ title: t('screens.privacy', 'Privacy policy') }} />
           {/* Reached from wherever somebody was stopped, and dismissed back to
-              it — not a wall the app starts behind. */}
+              it — not a wall the app starts behind.
+
+              A form sheet with the system grabber, so the way out is the pill
+              at the top and the swipe everybody already tries. A button saying
+              "not now" is a second thing to read for a gesture iOS users make
+              without thinking. */}
           <RootStack.Screen
             name="Login"
             component={LoginScreen}
-            options={{ headerShown: false, presentation: 'modal' }}
+            options={{
+              headerShown: false,
+              presentation: 'formSheet',
+              sheetGrabberVisible: true,
+              /* One detent, full height: the form is too tall to be useful at
+                 half, and a sheet that snaps to a size nothing fits in is a
+                 sheet people drag around instead of filling in. */
+              sheetAllowedDetents: [1.0],
+              contentStyle: { backgroundColor: c.bg },
+            }}
           />
           <RootStack.Screen
             name="Register"
             component={RegisterScreen}
-            options={{ headerShown: false, presentation: 'modal' }}
+            options={{
+              headerShown: false,
+              presentation: 'formSheet',
+              sheetGrabberVisible: true,
+              sheetAllowedDetents: [1.0],
+              contentStyle: { backgroundColor: c.bg },
+            }}
           />
         </RootStack.Navigator>
       )}

@@ -136,22 +136,6 @@ export function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
-      {/* A way back to the shop. Sign-in is somewhere you are sent, not
-          somewhere you are kept — without this, tapping Book while signed out
-          would be a one-way door. */}
-      {nav.canGoBack() && (
-        <Pressable
-          onPress={() => nav.goBack()}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel={t('auth.backToShop', 'Back to the shop')}
-          style={{ paddingHorizontal: space.lg, paddingTop: space.md, alignSelf: 'flex-start' }}
-        >
-          <Body style={{ color: c.accentInk, fontWeight: '700' }}>
-            {t('auth.notNow', 'Not now')}
-          </Body>
-        </Pressable>
-      )}
       <KeyboardAvoidingView
         style={{ flex: 1, padding: space.lg, justifyContent: 'center' }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
