@@ -29,6 +29,7 @@ import { useColors } from '../store/ThemeContext';
 import { useToast } from '../store/ToastContext';
 import { useDialog } from '../store/DialogContext';
 import { useAuth } from '../store/AuthContext';
+import { SignedOut } from '../components/SignedOut';
 import { api, ApiError } from '../api/client';
 import { radius, space } from '../theme';
 import type { LoyaltyCard, Reward } from '../types';
@@ -49,7 +50,7 @@ export function ScanScreen() {
   const focused = useIsFocused();
   const { toast } = useToast();
   const { showError } = useDialog();
-  const { config } = useAuth();
+  const { config, user } = useAuth();
 
   const { hasPermission, requestPermission } = useCameraPermission();
   /* Resolved here rather than by passing device="back" to <Camera>. Given the
@@ -64,7 +65,7 @@ export function ScanScreen() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<CheckInResult | null>(null);
 
-  const { data: card, reload } = useApi<LoyaltyCard>('/loyalty/card');
+  const { data: card, reload } = useApi<LoyaltyCard>(user ? '/loyalty/card' : null);
   const goal = card?.goal ?? config?.loyaltyGoal ?? 5;
   const stamps = card?.stamps ?? 0;
 
@@ -154,6 +155,23 @@ export function ScanScreen() {
      what turns a leaked callback into a crash. isActive={false} releases the
      hardware just the same. */
   const cameraReady = scanner.supported && hasPermission && device != null && !result;
+
+  /* Before the camera is even asked for. Scanning is how a stamp lands on a
+     loyalty card, and there is no card without an account — so the permission
+     prompt should not appear for somebody who cannot use what it unlocks. */
+  if (!user) {
+    return (
+      <SignedOut
+        icon="💈"
+        title={t('scan.signedOutTitle', 'Collect your stamps')}
+        hint={t(
+          'scan.signedOutHint',
+          'Scan the code at the chair to add a visit to your loyalty card. Every eighth cut is free.',
+        )}
+        reason={t('auth.reasonScan', 'Sign in to collect your stamps.')}
+      />
+    );
+  }
 
   return (
     <Screen>

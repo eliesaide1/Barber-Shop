@@ -48,13 +48,17 @@ export function HomeScreen() {
   const t = useT();
   const nav = useNavigation<any>();
   const cart = useCart();
-  const { user } = useAuth();
+  const { user, config } = useAuth();
   const { toast } = useToast();
   const { showError } = useDialog();
   const { unread } = useNotifications();
 
-  const { data: appointments, reload: reloadAppointments } = useApi<Appointment[]>('/appointments');
-  const { data: card, reload: reloadCard } = useApi<LoyaltyCard>('/loyalty/card');
+  /* Null path means no request. Signed out there is no card and no bookings to
+     ask for, and asking would earn a 401 that looks like a session expiring. */
+  const { data: appointments, reload: reloadAppointments } = useApi<Appointment[]>(
+    user ? '/appointments' : null,
+  );
+  const { data: card, reload: reloadCard } = useApi<LoyaltyCard>(user ? '/loyalty/card' : null);
   const { data: artists, reload: reloadArtists } = useApi<Artist[]>('/artists');
   const { data: products, reload: reloadProducts } = useApi<Product[]>('/products?limit=6');
   const { data: looks, reload: reloadLooks } = useApi<StyleLook[]>('/styles');
@@ -85,11 +89,20 @@ export function HomeScreen() {
     <Screen>
       <Between>
         <Row style={{ flex: 1 }}>
-          <Avatar name={user?.name ?? 'You'} />
-          <View>
-            <Title>{user?.name.split(' ')[0]} 👋</Title>
-            <Muted>{t('home.goodToSeeYou', 'Good to see you')}</Muted>
-          </View>
+          {user ? (
+            <>
+              <Avatar name={user.name} />
+              <View>
+                <Title>{user.name.split(' ')[0]} 👋</Title>
+                <Muted>{t('home.goodToSeeYou', 'Good to see you')}</Muted>
+              </View>
+            </>
+          ) : (
+            <View>
+              <Title>{config?.shop.name ?? 'VIA Barber House'}</Title>
+              <Muted>{config?.shop.area ?? t('home.welcome', 'Have a look around')}</Muted>
+            </View>
+          )}
         </Row>
         <Row style={{ gap: space.sm }}>
           <Pressable
@@ -135,6 +148,10 @@ export function HomeScreen() {
         </Row>
       </Between>
 
+      {/* Counts belong to somebody. Showing a visitor "0 visits · 0/5 to a free
+          cut" reads as an account they already have and have got nowhere with,
+          which is the opposite of an invitation. */}
+      {user && (
       <Row style={{ marginTop: space.lg, gap: space.md }}>
         {[
           { n: String(card?.totalCheckIns ?? 0), l: 'Visits', accent: true },
@@ -147,6 +164,7 @@ export function HomeScreen() {
           </Card>
         ))}
       </Row>
+      )}
 
       {reward && (
         <Card

@@ -12,6 +12,12 @@ export type RootStackParamList = {
   Haircuts: undefined;
   Device: undefined;
   Privacy: undefined;
+  /* Sign-in lives in the client stack rather than in front of it, because the
+     app is browsable without an account: it is a screen you are sent to when
+     you reach for something personal, not a wall you start behind.
+     `reason` is what to say at the top of it. */
+  Login: { reason?: string } | undefined;
+  Register: undefined;
 };
 
 export type TabParamList = {

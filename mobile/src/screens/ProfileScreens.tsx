@@ -23,6 +23,7 @@ import { DateOfBirthField } from '../components/DateOfBirthField';
 import { useApi, useSocketEvent } from '../hooks/useApi';
 import { useAuth } from '../store/AuthContext';
 import { useCart } from '../store/CartContext';
+import { SignedOut } from '../components/SignedOut';
 import { useTheme, useColors } from '../store/ThemeContext';
 import { useDialog } from '../store/DialogContext';
 import { useNotifications } from '../store/NotificationsContext';
@@ -59,9 +60,8 @@ export function ProfileScreen() {
   const { confirm, showError } = useDialog();
   const { preference, setPreference, name: themeName } = useTheme();
   const cart = useCart();
-  const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
-  const { data: orders } = useApi<Order[]>('/orders');
-  const { data: haircuts } = useApi<HaircutRecord[]>('/haircuts/mine');
+  const { data: card } = useApi<LoyaltyCard>(user ? '/loyalty/card' : null);
+  const { data: haircuts } = useApi<HaircutRecord[]>(user ? '/haircuts/mine' : null);
   const awaitingPhotos = (haircuts ?? []).filter((h) => h.status === 'pending').length;
 
   /* Optimistic: the switch answers instantly and the server catches up. Nothing
@@ -138,6 +138,22 @@ export function ProfileScreen() {
       );
     }
   };
+
+  /* Everything below is one person's: their card, their details, their cuts.
+     There is nothing here to show somebody who has not signed in. */
+  if (!user) {
+    return (
+      <SignedOut
+        icon="💈"
+        title={t('profile.signedOutTitle', 'Your chair, your card')}
+        hint={t(
+          'profile.signedOutHint',
+          'Sign in to book, collect stamps toward a free cut, and keep a record of the cuts you have had.',
+        )}
+        reason={t('auth.reasonProfile', 'Sign in to see your profile.')}
+      />
+    );
+  }
 
   return (
     <Screen>

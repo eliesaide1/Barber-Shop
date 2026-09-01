@@ -426,6 +426,11 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
+      "key": "auth.backToShop",
+      "defaultText": "Back to the shop",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
       "key": "auth.createAccount",
       "defaultText": "Create an account",
       "where": "src/screens/AuthScreens.tsx"
@@ -451,6 +456,11 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
+      "key": "auth.notNow",
+      "defaultText": "Not now",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
       "key": "auth.orWithEmail",
       "defaultText": "or with an email",
       "where": "src/screens/AuthScreens.tsx"
@@ -459,6 +469,21 @@
       "key": "auth.password",
       "defaultText": "Password",
       "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.reasonBook",
+      "defaultText": "Sign in to ask for this time.",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
+      "key": "auth.reasonProfile",
+      "defaultText": "Sign in to see your profile.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "auth.reasonScan",
+      "defaultText": "Sign in to collect your stamps.",
+      "where": "src/screens/ScanScreen.tsx"
     },
     {
       "key": "auth.registerSubtitle",
@@ -768,6 +793,11 @@
     {
       "key": "home.trendingStyles",
       "defaultText": "Trending styles",
+      "where": "src/screens/HomeScreen.tsx"
+    },
+    {
+      "key": "home.welcome",
+      "defaultText": "Have a look around",
       "where": "src/screens/HomeScreen.tsx"
     },
     {
@@ -1121,6 +1151,16 @@
       "where": "src/screens/ProfileScreens.tsx"
     },
     {
+      "key": "profile.signedOutHint",
+      "defaultText": "Sign in to book, collect stamps toward a free cut, and keep a record of the cuts you have had.",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.signedOutTitle",
+      "defaultText": "Your chair, your card",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
       "key": "profile.thisDevice",
       "defaultText": "This device",
       "where": "src/screens/ProfileScreens.tsx"
@@ -1203,6 +1243,16 @@
     {
       "key": "scan.seeMyCard",
       "defaultText": "See my card",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.signedOutHint",
+      "defaultText": "Scan the code at the chair to add a visit to your loyalty card. Every eighth cut is free.",
+      "where": "src/screens/ScanScreen.tsx"
+    },
+    {
+      "key": "scan.signedOutTitle",
+      "defaultText": "Collect your stamps",
       "where": "src/screens/ScanScreen.tsx"
     },
     {
@@ -1394,6 +1444,16 @@
       "key": "shop.yourCartIsEmpty",
       "defaultText": "Your cart is empty",
       "where": "src/screens/ShopScreens.tsx"
+    },
+    {
+      "key": "signedOut.createAccount",
+      "defaultText": "Create an account",
+      "where": "src/components/SignedOut.tsx"
+    },
+    {
+      "key": "signedOut.signIn",
+      "defaultText": "Sign in",
+      "where": "src/components/SignedOut.tsx"
     },
     {
       "key": "tabs.book",

@@ -19,6 +19,7 @@ import {
   Title,
 } from '../components/ui';
 import { useApi, useSocketEvent } from '../hooks/useApi';
+import { useRequireAuth } from '../lib/requireAuth';
 import { nextRewardToUse, rewardTitle } from '../lib/rewards';
 import { useAuth } from '../store/AuthContext';
 import { useColors } from '../store/ThemeContext';
@@ -70,13 +71,14 @@ export function BookScreen() {
   const [reference, setReference] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const { config } = useAuth();
+  const { config, user } = useAuth();
+  const requireAuth = useRequireAuth();
   const { data: artists, loading: loadingArtists, reload: reloadArtists } = useApi<Artist[]>('/artists');
   const { data: services, reload: reloadServices } = useApi<Service[]>('/services');
-  const { data: card } = useApi<LoyaltyCard>('/loyalty/card');
+  const { data: card } = useApi<LoyaltyCard>(user ? '/loyalty/card' : null);
   /* Approved only — the server filters, and a pending photo must never be
      offered as something to show an artist. */
-  const { data: allCuts } = useApi<HaircutRecord[]>('/haircuts/mine');
+  const { data: allCuts } = useApi<HaircutRecord[]>(user ? '/haircuts/mine' : null);
   const haircuts = (allCuts ?? []).filter((h) => h.status === 'approved');
 
   /* A chair deactivated or a service renamed mid-booking changes what is on
@@ -108,6 +110,11 @@ export function BookScreen() {
    */
   const requestSlot = async () => {
     if (!artist || !service || !slot) return;
+    /* Asked here, not at the door: somebody can choose their barber, their
+       service and their time, and only then be asked to sign in. Being stopped
+       after deciding is far easier to accept than being stopped before
+       looking. */
+    if (!requireAuth(t('auth.reasonBook', 'Sign in to ask for this time.'))) return;
     setBusy(true);
     try {
       await api.post('/appointments', {

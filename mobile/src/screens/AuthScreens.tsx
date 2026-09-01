@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Body, Button, Card, Field, Logo, Muted, Title } from '../components/ui';
 import { DateOfBirthField } from '../components/DateOfBirthField';
 import { Icon } from '../components/Icon';
@@ -107,6 +107,9 @@ function Brand() {
 export function LoginScreen() {
   const c = useColors();
   const t = useT();
+  /* Why they were sent here, when they were sent rather than arriving. */
+  const route = useRoute<any>();
+  const reason: string | undefined = route.params?.reason;
   const nav = useNavigation<any>();
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
@@ -133,6 +136,22 @@ export function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      {/* A way back to the shop. Sign-in is somewhere you are sent, not
+          somewhere you are kept — without this, tapping Book while signed out
+          would be a one-way door. */}
+      {nav.canGoBack() && (
+        <Pressable
+          onPress={() => nav.goBack()}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel={t('auth.backToShop', 'Back to the shop')}
+          style={{ paddingHorizontal: space.lg, paddingTop: space.md, alignSelf: 'flex-start' }}
+        >
+          <Body style={{ color: c.accentInk, fontWeight: '700' }}>
+            {t('auth.notNow', 'Not now')}
+          </Body>
+        </Pressable>
+      )}
       <KeyboardAvoidingView
         style={{ flex: 1, padding: space.lg, justifyContent: 'center' }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -140,7 +159,7 @@ export function LoginScreen() {
         <Brand />
         <Title>{t('auth.welcomeTitle', 'Welcome back')}</Title>
         <Muted style={{ marginTop: 6 }}>
-          {t('auth.welcomeSubtitle', 'Sign in to book a chair and collect your stamps.')}
+          {reason ?? t('auth.welcomeSubtitle', 'Sign in to book a chair and collect your stamps.')}
         </Muted>
 
         <ProviderButtons onError={(message) => setErrors({ form: message })} />

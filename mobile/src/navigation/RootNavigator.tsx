@@ -48,13 +48,11 @@ import type { AgendaEntry } from '../types';
 import type {
   ArtistStackParamList,
   ArtistTabParamList,
-  AuthStackParamList,
   RootStackParamList,
   TabParamList,
 } from './types';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
-const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const Tabs = createBottomTabNavigator<TabParamList>();
 const ArtistStack = createNativeStackNavigator<ArtistStackParamList>();
 const ArtistTabs = createBottomTabNavigator<ArtistTabParamList>();
@@ -292,17 +290,34 @@ export function RootNavigator() {
     );
   }
 
-  /* Only the client app. An artist messaging themselves is nonsense, an admin
-     has no chair, and neither has anywhere to go before signing in. */
-  const showContact = Boolean(user) && !isAdmin && !isArtist && profileComplete;
+  /* Only the client app. An artist messaging themselves is nonsense and an
+     admin has no chair — but a visitor with no account is exactly who wants to
+     ask the shop a question, so this is not gated on being signed in. With no
+     session it falls back to the shop's own number. */
+  const showContact =
+    !isAdmin &&
+    !isArtist &&
+    (!user || profileComplete) &&
+    /* Not over the introduction: it sits outside the navigators, so without
+       this it paints over a screen that has not handed the app over yet. */
+    !(!user && firstLaunch.state === 'first');
 
   return (
     <View style={{ flex: 1 }}>
     <NavigationContainer ref={navigationRef} theme={navTheme}>
-      {user && !profileComplete ? (
-        /* A client who came in through Google or Apple, whose card the provider
-           could only half fill. In front of the app rather than beside it: a
-           client book that is only sometimes filled in is one no artist trusts. */
+      {!user && firstLaunch.state === 'first' ? (
+        /* Swapped out rather than navigated away from: finishing the
+           walkthrough is a change in what the app is showing, not a screen you
+           can reverse into with a back gesture afterwards. */
+        <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
+          <RootStack.Screen name="Tabs">
+            {() => <OnboardingScreen onDone={firstLaunch.complete} />}
+          </RootStack.Screen>
+        </RootStack.Navigator>
+      ) : user && !profileComplete ? (
+        /* A client whose card is only half filled. In front of the app rather
+           than beside it: a client book that is only sometimes filled in is one
+           no artist trusts. */
         <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
           <RootStack.Screen name="Tabs" component={CompleteProfileScreen} />
         </RootStack.Navigator>
@@ -344,7 +359,16 @@ export function RootNavigator() {
             options={{ title: t('screens.notifications', 'Notifications') }}
           />
         </ArtistStack.Navigator>
-      ) : user ? (
+      ) : (
+        /* Signed in or not, the same tabs.
+        
+           A visitor can see the barbers, the price list, the shelf and the
+           lookbook. The moment they reach for something that belongs to a
+           person — a booking, a stamp, a profile — they are sent to Login and
+           returned to where they were.
+
+           Apple 5.1.1(v): registration may only be required for account-based
+           features, and a shop's shopfront is not one of them. */
         <RootStack.Navigator
           screenOptions={{
             headerStyle: { backgroundColor: c.bg },
@@ -365,23 +389,19 @@ export function RootNavigator() {
           <RootStack.Screen name="Haircuts" component={HaircutsScreen} options={{ title: t('screens.haircuts', 'My haircuts') }} />
           <RootStack.Screen name="Device" component={DeviceScreen} options={{ title: t('screens.device', 'This device') }} />
           <RootStack.Screen name="Privacy" component={PrivacyScreen} options={{ title: t('screens.privacy', 'Privacy policy') }} />
+          {/* Reached from wherever somebody was stopped, and dismissed back to
+              it — not a wall the app starts behind. */}
+          <RootStack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false, presentation: 'modal' }}
+          />
+          <RootStack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ headerShown: false, presentation: 'modal' }}
+          />
         </RootStack.Navigator>
-      ) : firstLaunch.state === 'first' ? (
-        /* Swapped out rather than navigated away from: finishing the
-           walkthrough is a change in what the app is showing, not a screen in
-           the sign-in stack. Leaving it in the stack would put it behind a
-           back gesture from Login, and on Android behind the hardware back
-           button — a walkthrough you can reverse into after dismissing it. */
-        <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
-          <RootStack.Screen name="Tabs">
-            {() => <OnboardingScreen onDone={firstLaunch.complete} />}
-          </RootStack.Screen>
-        </RootStack.Navigator>
-      ) : (
-        <AuthStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
-          <AuthStack.Screen name="Login" component={LoginScreen} />
-          <AuthStack.Screen name="Register" component={RegisterScreen} />
-        </AuthStack.Navigator>
       )}
     {/* Outside the navigators, so it stays put while screens come and go rather
         than being remounted — and animates with nothing. Inside the container
