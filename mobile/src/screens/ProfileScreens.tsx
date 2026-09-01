@@ -219,9 +219,14 @@ export function ProfileScreen() {
           missing. */}
       {incomplete && (
         <Card style={{ marginTop: space.sm, borderColor: c.accent, backgroundColor: c.accentSoft }}>
-          <Body style={{ fontWeight: '700' }}>{t('profile.finishYourProfile', 'Finish your profile')}</Body>
+          {/* An invitation, not a chore. None of this is required to have an
+              account or to book, so calling it "finishing" would be describing
+              a form nobody has to complete. */}
+          <Body style={{ fontWeight: '700' }}>
+            {t('profile.helpYourArtist', 'Help your artist know you')}
+          </Body>
           <Muted style={{ marginTop: 4 }}>
-            Your artist keeps a card on every client. Yours is missing{' '}
+            Your artist keeps a card on every client. Yours has no{' '}
             {[
               !user?.phone && 'a mobile number',
               !user?.dateOfBirth && 'your date of birth',

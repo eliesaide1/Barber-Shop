@@ -251,11 +251,16 @@ export function RegisterScreen() {
     const next: Record<string, string> = {};
     if (form.name.trim().length < 2) next.name = 'Please enter your name';
     if (!isEmail(form.email.trim())) next.email = 'Enter a valid email';
-    if (form.phone.replace(/\D/g, '').length < 7) next.phone = 'Enter a valid phone number';
-
-    const dobError = dateOfBirthError(form.dob);
-    if (dobError) next.dateOfBirth = dobError;
-    if (!frequency) next.visitFrequencyWeeks = 'Pick how often you usually get cut';
+    /* Checked only when given. None of the three are needed to make an account
+       — Apple 5.1.1(v) — but a number typed wrong should still be caught rather
+       than saved as something the shop cannot ring. */
+    if (form.phone.trim() && form.phone.replace(/\D/g, '').length < 7) {
+      next.phone = 'Enter a valid phone number';
+    }
+    if (form.dob.trim()) {
+      const dobError = dateOfBirthError(form.dob);
+      if (dobError) next.dateOfBirth = dobError;
+    }
     if (form.password.length < 6) next.password = 'Password must be at least 6 characters';
 
     setErrors(next);
@@ -267,8 +272,8 @@ export function RegisterScreen() {
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
-        dateOfBirth: toIsoDate(form.dob) as string,
-        visitFrequencyWeeks: frequency as number,
+        dateOfBirth: form.dob.trim() ? (toIsoDate(form.dob) as string) : '',
+        visitFrequencyWeeks: frequency,
         password: form.password,
       });
     } catch (err) {
@@ -299,7 +304,7 @@ export function RegisterScreen() {
         <Muted style={{ marginTop: 6 }}>
           {t(
             'auth.registerSubtitle',
-            'Your artist keeps this on file — it is how they know you before you sit down.',
+            'A name, an email and a password is all it takes. The rest helps your artist know you before you sit down, and you can add it any time.',
           )}
         </Muted>
 
@@ -315,8 +320,11 @@ export function RegisterScreen() {
             keyboardType="email-address"
             error={errors.email}
           />
+          {/* Named optional on the label itself, not in a footnote. A field
+              that looks required is one people treat as required, whatever the
+              form accepts. */}
           <Field
-            label={t('auth.mobile', 'Mobile number')}
+            label={t('auth.mobileOptional', 'Mobile number (optional)')}
             value={form.phone}
             onChangeText={set('phone')}
             keyboardType="phone-pad"
@@ -324,13 +332,14 @@ export function RegisterScreen() {
             error={errors.phone}
           />
           <DateOfBirthField
+            label={t('auth.dobOptional', 'Date of birth (optional)')}
             value={form.dob}
             onChange={(v: string) => set('dob')(v)}
             error={errors.dateOfBirth}
           />
 
           <Text style={{ fontSize: 12.5, color: c.muted, fontWeight: '600', marginTop: space.md }}>
-            How often do you get cut?
+            {t('auth.howOftenOptional', 'How often do you get cut? (optional)')}
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: 8 }}>
             {VISIT_FREQUENCIES.map((w) => {

@@ -40,9 +40,10 @@ interface AuthContextValue {
     name: string;
     email: string;
     password: string;
-    phone: string;
-    dateOfBirth: string;
-    visitFrequencyWeeks: number;
+    /* Asked for, never demanded — Apple 5.1.1(v). Empty or null when skipped. */
+    phone?: string;
+    dateOfBirth?: string;
+    visitFrequencyWeeks?: number | null;
   }) => Promise<void>;
   signInWith: (provider: Provider) => Promise<void>;
   /** Which provider buttons to draw — both this build and this shop have to offer one. */
@@ -167,9 +168,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: string;
       email: string;
       password: string;
-      phone: string;
-      dateOfBirth: string;
-      visitFrequencyWeeks: number;
+      phone?: string;
+      dateOfBirth?: string;
+      visitFrequencyWeeks?: number | null;
     }) => {
       const data = await api.post<Session & { accessToken: string; refreshToken: string }>(
         '/auth/register',

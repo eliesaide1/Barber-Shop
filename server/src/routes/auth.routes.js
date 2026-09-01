@@ -50,26 +50,40 @@ const phone = z
   .string()
   .refine((v) => v.replace(/\D/g, '').length >= 7, 'Enter a valid phone number');
 
-/* The client record the shop needs: who they are, how to reach them, and how
-   often they sit down. Required at sign-up rather than nagged for later — an
-   optional field on an intake form is a field nobody fills in. */
+/**
+ * What it takes to make an account: a name, an email and a password.
+ *
+ * A mobile number and a birthday were required here too, because an optional
+ * field on an intake form is a field nobody fills in and the shop genuinely
+ * wants both — a number to call when an artist runs late, a birthday to send
+ * something on. Apple's 5.1.1(v) is that an app may only *require* what it
+ * needs to function, and it does not need either to book a haircut. Both are
+ * still asked for, still stored, and still offered in the profile; they are
+ * simply no longer a condition of having an account.
+ *
+ * An empty string rather than a missing key when somebody skips one, so the
+ * User document keeps the shape the rest of the code reads.
+ */
 const registerBody = credentials.extend({
   name: z.string().min(2, 'Please enter your name'),
-  phone,
-  dateOfBirth,
-  visitFrequencyWeeks,
+  phone: z.union([phone, z.literal('')]).optional(),
+  dateOfBirth: z.union([dateOfBirth, z.literal('')]).optional(),
+  visitFrequencyWeeks: z.union([visitFrequencyWeeks, z.null()]).optional(),
 });
 
 /**
- * Whether the shop has everything it asks a client for.
+ * Whether the app should put anything in front of the client.
  *
- * Always true for an account made through the sign-up form, which refuses to
- * create one otherwise. False after a first Google or Apple sign-in: neither
- * provider knows a date of birth or a mobile number, and neither ever will.
+ * Nothing, now. It used to mean "the shop has a number, a birthday and a habit
+ * for this person", and a first Google or Apple sign-in failed it — which is
+ * what the completion screen existed to fix. None of those are required any
+ * more, so there is nothing an account can be missing that would justify
+ * standing between somebody and the app.
+ *
+ * Kept as a function rather than deleted because the app reads the flag, and a
+ * shop that later decides it must have something can say so in one place.
  */
-const profileComplete = (user) =>
-  user.role !== 'client' ||
-  Boolean(user.phone && user.dateOfBirth && user.visitFrequencyWeeks);
+const profileComplete = () => true;
 
 /** Everything the app needs about the signed-in user, in one shape. */
 async function sessionPayload(user) {
@@ -77,7 +91,7 @@ async function sessionPayload(user) {
   return {
     user: user.toJSON(),
     artist: artist ? artist.toJSON() : null,
-    profileComplete: profileComplete(user),
+    profileComplete: profileComplete(),
   };
 }
 
@@ -93,9 +107,9 @@ authRouter.post(
     const user = new User({
       name: body.name,
       email,
-      phone: body.phone,
-      dateOfBirth: body.dateOfBirth,
-      visitFrequencyWeeks: body.visitFrequencyWeeks,
+      phone: body.phone || '',
+      dateOfBirth: body.dateOfBirth || '',
+      visitFrequencyWeeks: body.visitFrequencyWeeks ?? null,
       role: 'client',
     });
     await user.setPassword(password);
@@ -281,11 +295,13 @@ authRouter.patch(
     const body = z
       .object({
         name: z.string().min(2, 'Please enter your name').optional(),
-        phone: phone.optional(),
+        /* Empty clears it. Something given voluntarily has to be removable, or
+           "optional" only describes the moment it was asked for. */
+        phone: z.union([phone, z.literal('')]).optional(),
         /* Same rules as sign-up, so a record cannot be edited into a state it
            could never have been created in. */
-        dateOfBirth: dateOfBirth.optional(),
-        visitFrequencyWeeks: visitFrequencyWeeks.optional(),
+        dateOfBirth: z.union([dateOfBirth, z.literal('')]).optional(),
+        visitFrequencyWeeks: z.union([visitFrequencyWeeks, z.null()]).optional(),
         preferences: z
           .object({
             clipperGuard: z.string().optional(),
