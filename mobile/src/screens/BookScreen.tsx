@@ -146,7 +146,13 @@ export function BookScreen() {
   return (
     <Screen>
       <Title>{t('book.book', 'Book')}</Title>
-      <Muted style={{ marginTop: 2 }}>{t('book.viaBarberHouseMar', 'VIA Barber House · Mar Mikhael, Beirut')}</Muted>
+      {/* From the shop's own record rather than typed in here. A hardcoded
+          address is one that goes stale silently — this one said the wrong
+          town for as long as it existed. */}
+      <Muted style={{ marginTop: 2 }}>
+        {[config?.shop.name, config?.shop.area].filter(Boolean).join(' · ') ||
+          t('book.shopFallback', 'VIA Barber House')}
+      </Muted>
 
       <Heading style={{ marginTop: space.xl }}>1 · Choose your artist</Heading>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: space.md }}>

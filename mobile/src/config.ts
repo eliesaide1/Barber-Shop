@@ -51,9 +51,13 @@ export const absoluteUrl = (path?: string | null): string | undefined => {
   return `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
+/**
+ * The shop, only as a last resort.
+ *
+ * Everything on screen reads `config.shop`, which the server owns. This exists
+ * for the moment before that first request answers — and is deliberately thin,
+ * because a second copy of the shop's address is a second thing to be wrong.
+ */
 export const SHOP = {
   name: 'VIA Barber House',
-  area: 'Mar Mikhael, Beirut',
-  hours: 'Tue–Sun · 10:00–20:00',
-  phone: '+961 1 567 890',
 };

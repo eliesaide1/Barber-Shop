@@ -426,13 +426,13 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
-      "key": "auth.backToShop",
-      "defaultText": "Back to the shop",
+      "key": "auth.createAccount",
+      "defaultText": "Create an account",
       "where": "src/screens/AuthScreens.tsx"
     },
     {
-      "key": "auth.createAccount",
-      "defaultText": "Create an account",
+      "key": "auth.dobOptional",
+      "defaultText": "Date of birth (optional)",
       "where": "src/screens/AuthScreens.tsx"
     },
     {
@@ -446,18 +446,18 @@
       "where": "src/screens/AuthScreens.tsx"
     },
     {
-      "key": "auth.mobile",
-      "defaultText": "Mobile number",
+      "key": "auth.howOftenOptional",
+      "defaultText": "How often do you get cut? (optional)",
+      "where": "src/screens/AuthScreens.tsx"
+    },
+    {
+      "key": "auth.mobileOptional",
+      "defaultText": "Mobile number (optional)",
       "where": "src/screens/AuthScreens.tsx"
     },
     {
       "key": "auth.newHere",
       "defaultText": "New here?",
-      "where": "src/screens/AuthScreens.tsx"
-    },
-    {
-      "key": "auth.notNow",
-      "defaultText": "Not now",
       "where": "src/screens/AuthScreens.tsx"
     },
     {
@@ -481,13 +481,18 @@
       "where": "src/screens/ProfileScreens.tsx"
     },
     {
+      "key": "auth.reasonSave",
+      "defaultText": "Sign in to save looks to your lookbook.",
+      "where": "src/screens/LookbookScreen.tsx"
+    },
+    {
       "key": "auth.reasonScan",
       "defaultText": "Sign in to collect your stamps.",
       "where": "src/screens/ScanScreen.tsx"
     },
     {
       "key": "auth.registerSubtitle",
-      "defaultText": "Your artist keeps this on file — it is how they know you before you sit down.",
+      "defaultText": "A name, an email and a password is all it takes. The rest helps your artist know you before you sit down, and you can add it any time.",
       "where": "src/screens/AuthScreens.tsx"
     },
     {
@@ -586,6 +591,11 @@
       "where": "src/screens/BookScreen.tsx"
     },
     {
+      "key": "book.shopFallback",
+      "defaultText": "VIA Barber House",
+      "where": "src/screens/BookScreen.tsx"
+    },
+    {
       "key": "book.thisAgain",
       "defaultText": "This again",
       "where": "src/screens/BookScreen.tsx"
@@ -593,11 +603,6 @@
     {
       "key": "book.total",
       "defaultText": "Total",
-      "where": "src/screens/BookScreen.tsx"
-    },
-    {
-      "key": "book.viaBarberHouseMar",
-      "defaultText": "VIA Barber House · Mar Mikhael, Beirut",
       "where": "src/screens/BookScreen.tsx"
     },
     {
@@ -981,11 +986,6 @@
       "where": "src/screens/ProfileScreens.tsx"
     },
     {
-      "key": "profile.finishYourProfile",
-      "defaultText": "Finish your profile",
-      "where": "src/screens/ProfileScreens.tsx"
-    },
-    {
       "key": "profile.freeCut",
       "defaultText": "FREE CUT",
       "where": "src/screens/ProfileScreens.tsx"
@@ -998,6 +998,11 @@
     {
       "key": "profile.fullName",
       "defaultText": "Full name",
+      "where": "src/screens/ProfileScreens.tsx"
+    },
+    {
+      "key": "profile.helpYourArtist",
+      "defaultText": "Help your artist know you",
       "where": "src/screens/ProfileScreens.tsx"
     },
     {

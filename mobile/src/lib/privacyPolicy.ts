@@ -346,7 +346,7 @@ export const POLICY_CONTACT: [string, string][] = [
   ['Barber shop', 'VIA Barber House'],
   ['Email', 'admin@apexlb.tech'],
   ['Phone', '+961 81 427 439'],
-  ['Address', 'Beirut'],
+  ['Address', 'Qoubaiyat, Akkar'],
   ['Country', 'Lebanon'],
 ];
 

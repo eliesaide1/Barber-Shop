@@ -69,10 +69,15 @@ export function createApp() {
     '/api/config',
     asyncHandler(async (_req, res) => {
       const settings = await getSettings();
+      /* The real shop. These were seed values — a Beirut address and an
+         invented phone number — served to every client as though they were
+         true. A shop that shows the wrong town is indistinguishable from an
+         unconfigured template, which is precisely the thing App Review reads
+         as one. */
       const shop = {
         name: 'VIA Barber House',
-        area: 'Mar Mikhael, Beirut',
-        phone: '+961 1 567 890',
+        area: 'Qoubaiyat, Akkar, Lebanon',
+        phone: '+961 398 046',
         hours: 'Tue–Sun · 10:00–20:00',
       };
 
