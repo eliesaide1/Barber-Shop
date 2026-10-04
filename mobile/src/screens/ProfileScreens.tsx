@@ -226,7 +226,7 @@ export function ProfileScreen() {
             {t('profile.helpYourArtist', 'Help your artist know you')}
           </Body>
           <Muted style={{ marginTop: 4 }}>
-            Your artist keeps a card on every client. Yours has no{' '}
+            Your artist keeps a card on every client. Yours is missing{' '}
             {[
               !user?.phone && 'a mobile number',
               !user?.dateOfBirth && 'your date of birth',

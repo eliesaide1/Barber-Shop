@@ -127,6 +127,12 @@ export function LoginScreen() {
     setBusy(true);
     try {
       await signIn(email.trim(), password);
+      /* Close the sheet and hand them back to whatever they were doing when
+         they were asked. Signing in used to swap the whole navigator, so this
+         screen disappeared on its own; now that a visitor and a client share
+         one, nothing dismisses it and they would sit on a filled-in form that
+         had plainly worked. */
+      if (nav.canGoBack()) nav.goBack();
     } catch (err) {
       setErrors({ form: err instanceof ApiError ? err.message : 'Could not sign in' });
     } finally {
@@ -276,6 +282,10 @@ export function RegisterScreen() {
         visitFrequencyWeeks: frequency,
         password: form.password,
       });
+      /* Same as signing in: the sheet has done its job, so it goes. Register
+         is pushed on top of Login, so two come off — otherwise finishing
+         sign-up drops somebody onto a sign-in form they no longer need. */
+      if (nav.canGoBack()) nav.pop(2);
     } catch (err) {
       if (err instanceof ApiError) {
         setErrors(err.fields ?? { form: err.message });
