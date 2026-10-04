@@ -25,11 +25,12 @@ export default function Artists() {
   useEffect(() => { load(); }, []);
 
   useSocketEvent('artist:changed', () => load());
+  useSocketEvent('artist:removed', () => load());
 
   const deactivate = async (artist) => {
     const ok = await confirm({
       title: `Deactivate ${artist.displayName}?`,
-      message: 'Their chair stops taking bookings and they can no longer sign in here. Existing bookings and their shelf are kept.',
+      message: 'Their chair stops taking bookings and they can no longer sign in here. Existing bookings and their shelf are kept, and you can bring them back whenever.',
       icon: '◍',
       tone: 'danger',
       confirmLabel: 'Deactivate',
@@ -43,6 +44,41 @@ export default function Artists() {
       load();
     } catch (err) {
       showError(err.message, { title: 'Couldn’t deactivate', icon: '◍' });
+    }
+  };
+
+  /* Not a danger tone and not behind a confirm: putting somebody back to work
+     is the undo, and an undo that asks "are you sure" twice is just friction. */
+  const reactivate = async (artist) => {
+    try {
+      await post(`/artists/${artist.id}/activate`);
+      toast(`${artist.displayName} is back on the floor`);
+      load();
+    } catch (err) {
+      showError(err.message, { title: 'Couldn’t reactivate', icon: '◍' });
+    }
+  };
+
+  /* Only offered once they are inactive, so the chair has already stopped
+     taking bookings before anyone is asked about deleting it. The server is
+     the one that decides whether there is history in the way. */
+  const destroy = async (artist) => {
+    const ok = await confirm({
+      title: `Delete ${artist.displayName} for good?`,
+      message: 'This removes the chair, their login, their own services and their lookbook. It cannot be undone, and it only works while they have no bookings or products on record.',
+      icon: '◍',
+      tone: 'danger',
+      confirmLabel: 'Delete permanently',
+      cancelLabel: 'Leave them deactivated',
+    });
+    if (!ok) return;
+
+    try {
+      await del(`/artists/${artist.id}/permanent`);
+      toast(`${artist.displayName} deleted`);
+      load();
+    } catch (err) {
+      showError(err.message, { title: 'Couldn’t delete', icon: '◍' });
     }
   };
 
@@ -85,10 +121,15 @@ export default function Artists() {
               {a.workingHours.start}–{a.workingHours.end} · {a.user?.email}
             </div>
 
-            <div className="row" style={{ gap: 8, marginTop: 14 }}>
+            <div className="row" style={{ gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
               <button className="btn ghost sm grow" onClick={() => setEditing(a)} type="button">Edit</button>
-              {a.active && (
+              {a.active ? (
                 <button className="btn danger sm" onClick={() => deactivate(a)} type="button">Deactivate</button>
+              ) : (
+                <>
+                  <button className="btn sm" onClick={() => reactivate(a)} type="button">Reactivate</button>
+                  <button className="btn danger sm" onClick={() => destroy(a)} type="button">Delete</button>
+                </>
               )}
             </div>
           </div>

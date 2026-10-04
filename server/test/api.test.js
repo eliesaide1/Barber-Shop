@@ -2541,3 +2541,114 @@ describe('realtime', () => {
     assert.equal(res.status, 403);
   });
 });
+
+describe('an artist can come back, or be taken off the board entirely', () => {
+  /* Deactivate was the only door out of this screen, which left an admin who
+     had mistyped a chair looking at an INACTIVE card they could never clear,
+     and an artist back from three months away needing someone with a database
+     client. Both halves are here now, and the two cases stay apart: leaving is
+     reversible and keeps the history, a mistake is deleted and keeps nothing. */
+  const chairOf = (list, id) => list.find((a) => a.id === String(id));
+
+  test('setup: a chair that has never cut anybody', async () => {
+    const res = await api('/api/artists', {
+      token: ctx.admin.accessToken,
+      method: 'POST',
+      body: {
+        displayName: 'Chair Nine Typo',
+        email: 'typo@test.app',
+        password: 'password1',
+        chair: 'Chair 9',
+      },
+    });
+    assert.equal(res.status, 201);
+    ctx.spare = res.body;
+    /* A service only this chair offers, to prove it leaves with them. */
+    ctx.spareService = await Service.create({
+      name: 'Chair 9 only', durationMin: 20, price: 20, artist: ctx.spare.id,
+    });
+  });
+
+  test('deactivating shuts the login as well as the chair', async () => {
+    const res = await api(`/api/artists/${ctx.spare.id}`, {
+      token: ctx.admin.accessToken, method: 'DELETE',
+    });
+    assert.equal(res.status, 204);
+
+    const list = await api('/api/artists');
+    assert.equal(chairOf(list.body, ctx.spare.id), undefined, 'the client app must stop offering them');
+
+    const shut = await api('/api/auth/login', {
+      method: 'POST', body: { email: 'typo@test.app', password: 'password1' },
+    });
+    assert.equal(shut.status, 403);
+  });
+
+  test('the card is still there for an admin, which is the point of it', async () => {
+    const all = await api('/api/artists?all=true', { token: ctx.admin.accessToken });
+    assert.equal(chairOf(all.body, ctx.spare.id).active, false);
+  });
+
+  test('reactivating opens both again', async () => {
+    const res = await api(`/api/artists/${ctx.spare.id}/activate`, {
+      token: ctx.admin.accessToken, method: 'POST',
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.active, true);
+
+    const list = await api('/api/artists');
+    assert.ok(chairOf(list.body, ctx.spare.id), 'the chair should be back on the booking screen');
+
+    const back = await api('/api/auth/login', {
+      method: 'POST', body: { email: 'typo@test.app', password: 'password1' },
+    });
+    assert.equal(back.status, 200, 'an artist who cannot sign in cannot answer anybody');
+  });
+
+  test('only an admin may reactivate', async () => {
+    const res = await api(`/api/artists/${ctx.spare.id}/activate`, {
+      token: ctx.artistSession.accessToken, method: 'POST',
+    });
+    assert.equal(res.status, 403);
+  });
+
+  test('an artist with history cannot be deleted, and is told what is in the way', async () => {
+    const res = await api(`/api/artists/${ctx.artist._id}/permanent`, {
+      token: ctx.admin.accessToken, method: 'DELETE',
+    });
+    assert.equal(res.status, 409);
+    assert.match(res.body.error, /booking/, 'the refusal has to name what it is protecting');
+    assert.match(res.body.error, /[Dd]eactivate/, 'and point at the thing that does work');
+    assert.ok(await Artist.findById(ctx.artist._id), 'a refused delete must not delete anything');
+  });
+
+  test('a chair with nothing behind it goes, and takes its login and its own services', async () => {
+    const res = await api(`/api/artists/${ctx.spare.id}/permanent`, {
+      token: ctx.admin.accessToken, method: 'DELETE',
+    });
+    assert.equal(res.status, 204);
+
+    assert.equal(await Artist.findById(ctx.spare.id), null);
+    assert.equal(await User.findOne({ email: 'typo@test.app' }), null, 'the login has nothing left to open');
+    assert.equal(await Service.findById(ctx.spareService._id), null);
+
+    const gone = await api('/api/auth/login', {
+      method: 'POST', body: { email: 'typo@test.app', password: 'password1' },
+    });
+    assert.equal(gone.status, 401);
+  });
+
+  test('deleting a chair that is already gone is a 404, not a crash', async () => {
+    const res = await api(`/api/artists/${ctx.spare.id}/permanent`, {
+      token: ctx.admin.accessToken, method: 'DELETE',
+    });
+    assert.equal(res.status, 404);
+  });
+
+  test('an artist cannot delete a chair at all, including their own', async () => {
+    const res = await api(`/api/artists/${ctx.artist._id}/permanent`, {
+      token: ctx.artistSession.accessToken, method: 'DELETE',
+    });
+    assert.equal(res.status, 403);
+  });
+});

@@ -1,8 +1,15 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { Appointment } from '../models/Appointment.js';
 import { Artist } from '../models/Artist.js';
-import { User } from '../models/User.js';
+import { CheckIn } from '../models/CheckIn.js';
+import { HaircutRecord } from '../models/HaircutRecord.js';
+import { Loyalty } from '../models/Loyalty.js';
+import { Notification } from '../models/Notification.js';
+import { Product } from '../models/Product.js';
 import { Service } from '../models/Service.js';
+import { Style } from '../models/Style.js';
+import { User } from '../models/User.js';
 import { ApiError, asyncHandler } from '../middleware/error.js';
 import { requireAuth, requireRole, attachArtist } from '../middleware/auth.js';
 import { broadcast, emitTo, rooms } from '../lib/realtime.js';
@@ -35,7 +42,6 @@ const artistBody = z.object({
       end: z.string().regex(/^\d{2}:\d{2}$/, 'Use HH:MM'),
     })
     .optional(),
-  active: z.coerce.boolean().optional(),
 });
 
 artistsRouter.get(
@@ -125,6 +131,29 @@ artistsRouter.patch(
   }),
 );
 
+/**
+ * The way back in from deactivate.
+ *
+ * Both records flip together, exactly as they flipped going out: the chair
+ * starts taking bookings again and the login it belongs to starts working
+ * again. Reactivating one without the other leaves an artist who appears in
+ * the app and cannot sign in to answer anybody.
+ */
+artistsRouter.post(
+  '/:id/activate',
+  requireAuth,
+  requireRole('admin'),
+  asyncHandler(async (req, res) => {
+    const artist = await Artist.findByIdAndUpdate(req.params.id, { active: true }, { new: true });
+    if (!artist) throw new ApiError(404, 'Artist not found');
+    await User.findByIdAndUpdate(artist.user, { active: true });
+
+    emitTo(rooms.staff(), 'artist:changed', artist.toJSON());
+    broadcast('artists:changed', { id: artist.id });
+    res.json(artist);
+  }),
+);
+
 artistsRouter.delete(
   '/:id',
   requireAuth,
@@ -138,6 +167,95 @@ artistsRouter.delete(
     emitTo(rooms.staff(), 'artist:changed', artist.toJSON());
     /* A deactivated chair has to leave the booking screen of anyone standing
        on it, not wait until they navigate away and back. */
+    broadcast('artists:changed', { id: artist.id });
+    res.status(204).end();
+  }),
+);
+
+/**
+ * What stands between this artist and the bin, phrased so a sentence can be
+ * built out of it.
+ *
+ * Each of these is a record that would stop making sense if the chair it names
+ * stopped existing — a booking by nobody, a loyalty card stamped by nobody.
+ * Counting them is cheap and the answer is worth saying out loud: an admin who
+ * is told "still has 14 bookings" knows what to do, where a flat refusal just
+ * reads as the button being broken.
+ */
+async function deletionBlockers(artistId) {
+  const [appointments, haircuts, checkIns, cards, products] = await Promise.all([
+    Appointment.countDocuments({ artist: artistId }),
+    HaircutRecord.countDocuments({ artist: artistId }),
+    CheckIn.countDocuments({ artist: artistId }),
+    Loyalty.countDocuments({
+      $or: [{ artist: artistId }, { 'stamps.artist': artistId }, { 'rewards.redeemedBy': artistId }],
+    }),
+    Product.countDocuments({ owner: artistId }),
+  ]);
+
+  return [
+    [appointments, 'booking', 'bookings'],
+    [haircuts, 'haircut record', 'haircut records'],
+    [checkIns, 'loyalty check-in', 'loyalty check-ins'],
+    [cards, 'loyalty card', 'loyalty cards'],
+    [products, 'product on the shelf', 'products on the shelf'],
+  ]
+    .filter(([count]) => count > 0)
+    .map(([count, one, many]) => `${count} ${count === 1 ? one : many}`);
+}
+
+/** "a, b and c" — read aloud, not comma-spliced. */
+function listSentence(parts) {
+  if (parts.length < 2) return parts.join('');
+  return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
+}
+
+/**
+ * The real delete, for the chair that should never have existed.
+ *
+ * Deactivate covers the artist who left: the shop keeps their history and the
+ * app stops offering them. This covers the other case — the duplicate, the
+ * typo, the trial account — where there is no history to keep and leaving an
+ * INACTIVE card on the screen forever is just litter.
+ *
+ * Which case it is isn't a judgement call, it's a count: anything pointing at
+ * this artist and we refuse and say what. What does go with them is only what
+ * described them alone — their own services, their lookbook, the announcements
+ * addressed to their clients — plus any client who had them starred.
+ */
+artistsRouter.delete(
+  '/:id/permanent',
+  requireAuth,
+  requireRole('admin'),
+  asyncHandler(async (req, res) => {
+    const artist = await Artist.findById(req.params.id);
+    if (!artist) throw new ApiError(404, 'Artist not found');
+
+    const blockers = await deletionBlockers(artist._id);
+    if (blockers.length) {
+      throw new ApiError(
+        409,
+        `${artist.displayName} still has ${listSentence(blockers)} on record, ` +
+          'and deleting the chair would leave those describing nobody. ' +
+          'Deactivate instead — that stops the bookings and keeps the history.',
+      );
+    }
+
+    await Promise.all([
+      Service.deleteMany({ artist: artist._id }),
+      Style.deleteMany({ artist: artist._id }),
+      Notification.deleteMany({ audience: 'artist-clients', targetArtist: artist._id }),
+      User.updateMany(
+        { 'preferences.preferredArtist': artist._id },
+        { $set: { 'preferences.preferredArtist': null } },
+      ),
+    ]);
+
+    await Artist.deleteOne({ _id: artist._id });
+    /* The login goes with the chair; there is nothing left for it to open. */
+    await User.deleteOne({ _id: artist.user });
+
+    emitTo(rooms.staff(), 'artist:removed', { id: artist.id });
     broadcast('artists:changed', { id: artist.id });
     res.status(204).end();
   }),
