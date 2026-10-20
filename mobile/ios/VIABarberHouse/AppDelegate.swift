@@ -17,10 +17,38 @@ import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-  var window: UIWindow?
+  /* The name Metro registers the root component under, in one place because
+     SceneDelegate is the one that actually mounts it now. */
+  static let moduleName = "VIABarberHouse"
 
+  /* Not used by UIKit any more: under the UIScene life cycle the scene owns the
+     window and this is never read to present anything. It exists because
+     `window` is an optional UIApplicationDelegate requirement that other code
+     reads off the delegate, and removing it is not the no-op it looks like.
+
+     react-native-firebase is the one that matters here. Its messaging module
+     registers a UIApplicationDidFinishLaunchingNotification observer in +load
+     and reaches straight for `delegate.window.rootViewController.view` to find
+     the RCTRootView it toggles `isHeadless` on. In Objective-C that reads as a
+     plain property access and compiles against the protocol; with nothing
+     implementing it the selector is simply unrecognised, and the app dies
+     before any JavaScript runs:
+
+       -[GUL_VIABarberHouse.AppDelegate window]: unrecognized selector
+
+     Which fires on every launch on every iOS version — so dropping this
+     property swapped a crash on 27 for a crash everywhere.
+
+     Assigned by SceneDelegate once the scene hands over its window, so anything
+     reading it afterwards sees the real one rather than a permanent nil. */
+  @objc var window: UIWindow?
+
+  /* Built here, used from SceneDelegate. Under the UIScene life cycle the app
+     delegate no longer owns a window — the scene does — so this object is all
+     that crosses between them, and it has to outlive this method. */
   var reactNativeDelegate: ReactNativeDelegate?
   var reactNativeFactory: RCTReactNativeFactory?
+  var launchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
   func application(
     _ application: UIApplication,
@@ -35,6 +63,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 #endif
 
+    /* Held for the scene: a push that cold-started the app is in here, and the
+       scene connects after this returns. */
+    self.launchOptions = launchOptions
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -42,15 +74,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeDelegate = delegate
     reactNativeFactory = factory
 
-    window = UIWindow(frame: UIScreen.main.bounds)
-
-    factory.startReactNative(
-      withModuleName: "VIABarberHouse",
-      in: window,
-      launchOptions: launchOptions
-    )
-
+    /* No window and no startReactNative() here. Both moved to SceneDelegate —
+       see the note there on why iOS 27 requires it. */
     return true
+  }
+
+  /* Named to match the single entry in UIApplicationSceneManifest. The app does
+     not support multiple windows; this exists because the SDK's launch check
+     looks for it alongside the manifest. */
+  func application(
+    _ application: UIApplication,
+    configurationForConnecting connectingSceneSession: UISceneSession,
+    options: UIScene.ConnectionOptions
+  ) -> UISceneConfiguration {
+    UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
   }
 }
 
