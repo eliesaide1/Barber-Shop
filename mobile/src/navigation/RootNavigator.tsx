@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '../store/AuthContext';
 import { useColors, useTheme } from '../store/ThemeContext';
@@ -79,6 +80,22 @@ const ARTIST_ICONS: Record<keyof ArtistTabParamList, IconName> = {
   More: 'more',
 };
 
+/* Both bars share one shape. A fixed height replaces react-navigation's own
+   allowance for the system bar, so the bottom inset is added back here by hand.
+   Android 15+ draws every app edge to edge, and without it the bar sits under
+   the gesture handle or — on a Samsung tablet — under the taskbar entirely. */
+function useTabBarStyle() {
+  const c = useColors();
+  const { bottom } = useSafeAreaInsets();
+  return {
+    backgroundColor: c.surface,
+    borderTopColor: c.line,
+    height: 68 + bottom,
+    paddingBottom: 10 + bottom,
+    paddingTop: 8,
+  };
+}
+
 function TabIcon({ name, focused }: { name: keyof TabParamList; focused: boolean }) {
   const c = useColors();
 
@@ -113,19 +130,14 @@ function TabIcon({ name, focused }: { name: keyof TabParamList; focused: boolean
 function MainTabs() {
   const c = useColors();
   const t = useT();
+  const tabBarStyle = useTabBarStyle();
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: c.accentInk,
         tabBarInactiveTintColor: c.muted,
-        tabBarStyle: {
-          backgroundColor: c.surface,
-          borderTopColor: c.line,
-          height: 68,
-          paddingBottom: 10,
-          paddingTop: 8,
-        },
+        tabBarStyle,
         tabBarLabelStyle: { fontSize: 10.5, fontWeight: '600' },
         tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
       })}
@@ -184,19 +196,14 @@ function ArtistMainTabs() {
   useSocketEvent('appointment:created', () => reloadRequests(true));
   useSocketEvent('appointment:status', () => reloadRequests(true));
   const waiting = requests?.length ?? 0;
+  const tabBarStyle = useTabBarStyle();
   return (
     <ArtistTabs.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: c.accentInk,
         tabBarInactiveTintColor: c.muted,
-        tabBarStyle: {
-          backgroundColor: c.surface,
-          borderTopColor: c.line,
-          height: 68,
-          paddingBottom: 10,
-          paddingTop: 8,
-        },
+        tabBarStyle,
         tabBarLabelStyle: { fontSize: 10.5, fontWeight: '600' },
         tabBarIcon: ({ focused }) => <ArtistTabIcon name={route.name} focused={focused} />,
       })}
