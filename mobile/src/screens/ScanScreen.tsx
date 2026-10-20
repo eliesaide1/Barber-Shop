@@ -3,13 +3,11 @@ import { Linking, Text, View } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import {
   Camera,
-  VisionCamera,
-  isScannedCode,
   useCameraDevice,
   useCameraPermission,
-  type ScannedObject,
-  type CameraObjectOutput,
+  type CameraOutput,
 } from 'react-native-vision-camera';
+import type { Barcode } from 'react-native-vision-camera-barcode-scanner';
 import {
   Badge,
   Between,
@@ -103,47 +101,57 @@ export function ScanScreen() {
     [busy, showError, reload],
   );
 
-  const onObjectsScanned = useCallback(
-    (objects: ScannedObject[]) => {
+  const onBarcodeScanned = useCallback(
+    (barcodes: Barcode[]) => {
       /* A frame can land in the gap between navigating away and the session
          actually stopping. Checking in from a screen nobody is looking at is
          not a thing anyone asked for. */
       if (!focusedRef.current) return;
       if (Date.now() < lock.current) return;
-      const code = objects.find(isScannedCode);
-      if (!code?.value) return;
+      const value = barcodes.find((b) => b.rawValue)?.rawValue;
+      if (!value) return;
       lock.current = Date.now() + 3000;
-      submit(code.value);
+      submit(value);
     },
     [submit],
   );
 
-  /* Not a device limitation — vision-camera 5.x simply has not implemented
-     code scanning on Android. Its createObjectOutput() is a bare `throw` with
-     no capability check, so every Android phone lands here; the feature is
-     iOS-only in the 5.x line, and 5.2.1 is the newest release.
+  /* The output is created once and holds its callback natively, so it calls
+     through a ref: always the current closure, and a no-op once the screen is
+     gone rather than a scan arriving into a component that no longer exists. */
+  const onScanRef = useRef<((barcodes: Barcode[]) => void) | null>(onBarcodeScanned);
+  useEffect(() => {
+    onScanRef.current = onBarcodeScanned;
+    return () => {
+      onScanRef.current = null;
+    };
+  }, [onBarcodeScanned]);
 
-     Rather than let that take the screen down, we detect it once and fall back
-     to the typed code — which is exactly why the artist's portal prints a
-     6-character code under the QR. Built by hand rather than with
-     useObjectOutput() so the throw is catchable. */
-  const scanner = useMemo<{ output: CameraObjectOutput | null; supported: boolean }>(() => {
+  /* ML Kit, through vision-camera's own barcode-scanner plugin — not the core
+     createObjectOutput(), which vision-camera 5 has never implemented on
+     Android (it throws, on every phone).
+
+     Required lazily and inside the try: the plugin looks up its native module
+     the moment it is imported, so on a build made before the package was added
+     a static import would take the whole screen down. Failing here leaves the
+     typed code — which is exactly why the artist's portal prints a 6-character
+     code under the QR. */
+  const scanner = useMemo<{ output: CameraOutput | null; supported: boolean }>(() => {
     try {
-      return { output: VisionCamera.createObjectOutput({ enabledObjectTypes: ['qr'] }), supported: true };
+      const { createBarcodeScannerOutput } =
+        require('react-native-vision-camera-barcode-scanner') as typeof import('react-native-vision-camera-barcode-scanner');
+      const output = createBarcodeScannerOutput({
+        barcodeFormats: ['qr-code'],
+        onBarcodeScanned: (barcodes) => onScanRef.current?.(barcodes),
+        /* A frame ML Kit could not read is the next frame's problem; the
+           viewfinder keeps running and the typed code is always below it. */
+        onError: () => {},
+      });
+      return { output, supported: true };
     } catch {
       return { output: null, supported: false };
     }
   }, []);
-
-  useEffect(() => {
-    scanner.output?.setOnObjectsScannedCallback(onObjectsScanned);
-    /* Detached again on the way out. The output holds this closure natively,
-       and the closure holds this screen's state; without the clear it can still
-       be called after the screen is gone, which is a scan arriving into a
-       component that no longer exists. vision-camera's own useObjectOutput has
-       the same gap, and CameraObjectOutput has no dispose() to lean on. */
-    return () => scanner.output?.setOnObjectsScannedCallback(undefined);
-  }, [scanner, onObjectsScanned]);
 
   useEffect(() => {
     if (scanner.supported && !hasPermission) requestPermission();

@@ -728,15 +728,13 @@ toggle.
 
 ## Known gaps
 
-- **QR *scanning* does not work on Android yet — typing the code does.**
-  `react-native-vision-camera@5` has not implemented its code-scanning output on Android;
-  `createObjectOutput()` throws `CameraObjectOutput is not available on Android!` there. The Scan
-  screen detects this, says so plainly, and falls back to the 6-character code the artist's
-  portal prints under the QR — which is exactly why that code exists. The scanning path itself is
-  written and will light up on iOS, or on Android when the library ships it. If you need Android
-  scanning sooner, the options are to downgrade to `vision-camera@4` (which has a working
-  `useCodeScanner`, but predates React Native 0.86's architecture) or swap in a dedicated
-  scanner such as `@react-native-ml-kit/barcode-scanning`.
+- **QR scanning runs on ML Kit, not on vision-camera's core.** `react-native-vision-camera@5` has
+  never implemented its own code-scanning output on Android — `createObjectOutput()` throws there —
+  so the Scan screen uses the library's companion `react-native-vision-camera-barcode-scanner`,
+  which attaches to the same `<Camera>` as an output and works on both platforms. It needs iOS
+  15.5, which is why the Podfile and Xcode project sit above React Native's own 15.1. If the
+  native module is missing (a build made before it was added), the screen falls back to the
+  6-character code the artist's portal prints under the QR, as it always has.
 - **Provider sign-in is written but has never met a real Google or Apple.** The server half is
   fully tested — against a local key server, so signature, `kid` lookup, issuer and audience checks
   all run for real — and the app half is guarded so a build without the native packages behaves

@@ -22,7 +22,12 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+# Above React Native's own floor (15.1): the check-in scanner runs on ML Kit's
+# GoogleMLKit/BarcodeScanning, which will not install below 15.5. Kept in step
+# with IPHONEOS_DEPLOYMENT_TARGET in the Xcode project.
+APP_MIN_IOS = '15.5'
+
+platform :ios, APP_MIN_IOS
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -67,7 +72,7 @@ target 'VIABarberHouse' do
     # Raise them to the app's own minimum, which they all already satisfy.
     installer.pods_project.targets.each do |pod_target|
       pod_target.build_configurations.each do |pod_config|
-        pod_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+        pod_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = APP_MIN_IOS
       end
     end
   end

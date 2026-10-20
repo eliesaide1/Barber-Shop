@@ -193,5 +193,10 @@ the caller's action twice.
   and React Native's autolinking only scans direct ones — without them the Android build fails
   with `Project with path ':react-native-nitro-modules' could not be found`.
 - `minSdkVersion` is 26 because vision-camera 5 requires it.
+- QR codes are read by `react-native-vision-camera-barcode-scanner` (ML Kit), not by
+  vision-camera's own `createObjectOutput()`, which throws on Android. Both are pinned at
+  **5.2.1** exactly: they are released together and generated against one Nitro version, and
+  5.2.3 wants `react-native-nitro-modules` 0.37 — on 0.36.5 the Android build fails with
+  `'NitroModules/ReactProp.hpp' file not found`. Move all three together or not at all.
 - Camera scanning degrades gracefully: if permission is refused or the camera is unavailable,
   the 6-character code under the artist's QR can always be typed instead.
